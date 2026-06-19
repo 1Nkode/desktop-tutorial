@@ -1,6 +1,20 @@
 import { create } from 'zustand';
 
-const initialPet = {
+const initialStats = {
+  caloriesConsumed: 1050,
+  caloriesGoal: 2000,
+  caloriesBurned: 700,
+  steps: 7820,
+  stepsGoal: 10000,
+  activeMinutes: 85,
+  activeGoal: 60,
+  water: 6,
+  waterGoal: 8,
+  weeklyWorkouts: [3, 5, 4, 6, 2, 4, 0],
+  weeklyCalories: [1800, 2100, 1950, 2200, 1750, 1900, 1050],
+};
+
+const basepet = {
   name: 'Sparky',
   level: 1,
   xp: 0,
@@ -105,6 +119,63 @@ const mockMeals = [
   { id: 3, name: 'Protein Shake', calories: 220, protein: 28, carbs: 22, fat: 4, time: 'Snack', icon: '🥤' },
 ];
 
+// Derives the pet's physique and mood from the user's real activity data.
+// physique: based on net calorie balance + workout consistency over the week.
+// mood: based on how close the user is to their daily goals + streak.
+export function evolvePet(pet, stats) {
+  const workoutDays = stats.weeklyWorkouts.filter(v => v > 0).length;
+  const netCalories = stats.caloriesConsumed - stats.caloriesBurned;
+  const calorieRatio = stats.caloriesConsumed / stats.caloriesGoal;
+  const stepRatio = stats.steps / stats.stepsGoal;
+  const activeRatio = stats.activeMinutes / stats.activeGoal;
+
+  // --- Physique ---
+  let physique;
+  if (workoutDays >= 5 && activeRatio >= 1) {
+    physique = 'strong';        // trains constantly + hits active goal
+  } else if (workoutDays >= 3 && netCalories <= 0) {
+    physique = 'fit';           // good activity + calorie deficit
+  } else if (workoutDays <= 1 || calorieRatio > 1.15) {
+    physique = 'chubby';        // little activity or big calorie surplus
+  } else {
+    physique = 'normal';
+  }
+
+  // --- Mood ---
+  // Score the day's progress toward goals (0..1 each), average it.
+  const goalScore = (
+    Math.min(calorieRatio, 1) +
+    Math.min(stepRatio, 1) +
+    Math.min(activeRatio, 1)
+  ) / 3;
+
+  let mood;
+  if (physique === 'strong' && goalScore >= 0.7) {
+    mood = 'motivated';
+  } else if (goalScore >= 0.6) {
+    mood = 'happy';
+  } else if (workoutDays === 0 && stepRatio < 0.4) {
+    mood = 'sad';
+  } else {
+    mood = 'tired';
+  }
+
+  return { ...pet, physique, mood };
+}
+
+// Applies XP and rolls over into new levels when the bar fills.
+function applyXp(pet, amount) {
+  let xp = pet.xp + amount;
+  let level = pet.level;
+  let xpToNext = pet.xpToNext;
+  while (xp >= xpToNext) {
+    xp -= xpToNext;
+    level += 1;
+    xpToNext = Math.round(xpToNext * 1.25); // each level needs 25% more XP
+  }
+  return { ...pet, xp, level, xpToNext };
+}
+
 export const useStore = create((set, get) => ({
   // User
   user: {
@@ -118,22 +189,10 @@ export const useStore = create((set, get) => ({
   },
 
   // Health stats
-  stats: {
-    caloriesConsumed: 1050,
-    caloriesGoal: 2000,
-    caloriesBurned: 700,
-    steps: 7820,
-    stepsGoal: 10000,
-    activeMinutes: 85,
-    activeGoal: 60,
-    water: 6,
-    waterGoal: 8,
-    weeklyWorkouts: [3, 5, 4, 6, 2, 4, 0],
-    weeklyCalories: [1800, 2100, 1950, 2200, 1750, 1900, 1050],
-  },
+  stats: initialStats,
 
-  // Pet
-  pet: initialPet,
+  // Pet — derived from the starting stats so it's consistent on first load
+  pet: evolvePet(basepet, initialStats),
 
   // Content
   feed: mockFeed,
@@ -161,12 +220,16 @@ export const useStore = create((set, get) => ({
 
   addWorkout: (workout) => set((state) => {
     const newWorkout = { ...workout, id: Date.now(), date: 'Just now' };
+    // Mark today (last slot) as an active day for the weekly evolution.
+    const weeklyWorkouts = [...state.stats.weeklyWorkouts];
+    weeklyWorkouts[weeklyWorkouts.length - 1] += 1;
     const newStats = {
       ...state.stats,
       caloriesBurned: state.stats.caloriesBurned + workout.calories,
       activeMinutes: state.stats.activeMinutes + workout.duration,
+      weeklyWorkouts,
     };
-    const newPet = { ...state.pet, xp: Math.min(state.pet.xp + 25, state.pet.xpToNext) };
+    const newPet = evolvePet(applyXp(state.pet, 25), newStats);
     return { workouts: [newWorkout, ...state.workouts], stats: newStats, pet: newPet };
   }),
 
@@ -176,13 +239,14 @@ export const useStore = create((set, get) => ({
       ...state.stats,
       caloriesConsumed: state.stats.caloriesConsumed + meal.calories,
     };
-    return { meals: [newMeal, ...state.meals], stats: newStats };
+    const newPet = evolvePet(state.pet, newStats);
+    return { meals: [newMeal, ...state.meals], stats: newStats, pet: newPet };
   }),
 
   completeMission: (missionId) => set((state) => {
     const mission = state.missions.find(m => m.id === missionId);
     if (!mission || mission.done) return {};
-    const newPet = { ...state.pet, xp: Math.min(state.pet.xp + mission.xp, state.pet.xpToNext) };
+    const newPet = evolvePet(applyXp(state.pet, mission.xp), state.stats);
     return {
       missions: state.missions.map(m => m.id === missionId ? { ...m, done: true } : m),
       pet: newPet,
