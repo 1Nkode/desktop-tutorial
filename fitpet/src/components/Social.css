@@ -1,0 +1,217 @@
+.social-page {
+  padding: 0 16px;
+  padding-top: 60px;
+}
+
+.social-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-top: 8px;
+}
+
+.my-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.my-name {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.my-stats {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.social-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+.social-tab {
+  padding: 8px 14px;
+  border: none;
+  background: var(--card);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.social-tab.active {
+  background: linear-gradient(135deg, var(--green), var(--blue));
+  color: white;
+  box-shadow: 0 3px 10px rgba(0,200,83,0.3);
+}
+
+.post-card {
+  margin-bottom: 12px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.post-meta { flex: 1; }
+
+.post-user {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.post-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.post-content {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.post-cal-badge {
+  display: inline-block;
+  background: #FFF3E0;
+  color: var(--orange);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.post-btn {
+  flex: 1;
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+
+.post-btn:hover { background: var(--bg); }
+.post-btn.liked { color: var(--red); }
+
+.section-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.challenge-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.challenge-icon {
+  font-size: 32px;
+  width: 52px;
+  height: 52px;
+  background: var(--bg);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.challenge-info { flex: 1; }
+
+.challenge-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.challenge-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 2px 0;
+}
+
+.challenge-leader {
+  font-size: 11px;
+  color: var(--orange);
+  font-weight: 600;
+}
+
+.leader-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.leader-card.is-me {
+  border: 2px solid var(--green);
+  background: #F0FFF4 !important;
+}
+
+.rank-num {
+  font-size: 20px;
+  font-weight: 800;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.leader-info { flex: 1; }
+
+.leader-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.you-tag {
+  background: var(--green);
+  color: white;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  margin-left: 6px;
+}
+
+.leader-points {
+  text-align: right;
+}
+
+.points-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.points-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+}

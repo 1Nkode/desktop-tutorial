@@ -1,0 +1,256 @@
+.rewards-page {
+  padding: 0 16px;
+  padding-top: 60px;
+}
+
+.rewards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-top: 8px;
+}
+
+.streak-pill {
+  background: linear-gradient(135deg, var(--orange), #FF9100);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.level-card {
+  background: linear-gradient(135deg, #1a237e, #4a148c) !important;
+  color: white;
+  margin-bottom: 14px;
+}
+
+.level-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.level-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255,255,255,0.4);
+  flex-shrink: 0;
+}
+
+.level-num {
+  font-size: 24px;
+  font-weight: 900;
+  color: white;
+}
+
+.level-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: white;
+}
+
+.level-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+}
+
+.xp-earned {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.level-card {
+  position: relative;
+}
+
+.missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.mission-item.done {
+  opacity: 0.6;
+}
+
+.mission-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mission-info {
+  flex: 1;
+}
+
+.mission-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mission-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.mission-progress {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.mission-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.xp-tag {
+  background: linear-gradient(135deg, var(--green), var(--blue));
+  color: white;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.done-check {
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-radius: 12px;
+  background: var(--bg);
+  position: relative;
+  text-align: center;
+}
+
+.badge-item.locked {
+  filter: grayscale(0.8);
+  opacity: 0.5;
+}
+
+.badge-item.earned {
+  background: linear-gradient(135deg, #FFF8E1, #FFF3E0);
+  border: 1px solid #FFE082;
+}
+
+.badge-icon {
+  font-size: 28px;
+}
+
+.badge-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.badge-desc {
+  font-size: 9px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+.badge-lock {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 12px;
+}
+
+.weekly-challenge {
+  background: linear-gradient(135deg, #FF6D00, #FF9100) !important;
+  color: white;
+  margin-top: 14px;
+}
+
+.wc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.wc-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wc-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: white;
+  margin-top: 2px;
+}
+
+.wc-reward {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wc-stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.wc-stat-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+
+.wc-days {
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 700;
+}
