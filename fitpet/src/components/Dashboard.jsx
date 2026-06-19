@@ -69,7 +69,7 @@ export default function Dashboard() {
             <span>🔥</span>
             <span>{user.streak}</span>
           </div>
-          <div className="avatar" style={{ width: 48, height: 48, fontSize: 22 }}>😄</div>
+          <div className="avatar" style={{ width: 48, height: 48, fontSize: 22, cursor: 'pointer' }} onClick={() => setActiveTab('profile')}>😄</div>
         </div>
       </div>
 

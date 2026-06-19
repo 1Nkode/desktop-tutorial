@@ -5,6 +5,7 @@ import Pet from './components/Pet';
 import Workouts from './components/Workouts';
 import Social from './components/Social';
 import Rewards from './components/Rewards';
+import Profile from './components/Profile';
 import Modals from './components/Modals';
 import './App.css';
 
@@ -20,6 +21,7 @@ export default function App() {
         {activeTab === 'workouts' && <Workouts />}
         {activeTab === 'social' && <Social />}
         {activeTab === 'rewards' && <Rewards />}
+        {activeTab === 'profile' && <Profile />}
       </main>
       <Navigation />
       <Modals />

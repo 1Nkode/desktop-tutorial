@@ -9,7 +9,7 @@ const initialChallenges = [
 ];
 
 export default function Social() {
-  const { feed, toggleLike, addComment, user, setShowAddPost } = useStore();
+  const { feed, toggleLike, addComment, user, setShowAddPost, setActiveTab } = useStore();
   const [activeSection, setActiveSection] = useState('feed');
   const [challenges, setChallenges] = useState(initialChallenges);
 
@@ -31,7 +31,7 @@ export default function Social() {
     <div className="social-page animate-fadeIn">
       {/* Header with user profile bar */}
       <div className="social-header">
-        <div className="my-profile">
+        <div className="my-profile" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('profile')}>
           <div className="avatar" style={{ width: 44, height: 44 }}>😄</div>
           <div>
             <p className="my-name">{user.name}</p>
