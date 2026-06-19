@@ -70,18 +70,37 @@
   color: rgba(255,255,255,0.7);
 }
 
-.sync-dot {
-  width: 10px;
-  height: 10px;
-  background: var(--green-light);
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-  box-shadow: 0 0 8px var(--green-light);
+.sync-btn {
+  background: rgba(255,255,255,0.18);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  min-height: 34px;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+.sync-btn:hover { background: rgba(255,255,255,0.3); }
+.sync-btn:disabled { cursor: default; }
+
+.sync-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .workout-card {

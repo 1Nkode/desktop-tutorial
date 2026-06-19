@@ -50,7 +50,7 @@ function WeeklyBar({ days, values, max }) {
 }
 
 export default function Dashboard() {
-  const { user, stats, pet } = useStore();
+  const { user, stats, pet, setActiveTab, setShowAddMeal, setShowAddWorkout, setShowAddWater, setShowAddPost } = useStore();
 
   const netCalories = stats.caloriesConsumed - stats.caloriesBurned;
   const calPct = Math.min(stats.caloriesConsumed / stats.caloriesGoal, 1);
@@ -74,14 +74,14 @@ export default function Dashboard() {
       </div>
 
       {/* Pet mini preview */}
-      <div className="card pet-banner">
+      <div className="card pet-banner" onClick={() => setActiveTab('pet')} style={{ cursor: 'pointer' }}>
         <div className="pet-banner-left">
           <p className="pet-status-text">Your pet is <strong>{pet.mood}</strong>!</p>
           <p className="pet-sub">Keep up the good work 💪</p>
         </div>
         <div className="pet-mini animate-float">{
           pet.physique === 'strong' ? '🦁' :
-          pet.physique === 'fit' ? '🐱' :
+          pet.physique === 'fit' ? '🐆' :
           pet.physique === 'chubby' ? '🐻' : '🐱'
         }</div>
         <div className="xp-pill">Lv.{pet.level} · {pet.xp}XP</div>
@@ -178,10 +178,10 @@ export default function Dashboard() {
 
       {/* Quick actions */}
       <div className="quick-actions">
-        <QuickAction icon="🍎" label="Log Meal" color="#E8F5E9" iconBg="var(--green)" />
-        <QuickAction icon="🏃" label="Log Workout" color="#E3F2FD" iconBg="var(--blue)" />
-        <QuickAction icon="💧" label="Add Water" color="#FFF3E0" iconBg="var(--orange)" />
-        <QuickAction icon="📸" label="Share" color="#F3E5F5" iconBg="var(--purple)" />
+        <QuickAction icon="🍎" label="Log Meal" color="#E8F5E9" iconBg="var(--green)" onClick={() => setShowAddMeal(true)} />
+        <QuickAction icon="🏃" label="Log Workout" color="#E3F2FD" iconBg="var(--blue)" onClick={() => setShowAddWorkout(true)} />
+        <QuickAction icon="💧" label="Add Water" color="#FFF3E0" iconBg="var(--orange)" onClick={() => setShowAddWater(true)} />
+        <QuickAction icon="📸" label="Share" color="#F3E5F5" iconBg="var(--purple)" onClick={() => setShowAddPost(true)} />
       </div>
 
       <div style={{ height: 100 }} />
@@ -189,9 +189,9 @@ export default function Dashboard() {
   );
 }
 
-function QuickAction({ icon, label, color, iconBg }) {
+function QuickAction({ icon, label, color, iconBg, onClick }) {
   return (
-    <div className="quick-action" style={{ background: color }}>
+    <div className="quick-action" style={{ background: color }} onClick={onClick}>
       <div className="qa-icon" style={{ background: iconBg }}>{icon}</div>
       <span className="qa-label">{label}</span>
     </div>

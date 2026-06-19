@@ -120,6 +120,54 @@
 
 .post-btn:hover { background: var(--bg); }
 .post-btn.liked { color: var(--red); }
+.post-btn.active { color: var(--blue); }
+
+.comments {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.comment-user {
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.comment-text { color: var(--text-secondary); }
+
+.no-comments {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.comment-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.comment-input-row .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .section-desc {
   font-size: 13px;

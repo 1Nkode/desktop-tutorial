@@ -26,11 +26,18 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats } = useStore();
-  const [selectedAcc, setSelectedAcc] = useState('bandana');
+  const { pet, stats, setAccessory, renamePet } = useStore();
+  const selectedAcc = pet.accessories[0] || 'bandana';
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(pet.name);
   const physique = PHYSIQUES[pet.physique];
   const mood = MOODS[pet.mood];
   const xpPct = (pet.xp / pet.xpToNext) * 100;
+
+  const saveName = () => {
+    renamePet(nameDraft);
+    setEditingName(false);
+  };
 
   return (
     <div className="pet-page animate-fadeIn">
@@ -47,7 +54,21 @@ export default function Pet() {
         <div className="pet-emoji animate-float">{physique.emoji}</div>
         <div className="pet-accessory">{accessories.find(a => a.id === selectedAcc)?.emoji}</div>
         <div className="pet-name-tag">
-          <span>{pet.name}</span>
+          {editingName ? (
+            <input
+              className="pet-name-input"
+              value={nameDraft}
+              autoFocus
+              maxLength={14}
+              onChange={e => setNameDraft(e.target.value)}
+              onBlur={saveName}
+              onKeyDown={e => e.key === 'Enter' && saveName()}
+            />
+          ) : (
+            <span onClick={() => { setNameDraft(pet.name); setEditingName(true); }}>
+              {pet.name} <span className="pet-edit-icon">✏️</span>
+            </span>
+          )}
           <span className="pet-level-tag">Lv.{pet.level}</span>
         </div>
         <div className="pet-physique-label" style={{ color: physique.color }}>
@@ -110,7 +131,7 @@ export default function Pet() {
             <div
               key={acc.id}
               className={`acc-item ${selectedAcc === acc.id ? 'selected' : ''} ${!acc.unlocked ? 'locked' : ''}`}
-              onClick={() => acc.unlocked && setSelectedAcc(acc.id)}
+              onClick={() => acc.unlocked && setAccessory(acc.id)}
             >
               <div className="acc-emoji">{acc.unlocked ? acc.emoji : '🔒'}</div>
               <p className="acc-label">{acc.label}</p>

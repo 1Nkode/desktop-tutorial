@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 const initialStats = {
   caloriesConsumed: 1050,
@@ -34,7 +35,10 @@ const mockFeed = [
     content: 'Completed 5K run in 28 min! 🔥',
     calories: 320,
     likes: 24,
-    comments: 5,
+    comments: [
+      { id: 1, user: 'Carlos M.', text: 'Beast! 🔥' },
+      { id: 2, user: 'Ana P.', text: 'Great pace 👏' },
+    ],
     time: '2h ago',
     liked: false,
   },
@@ -46,7 +50,7 @@ const mockFeed = [
     content: 'Healthy lunch: grilled chicken + quinoa + avocado 🥑',
     calories: 480,
     likes: 18,
-    comments: 3,
+    comments: [{ id: 1, user: 'Sofia V.', text: 'Looks delicious!' }],
     time: '3h ago',
     liked: true,
   },
@@ -57,7 +61,10 @@ const mockFeed = [
     type: 'achievement',
     content: 'Hit my 7-day streak! Consistency is key 🏆',
     likes: 42,
-    comments: 8,
+    comments: [
+      { id: 1, user: 'Maria G.', text: 'So inspiring 🙌' },
+      { id: 2, user: 'Luis R.', text: 'Keep it up!' },
+    ],
     time: '5h ago',
     liked: false,
   },
@@ -69,7 +76,7 @@ const mockFeed = [
     content: 'Back day done! 4 sets deadlifts, rows, pull-ups 💥',
     calories: 450,
     likes: 31,
-    comments: 7,
+    comments: [],
     time: '6h ago',
     liked: false,
   },
@@ -81,10 +88,18 @@ const mockFeed = [
     content: 'Post-workout smoothie: banana, oats, protein, almond milk 🥤',
     calories: 340,
     likes: 15,
-    comments: 2,
+    comments: [],
     time: '7h ago',
     liked: false,
   },
+];
+
+const mockNotifications = [
+  { id: 1, icon: '❤️', text: 'Maria G. liked your workout', time: '5m ago', read: false },
+  { id: 2, icon: '💬', text: 'Carlos M. commented: "Nice gains!"', time: '20m ago', read: false },
+  { id: 3, icon: '🏆', text: 'You earned the "Iron Will" badge!', time: '1h ago', read: false },
+  { id: 4, icon: '👥', text: 'Ana P. started following you', time: '3h ago', read: true },
+  { id: 5, icon: '🔥', text: 'You hit a 12-day streak — keep going!', time: '1d ago', read: true },
 ];
 
 const mockMissions = [
@@ -176,7 +191,7 @@ function applyXp(pet, amount) {
   return { ...pet, xp, level, xpToNext };
 }
 
-export const useStore = create((set, get) => ({
+export const useStore = create(persist((set, get) => ({
   // User
   user: {
     name: 'Alex',
@@ -200,15 +215,33 @@ export const useStore = create((set, get) => ({
   badges: mockBadges,
   workouts: mockWorkouts,
   meals: mockMeals,
+  notifications: mockNotifications,
 
-  // UI
+  // Settings
+  settings: {
+    units: 'metric',          // metric | imperial
+    notificationsEnabled: true,
+    autoSync: true,
+  },
+
+  // UI (transient — not persisted)
   activeTab: 'dashboard',
   showAddWorkout: false,
   showAddMeal: false,
+  showAddWater: false,
+  showAddPost: false,
+  showNotifications: false,
+  showSettings: false,
+  commentsFor: null,         // postId whose comments are open
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setShowAddWorkout: (val) => set({ showAddWorkout: val }),
   setShowAddMeal: (val) => set({ showAddMeal: val }),
+  setShowAddWater: (val) => set({ showAddWater: val }),
+  setShowAddPost: (val) => set({ showAddPost: val }),
+  setShowNotifications: (val) => set({ showNotifications: val }),
+  setShowSettings: (val) => set({ showSettings: val }),
+  setCommentsFor: (postId) => set({ commentsFor: postId }),
 
   toggleLike: (postId) => set((state) => ({
     feed: state.feed.map(p =>
@@ -217,6 +250,28 @@ export const useStore = create((set, get) => ({
         : p
     ),
   })),
+
+  addComment: (postId, text) => set((state) => ({
+    feed: state.feed.map(p =>
+      p.id === postId
+        ? { ...p, comments: [...p.comments, { id: Date.now(), user: state.user.name, text }] }
+        : p
+    ),
+  })),
+
+  addPost: (post) => set((state) => {
+    const newPost = {
+      id: Date.now(),
+      user: state.user.name,
+      avatar: '😄',
+      liked: false,
+      likes: 0,
+      comments: [],
+      time: 'Just now',
+      ...post,
+    };
+    return { feed: [newPost, ...state.feed] };
+  }),
 
   addWorkout: (workout) => set((state) => {
     const newWorkout = { ...workout, id: Date.now(), date: 'Just now' };
@@ -243,6 +298,27 @@ export const useStore = create((set, get) => ({
     return { meals: [newMeal, ...state.meals], stats: newStats, pet: newPet };
   }),
 
+  addWater: (glasses = 1) => set((state) => ({
+    stats: {
+      ...state.stats,
+      water: Math.max(0, state.stats.water + glasses),
+    },
+  })),
+
+  // Simulates importing data from a connected wearable (Fitbit, etc.)
+  syncWearable: () => set((state) => {
+    const addedSteps = 600 + Math.floor(Math.random() * 1500);
+    const addedBurn = 40 + Math.floor(Math.random() * 120);
+    const addedActive = 5 + Math.floor(Math.random() * 20);
+    const newStats = {
+      ...state.stats,
+      steps: state.stats.steps + addedSteps,
+      caloriesBurned: state.stats.caloriesBurned + addedBurn,
+      activeMinutes: state.stats.activeMinutes + addedActive,
+    };
+    return { stats: newStats, pet: evolvePet(state.pet, newStats) };
+  }),
+
   completeMission: (missionId) => set((state) => {
     const mission = state.missions.find(m => m.id === missionId);
     if (!mission || mission.done) return {};
@@ -251,5 +327,58 @@ export const useStore = create((set, get) => ({
       missions: state.missions.map(m => m.id === missionId ? { ...m, done: true } : m),
       pet: newPet,
     };
+  }),
+
+  // Pet customization
+  setAccessory: (accId) => set((state) => ({
+    pet: { ...state.pet, accessories: [accId] },
+  })),
+
+  renamePet: (name) => set((state) => ({
+    pet: { ...state.pet, name: name.trim() || state.pet.name },
+  })),
+
+  // Notifications
+  markNotificationsRead: () => set((state) => ({
+    notifications: state.notifications.map(n => ({ ...n, read: true })),
+  })),
+
+  unreadCount: () => get().notifications.filter(n => !n.read).length,
+
+  // Settings
+  updateSetting: (key, value) => set((state) => ({
+    settings: { ...state.settings, [key]: value },
+  })),
+
+  updateGoal: (key, value) => set((state) => ({
+    stats: { ...state.stats, [key]: Number(value) || state.stats[key] },
+  })),
+
+  // Reset everything back to defaults (used in Settings)
+  resetApp: () => set({
+    user: { name: 'Alex', level: 7, xp: 680, xpToNext: 1000, followers: 128, following: 94, streak: 12 },
+    stats: initialStats,
+    pet: evolvePet(basepet, initialStats),
+    feed: mockFeed,
+    missions: mockMissions,
+    badges: mockBadges,
+    workouts: mockWorkouts,
+    meals: mockMeals,
+    notifications: mockNotifications,
+  }),
+}), {
+  name: 'fitpet-storage',
+  // Persist only data, never the transient UI flags.
+  partialize: (state) => ({
+    user: state.user,
+    stats: state.stats,
+    pet: state.pet,
+    feed: state.feed,
+    missions: state.missions,
+    badges: state.badges,
+    workouts: state.workouts,
+    meals: state.meals,
+    notifications: state.notifications,
+    settings: state.settings,
   }),
 }));
