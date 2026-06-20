@@ -337,3 +337,6 @@
 
 .care-fill.happy { background: linear-gradient(90deg, #FFD54F, #2db36b); }
 .care-fill.clean { background: linear-gradient(90deg, #2bc0e4, #82B1FF); }
+
+/* lift stage content above the animated scene */
+.pet-stage > *:not(.scene) { position: relative; z-index: 1; }

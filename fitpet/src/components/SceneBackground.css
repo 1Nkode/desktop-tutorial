@@ -1,0 +1,93 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* subtle ground sheen so the pet looks grounded */
+.scene-floor {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 38%;
+  background: linear-gradient(to top, rgba(0,0,0,0.28), transparent);
+}
+
+/* moving spotlights */
+.scene-lights span {
+  position: absolute;
+  top: -10%;
+  width: 70px; height: 140%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.18), transparent 70%);
+  filter: blur(8px);
+  transform: skewX(-12deg);
+  animation: scene-light 3.2s ease-in-out infinite;
+}
+@keyframes scene-light { 0%,100% { opacity: 0.25; } 50% { opacity: 0.7; } }
+
+/* drifting clouds */
+.scene-clouds span {
+  position: absolute;
+  left: -30%;
+  width: 90px; height: 28px;
+  background: radial-gradient(closest-side, rgba(255,255,255,0.5), transparent);
+  border-radius: 50%;
+  animation: scene-cloud linear infinite;
+}
+@keyframes scene-cloud { from { transform: translateX(0); } to { transform: translateX(560px); } }
+
+/* rotating champion rays */
+.scene-rays {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 200%; height: 200%;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(from 0deg, rgba(255,255,255,0.14) 0deg 10deg, transparent 10deg 20deg);
+  animation: scene-spin 18s linear infinite;
+  opacity: 0.5;
+}
+@keyframes scene-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+/* floating bokeh dots */
+.scene-bokeh span {
+  position: absolute;
+  bottom: -10px;
+  width: 14px; height: 14px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: scene-rise linear infinite;
+}
+@keyframes scene-rise {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-220px) scale(1.1); opacity: 0; }
+}
+
+/* flickering crowd at the bottom */
+.scene-crowd {
+  position: absolute;
+  left: 0; right: 0; bottom: 28%;
+  display: flex; justify-content: space-around; align-items: flex-end;
+  height: 26px;
+}
+.scene-crowd span {
+  width: 10px; height: 16px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 50% 50% 0 0;
+  animation: scene-cheer 0.9s ease-in-out infinite;
+}
+@keyframes scene-cheer { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+/* falling snow */
+.scene-snow span {
+  position: absolute;
+  top: -10px;
+  width: 6px; height: 6px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: scene-fall linear infinite;
+}
+@keyframes scene-fall {
+  to { transform: translateY(240px); opacity: 0.2; }
+}

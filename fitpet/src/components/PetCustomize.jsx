@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import PetSprite, { SPECIES } from './PetSprite';
-import { BACKGROUNDS } from './backgrounds';
+import SceneBackground from './SceneBackground';
+import { BACKGROUNDS, BG_CATEGORIES, bgUnlocked } from './backgrounds';
 import './PetCustomize.css';
 
 const COLORS = [
@@ -12,7 +14,10 @@ const COLORS = [
 const SPECIES_LIST = Object.entries(SPECIES);
 
 export default function PetCustomize({ onClose }) {
-  const { pet, setSpecies, setPetColor, setBackground } = useStore();
+  const { pet, user, setSpecies, setPetColor, setBackground } = useStore();
+  const level = Math.max(user.level || 1, pet.level || 1);
+  const [cat, setCat] = useState('Gimnasio');
+  const curBg = BACKGROUNDS[pet.background] || BACKGROUNDS.default;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -20,8 +25,9 @@ export default function PetCustomize({ onClose }) {
         <div className="modal-handle" />
         <h3 className="modal-title">Personalizar mascota</h3>
 
-        {/* live preview */}
-        <div className="pc-preview" style={{ background: BACKGROUNDS[pet.background]?.css || BACKGROUNDS.default.css }}>
+        {/* live animated preview */}
+        <div className="pc-preview">
+          <SceneBackground bg={curBg} />
           <div className="pc-preview-sprite">
             <PetSprite pose="stand" emotion="happy" species={pet.species} color={pet.color} accessory={pet.accessories?.[0]} />
           </div>
@@ -52,13 +58,24 @@ export default function PetCustomize({ onClose }) {
           })}
         </div>
 
-        <p className="pc-label">Fondo</p>
-        <div className="pc-bgs">
-          {Object.entries(BACKGROUNDS).map(([id, bg]) => (
-            <button key={id} className={`pc-bg ${pet.background === id ? 'on' : ''}`} style={{ background: bg.css }} onClick={() => setBackground(id)}>
-              <span>{bg.label}</span>
-            </button>
+        <p className="pc-label">Fondo dinámico</p>
+        <div className="pc-cats">
+          {BG_CATEGORIES.map(c => (
+            <button key={c.id} className={`pc-cat ${cat === c.id ? 'on' : ''}`} onClick={() => setCat(c.id)}>{c.icon} {c.id}</button>
           ))}
+        </div>
+        <div className="pc-bgs">
+          {Object.entries(BACKGROUNDS).filter(([, bg]) => bg.cat === cat).map(([id, bg]) => {
+            const unlocked = bgUnlocked(bg, level);
+            return (
+              <button key={id} className={`pc-bg ${pet.background === id ? 'on' : ''} ${unlocked ? '' : 'locked'}`}
+                style={{ background: bg.css }} disabled={!unlocked}
+                onClick={() => unlocked && setBackground(id)}>
+                <span>{bg.label}</span>
+                {!unlocked && <span className="pc-lock">🔒 Nv {bg.unlock}</span>}
+              </button>
+            );
+          })}
         </div>
 
         <button className="btn btn-primary modal-submit" style={{ marginTop: 16 }} onClick={onClose}>Listo</button>

@@ -3,6 +3,7 @@ import { useStore, petState, petHappiness } from '../store/useStore';
 import InteractivePet, { STATE_INFO } from './InteractivePet';
 import Minigame from './Minigame';
 import PetCustomize from './PetCustomize';
+import SceneBackground from './SceneBackground';
 import { BACKGROUNDS } from './backgrounds';
 import { playSound } from '../sound';
 import './Pet.css';
@@ -62,7 +63,8 @@ export default function Pet() {
       </div>
 
       {/* Main pet display */}
-      <div className="pet-stage" style={{ background: pet.background && pet.background !== 'default' ? BACKGROUNDS[pet.background]?.css : `linear-gradient(135deg, ${physique.color}22, ${physique.color}44)` }}>
+      <div className="pet-stage">
+        <SceneBackground bg={pet.background && pet.background !== 'default' ? BACKGROUNDS[pet.background] : { css: `linear-gradient(135deg, ${physique.color}22, ${physique.color}44)`, fx: 'none' }} />
         <div className="pet-glow" style={{ background: physique.color }} />
         <div className="pet-state-chip" style={{ background: stateInfo.color + '22', color: stateInfo.color, borderColor: stateInfo.color + '55' }}>
           {stateInfo.emoji} Estado {stateInfo.label}
