@@ -195,6 +195,16 @@ export function petState(pet, stats, user) {
   return 'base';
 }
 
+// Pet reacts to eating habits: on-target boosts motivation, big overshoot
+// lowers it (so the avatar celebrates good days and nudges on bad ones).
+function nutritionReact(pet, stats) {
+  const ratio = stats.caloriesConsumed / stats.caloriesGoal;
+  let motivation = pet.motivation ?? 75;
+  if (ratio > 1.25) motivation = Math.max(0, motivation - 8);        // big overshoot
+  else if (ratio >= 0.8 && ratio <= 1.05) motivation = Math.min(100, motivation + 6); // on target
+  return { ...pet, motivation };
+}
+
 // Applies XP and rolls over into new levels when the bar fills.
 function applyXp(pet, amount) {
   let xp = pet.xp + amount;
@@ -313,9 +323,53 @@ export const useStore = create(persist((set, get) => ({
       ...state.stats,
       caloriesConsumed: state.stats.caloriesConsumed + meal.calories,
     };
-    const newPet = evolvePet(state.pet, newStats);
+    const newPet = nutritionReact(evolvePet(state.pet, newStats), newStats);
     return { meals: [newMeal, ...state.meals], stats: newStats, pet: newPet };
   }),
+
+  // Nutrition diary
+  favorites: [],
+  customFoods: [],
+  recipes: [],
+
+  // Add a food (already scaled) to the diary under a meal type
+  addFoodToDiary: (entry) => set((state) => {
+    const newMeal = {
+      id: Date.now(),
+      name: entry.name,
+      icon: entry.icon || '🍽️',
+      time: entry.mealType || 'Snack',
+      calories: entry.calories,
+      protein: entry.protein,
+      carbs: entry.carbs,
+      fat: entry.fat,
+      fiber: entry.fiber || 0,
+      servings: entry.servings || 1,
+    };
+    const newStats = { ...state.stats, caloriesConsumed: state.stats.caloriesConsumed + entry.calories };
+    const newPet = nutritionReact(evolvePet(state.pet, newStats), newStats);
+    return { meals: [newMeal, ...state.meals], stats: newStats, pet: newPet };
+  }),
+
+  removeMeal: (id) => set((state) => {
+    const meal = state.meals.find(m => m.id === id);
+    if (!meal) return {};
+    const newStats = { ...state.stats, caloriesConsumed: Math.max(0, state.stats.caloriesConsumed - meal.calories) };
+    return { meals: state.meals.filter(m => m.id !== id), stats: newStats, pet: evolvePet(state.pet, newStats) };
+  }),
+
+  toggleFavorite: (food) => set((state) => {
+    const exists = state.favorites.find(f => f.id === food.id);
+    return { favorites: exists ? state.favorites.filter(f => f.id !== food.id) : [{ ...food }, ...state.favorites] };
+  }),
+
+  addCustomFood: (food) => set((state) => ({
+    customFoods: [{ ...food, id: 'c' + Date.now(), custom: true }, ...state.customFoods],
+  })),
+
+  addRecipe: (recipe) => set((state) => ({
+    recipes: [{ ...recipe, id: 'r' + Date.now(), recipe: true }, ...state.recipes],
+  })),
 
   addWater: (glasses = 1) => set((state) => ({
     stats: {
@@ -443,5 +497,8 @@ export const useStore = create(persist((set, get) => ({
     notifications: state.notifications,
     settings: state.settings,
     lastDailyClaim: state.lastDailyClaim,
+    favorites: state.favorites,
+    customFoods: state.customFoods,
+    recipes: state.recipes,
   }),
 }));

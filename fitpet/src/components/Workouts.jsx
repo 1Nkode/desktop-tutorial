@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
+import Nutrition from './Nutrition';
 import './Workouts.css';
 
 export default function Workouts() {
-  const { workouts, meals, settings, setShowAddWorkout, setShowAddMeal, syncWearable } = useStore();
+  const { workouts, settings, setShowAddWorkout, syncWearable } = useStore();
   const [tab, setTab] = useState('workouts');
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState('2 min ago');
@@ -22,21 +23,20 @@ export default function Workouts() {
     <div className="workouts-page animate-fadeIn">
       <div className="workout-header">
         <h2 className="section-title">Track</h2>
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => tab === 'workouts' ? setShowAddWorkout(true) : setShowAddMeal(true)}
-        >
-          + Add {tab === 'workouts' ? 'Workout' : 'Meal'}
-        </button>
+        {tab === 'workouts' && (
+          <button className="btn btn-primary btn-sm" onClick={() => setShowAddWorkout(true)}>
+            + Add Workout
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
       <div className="tabs">
         <button className={`tab ${tab === 'workouts' ? 'active' : ''}`} onClick={() => setTab('workouts')}>
-          💪 Workouts
+          💪 Entreno
         </button>
         <button className={`tab ${tab === 'meals' ? 'active' : ''}`} onClick={() => setTab('meals')}>
-          🍽️ Nutrition
+          🍽️ Nutrición
         </button>
       </div>
 
@@ -62,24 +62,7 @@ export default function Workouts() {
         </>
       )}
 
-      {tab === 'meals' && (
-        <>
-          {/* Daily totals */}
-          <div className="card macro-summary">
-            <h4 style={{ fontWeight: 700, marginBottom: 12 }}>Today's Macros</h4>
-            <div className="macros-row">
-              <MacroCircle label="Protein" value={`${meals.reduce((s, m) => s + m.protein, 0)}g`} color="var(--blue)" />
-              <MacroCircle label="Carbs" value={`${meals.reduce((s, m) => s + m.carbs, 0)}g`} color="var(--orange)" />
-              <MacroCircle label="Fat" value={`${meals.reduce((s, m) => s + m.fat, 0)}g`} color="var(--purple)" />
-              <MacroCircle label="Calories" value={`${meals.reduce((s, m) => s + m.calories, 0)}`} color="var(--green)" />
-            </div>
-          </div>
-
-          {meals.map(m => (
-            <MealCard key={m.id} meal={m} />
-          ))}
-        </>
-      )}
+      {tab === 'meals' && <Nutrition />}
 
       <div style={{ height: 100 }} />
     </div>
@@ -114,34 +97,3 @@ function WorkoutCard({ workout }) {
   );
 }
 
-function MealCard({ meal }) {
-  return (
-    <div className="card meal-card">
-      <div className="mc-icon">{meal.icon}</div>
-      <div className="mc-info">
-        <p className="mc-name">{meal.name}</p>
-        <p className="mc-time">{meal.time}</p>
-        <div className="mc-macros">
-          <span>P: {meal.protein}g</span>
-          <span>C: {meal.carbs}g</span>
-          <span>F: {meal.fat}g</span>
-        </div>
-      </div>
-      <div className="mc-cal">
-        <p className="mc-cal-num">{meal.calories}</p>
-        <p className="mc-cal-label">kcal</p>
-      </div>
-    </div>
-  );
-}
-
-function MacroCircle({ label, value, color }) {
-  return (
-    <div className="macro-circle">
-      <div className="macro-bubble" style={{ background: color + '22', border: `2px solid ${color}` }}>
-        <span style={{ color, fontWeight: 800, fontSize: 13 }}>{value}</span>
-      </div>
-      <p className="macro-label">{label}</p>
-    </div>
-  );
-}

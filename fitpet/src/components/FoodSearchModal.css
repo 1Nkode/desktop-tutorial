@@ -1,0 +1,142 @@
+.fs-modal { max-height: 88vh; }
+
+.fs-searchbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 4px 6px 4px 12px;
+  margin-bottom: 12px;
+}
+
+.fs-searchbar .material-symbols-outlined { color: var(--text-secondary); font-size: 22px; }
+
+.fs-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 15px;
+  padding: 10px 0;
+}
+.fs-input::placeholder { color: #6b6f64; }
+
+.fs-scan {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--lime), var(--lime-dim));
+  color: #283500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.fs-scan .material-symbols-outlined { font-size: 22px; }
+
+.fs-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+
+.fs-tab {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.fs-tab.active { background: rgba(204,255,0,0.15); color: var(--lime); }
+
+.fs-create {
+  width: 100%;
+  padding: 10px;
+  border: 1px dashed var(--glass-border);
+  background: none;
+  border-radius: 12px;
+  color: var(--lime);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.fs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+.fs-empty { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 24px 0; }
+
+.fs-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fs-row:hover { background: rgba(204,255,0,0.08); }
+
+.fs-row-icon { font-size: 26px; flex-shrink: 0; }
+.fs-row-info { flex: 1; min-width: 0; }
+.fs-row-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.fs-row-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+.fs-fav {
+  background: none; border: none; cursor: pointer;
+  font-size: 20px; color: var(--orange);
+  flex-shrink: 0;
+}
+.fs-fav.on { color: #FFD54F; }
+
+/* detail / quantity editor */
+.fs-back {
+  background: none; border: none; color: var(--lime);
+  font-weight: 700; font-size: 14px; cursor: pointer; margin-bottom: 12px;
+}
+
+.fs-detail-head { display: flex; align-items: center; gap: 14px; }
+.fs-detail-icon { font-size: 44px; }
+.fs-detail-name { font-size: 18px; font-weight: 800; color: var(--text); }
+.fs-detail-serv { font-size: 12px; color: var(--text-secondary); }
+
+.fs-meal-row { display: flex; gap: 6px; margin-top: 8px; }
+.fs-meal-btn {
+  flex: 1; padding: 9px 2px; border-radius: 10px;
+  border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05);
+  color: var(--text-secondary); font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.fs-meal-btn.active { background: rgba(204,255,0,0.15); color: var(--lime); border-color: transparent; }
+
+.fs-qty { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.fs-qty button {
+  width: 44px; height: 44px; border-radius: 12px; border: none;
+  background: rgba(255,255,255,0.08); color: var(--text);
+  font-size: 22px; cursor: pointer;
+}
+.fs-qty input {
+  flex: 1; text-align: center; font-size: 18px; font-weight: 800;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+  border-radius: 12px; color: var(--text); padding: 11px; outline: none;
+}
+
+.fs-macros {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px;
+}
+.fs-macro {
+  text-align: center; padding: 12px 4px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 12px;
+}
+.fs-macro-v { font-size: 16px; font-weight: 800; }
+.fs-macro-l { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+
+.fs-create-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
