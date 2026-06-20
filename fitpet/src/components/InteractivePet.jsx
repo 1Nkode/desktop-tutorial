@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
+import PetSprite from './PetSprite';
 import './InteractivePet.css';
 
 /*
@@ -304,7 +305,7 @@ export default function InteractivePet() {
             onError={() => setImgOk(s => ({ ...s, [pose]: false }))}
           />
         ) : (
-          <span className="ipet-emoji">{info.emoji}</span>
+          <PetSprite pose={pose} state={state} />
         )}
         {/* state badge (crown / muscle / burger / zzz) */}
         {info.badge && <span className="ipet-badge">{info.badge}</span>}
