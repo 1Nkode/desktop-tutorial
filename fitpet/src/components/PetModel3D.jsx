@@ -49,26 +49,32 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
         }
       });
 
-      // precise bounds (skinned meshes report bad boxes with the cheap method)
-      let box = new THREE.Box3().setFromObject(model, true);
+      // IMPORTANT: update world matrices before measuring, or the box is wrong
+      model.updateMatrixWorld(true);
+      let box = new THREE.Box3().setFromObject(model);
       let size = box.getSize(new THREE.Vector3());
-      let center = box.getCenter(new THREE.Vector3());
-      // fallback if precise bounds came out degenerate
-      if (!isFinite(size.y) || size.y < 0.001) {
-        box = new THREE.Box3().setFromObject(model);
-        size = box.getSize(new THREE.Vector3());
-        center = box.getCenter(new THREE.Vector3());
-      }
+
+      // normalize the model to a known height so framing is reliable
+      const TARGET_H = 1.8;
+      const s = size.y > 0.0001 ? TARGET_H / size.y : 1;
+      model.scale.multiplyScalar(s);
+      model.updateMatrixWorld(true);
+
+      // re-measure after scaling, then center at origin
+      box = new THREE.Box3().setFromObject(model);
+      size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
       model.position.sub(center);
+
       pivot = new THREE.Group(); pivot.add(model); scene.add(pivot);
 
-      // auto-fit camera so the whole body fits (frame by height + width)
+      // fixed camera distance tuned to TARGET_H, framing height & width
       const fov = camera.fov * (Math.PI / 180);
       const fitH = (size.y / 2) / Math.tan(fov / 2);
       const fitW = (size.x / 2) / Math.tan(fov / 2) / camera.aspect;
-      const dist = Math.max(fitH, fitW) * 2.3 + 0.5;   // generous margin
+      const dist = Math.max(fitH, fitW) * 1.55 + 0.4;
       camera.position.set(0, 0, dist);
-      camera.near = dist / 100; camera.far = dist * 100;
+      camera.near = 0.05; camera.far = dist * 100;
       camera.updateProjectionMatrix();
       camera.lookAt(0, 0, 0);
 
