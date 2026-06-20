@@ -7,7 +7,7 @@ import PetCustomize from './PetCustomize';
 import Wardrobe from './Wardrobe';
 import SceneBackground from './SceneBackground';
 import { playSound } from '../sound';
-import { listen, speak, speechSupported } from '../talk';
+import { talkOnce } from '../talk';
 import './Pet.css';
 
 const STATE_ORDER = ['neglected', 'tired', 'base', 'strong', 'champion'];
@@ -36,33 +36,8 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, setTalk } = useStore();
-  const [listening, setListening] = useState(false);
-
-  const frogSpeak = (text) => {
-    setTalk('talking', text);
-    speak(text, {
-      onstart: () => setTalk('talking', text),
-      onend: () => setTalk('idle'),
-    });
-    // safety: clear after a max in case onend never fires
-    setTimeout(() => setTalk('idle'), Math.min(8000, 1500 + text.length * 90));
-  };
-
-  const handleTalk = () => {
-    if (listening) return;
-    if (speechSupported()) {
-      listen({
-        onStart: () => { setListening(true); setTalk('listening'); },
-        onEnd: () => setListening(false),
-        onError: () => { setListening(false); setTalk('idle'); },
-        onResult: (text) => frogSpeak(text),
-      });
-    } else {
-      const text = prompt('Tu navegador no soporta micrófono. Escribe algo y tu mascota lo repetirá:');
-      if (text) frogSpeak(text);
-    }
-  };
+  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, setTalk, talkMode } = useStore();
+  const handleTalk = () => { if (talkMode === 'idle') talkOnce(setTalk); };
   const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
   const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
@@ -173,9 +148,9 @@ export default function Pet() {
             🎁 {dailyAvailable ? 'Premio' : 'Listo'}
           </button>
         </div>
-        <button className={`talk-btn ${listening ? 'on' : ''}`} onClick={handleTalk}>
-          <span className="material-symbols-outlined">{listening ? 'graphic_eq' : 'mic'}</span>
-          {listening ? 'Escuchando…' : 'Hablar con tu mascota'}
+        <button className={`talk-btn ${talkMode !== 'idle' ? 'on' : ''}`} onClick={handleTalk}>
+          <span className="material-symbols-outlined">{talkMode === 'listening' ? 'graphic_eq' : talkMode === 'talking' ? 'volume_up' : 'mic'}</span>
+          {talkMode === 'listening' ? 'Escuchando…' : talkMode === 'talking' ? 'Hablando…' : 'Hablar con tu mascota'}
         </button>
       </div>
 

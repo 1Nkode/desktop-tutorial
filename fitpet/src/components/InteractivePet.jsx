@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
 import PetSprite from './PetSprite';
 import { playSound } from '../sound';
+import { talkOnce } from '../talk';
 import './InteractivePet.css';
 
 export { STATE_INFO } from './petMeta';
@@ -16,7 +17,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText } = useStore();
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText, setTalk } = useStore();
   const state = petState(pet, stats, user);
   const stateRef = useRef(state);
 
@@ -153,10 +154,10 @@ export default function InteractivePet() {
   return (
     <div
       ref={wrapRef}
-      className={`ipet ipet-state-${state} ${reacting ? 'reacting' : ''} ${sleepy ? 'resting' : 'idle'}`}
-      onClick={react}
+      className={`ipet ipet-state-${state} ${reacting ? 'reacting' : ''} ${sleepy ? 'resting' : 'idle'} talk-${talkMode}`}
+      onClick={() => { if (talkMode === 'idle') talkOnce(setTalk); else if (talkMode === 'talking') setTalk('idle'); }}
       role="button"
-      aria-label="Mascota interactiva"
+      aria-label="Tocar para hablar con la mascota"
     >
       {bubble && <div className="ipet-bubble">{bubble}</div>}
       <div className="ipet-aura" />

@@ -22,6 +22,30 @@ export function speak(text, { pitch = 1.7, rate = 1.05, lang = 'es-ES', onstart,
   } catch { onend?.(); }
 }
 
+// Full Talking-Tom turn: listen -> repeat in a funny voice, driving the
+// pet's talk state (idle | listening | talking) via setTalk.
+export function talkOnce(setTalk) {
+  const frogSpeak = (text) => {
+    if (!text) { setTalk('idle'); return; }
+    setTalk('talking', text);
+    speak(text, {
+      onstart: () => setTalk('talking', text),
+      onend: () => setTalk('idle'),
+    });
+    setTimeout(() => setTalk('idle'), Math.min(8000, 1500 + text.length * 90));
+  };
+  if (speechSupported()) {
+    listen({
+      onStart: () => setTalk('listening'),
+      onError: () => setTalk('idle'),
+      onResult: (t) => frogSpeak(t),
+    });
+  } else {
+    const t = prompt('Tu navegador no soporta micrófono. Escribe algo y tu mascota lo repetirá:');
+    frogSpeak(t || '');
+  }
+}
+
 // Starts one-shot listening. Calls handlers; returns the recognition object.
 export function listen({ lang = 'es-ES', onResult, onError, onStart, onEnd } = {}) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
