@@ -38,7 +38,7 @@ export default function PetModel3D({ anim = null, color = null, onList }) {
     scene.add(dir);
 
     const clock = new THREE.Clock();
-    let raf, model;
+    let raf, model, pivot;
 
     const loader = new GLTFLoader();
     loader.load(`${import.meta.env.BASE_URL}model/default.glb`, (gltf) => {
@@ -54,17 +54,23 @@ export default function PetModel3D({ anim = null, color = null, onList }) {
         }
       });
 
-      // center + scale to fit the viewport
+      // center the model inside a pivot (so it rotates in place)
       const box = new THREE.Box3().setFromObject(model);
       const size = new THREE.Vector3(); box.getSize(size);
       const center = new THREE.Vector3(); box.getCenter(center);
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      const scale = 1.7 / maxDim;            // smaller so the whole body fits
-      model.scale.setScalar(scale);
-      model.position.sub(center.multiplyScalar(scale));  // center at origin
-      scene.add(model);
+      model.position.sub(center);
+      pivot = new THREE.Group();
+      pivot.add(model);
+      scene.add(pivot);
 
-      camera.position.set(0, 0.1, 4.4);      // pulled back to fit in the box
+      // auto-fit the camera so the WHOLE body fits in the box
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const fov = camera.fov * (Math.PI / 180);
+      const dist = (maxDim / 2) / Math.tan(fov / 2) * 1.9; // margin for arm swing + rotation
+      camera.position.set(0, 0, dist);
+      camera.near = dist / 100;
+      camera.far = dist * 100;
+      camera.updateProjectionMatrix();
       camera.lookAt(0, 0, 0);
 
       // animations
@@ -89,7 +95,7 @@ export default function PetModel3D({ anim = null, color = null, onList }) {
       raf = requestAnimationFrame(loop);
       const d = clock.getDelta();
       mixerRef.current?.update(d);
-      if (model) model.rotation.y += d * 0.25; // gentle turntable
+      if (pivot) pivot.rotation.y += d * 0.25; // gentle turntable
       renderer.render(scene, camera);
     }
     loop();
