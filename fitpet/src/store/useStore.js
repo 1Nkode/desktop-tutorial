@@ -1,5 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { EXERCISES, SEED_ROUTINES, e1rm } from '../data/exercises';
+
+const seedRoutines = () => SEED_ROUTINES.map(r => ({ ...r, items: r.items.map(i => ({ ...i })) }));
+
+// Pull the last logged sets for an exercise from history (for prefilling + "previous")
+function lastSetsFor(history, exerciseId) {
+  for (const session of history) {
+    const ex = session.exercises.find(e => {
+      const all = EXERCISES;
+      const match = all.find(a => a.id === exerciseId);
+      return e.name === (match?.name) || e.exerciseId === exerciseId;
+    });
+    if (ex) return ex.sets;
+  }
+  return [];
+}
 
 const initialStats = {
   caloriesConsumed: 1050,
@@ -371,6 +387,162 @@ export const useStore = create(persist((set, get) => ({
     recipes: [{ ...recipe, id: 'r' + Date.now(), recipe: true }, ...state.recipes],
   })),
 
+  // ---------- Strength training (Hevy-style) ----------
+  routines: seedRoutines(),
+  customExercises: [],
+  workoutHistory: [],
+  personalRecords: {},      // exerciseId -> { e1rm, weight, reps, date }
+  activeWorkout: null,      // { name, startedAt, exercises:[{exerciseId,name,muscle,icon,note,sets:[{weight,reps,done}]}], note }
+  lastPR: null,             // transient: name of exercise that just hit a PR
+
+  addCustomExercise: (ex) => set((state) => ({
+    customExercises: [{ ...ex, id: 'cx' + Date.now(), custom: true }, ...state.customExercises],
+  })),
+
+  saveRoutine: (routine) => set((state) => {
+    if (routine.id && state.routines.find(r => r.id === routine.id)) {
+      return { routines: state.routines.map(r => r.id === routine.id ? { ...routine } : r) };
+    }
+    return { routines: [{ ...routine, id: 'rt' + Date.now() }, ...state.routines] };
+  }),
+
+  duplicateRoutine: (id) => set((state) => {
+    const r = state.routines.find(x => x.id === id);
+    if (!r) return {};
+    return { routines: [{ ...r, id: 'rt' + Date.now(), name: r.name + ' (copia)' }, ...state.routines] };
+  }),
+
+  deleteRoutine: (id) => set((state) => ({ routines: state.routines.filter(r => r.id !== id) })),
+
+  // Start a session from a routine (or empty). Pre-fills sets from last time.
+  startWorkout: (routine) => set((state) => {
+    const allEx = [...EXERCISES, ...state.customExercises];
+    const exercises = (routine?.items || []).map(it => {
+      const ex = allEx.find(e => e.id === it.exerciseId) || { id: it.exerciseId, name: 'Ejercicio', muscle: '', icon: '🏋️' };
+      const prev = lastSetsFor(state.workoutHistory, ex.id);
+      const sets = Array.from({ length: it.sets || 3 }).map((_, i) => ({
+        weight: prev[i]?.weight ?? '', reps: prev[i]?.reps ?? '', done: false,
+      }));
+      return { exerciseId: ex.id, name: ex.name, muscle: ex.muscle, icon: ex.icon, note: '', sets };
+    });
+    return { activeWorkout: { name: routine?.name || 'Entrenamiento', startedAt: Date.now(), exercises, note: '' } };
+  }),
+
+  addExerciseToWorkout: (ex) => set((state) => {
+    if (!state.activeWorkout) return {};
+    const prev = lastSetsFor(state.workoutHistory, ex.id);
+    const sets = Array.from({ length: 3 }).map((_, i) => ({ weight: prev[i]?.weight ?? '', reps: prev[i]?.reps ?? '', done: false }));
+    return { activeWorkout: { ...state.activeWorkout, exercises: [...state.activeWorkout.exercises, { exerciseId: ex.id, name: ex.name, muscle: ex.muscle, icon: ex.icon, note: '', sets }] } };
+  }),
+
+  updateSet: (exIdx, setIdx, field, value) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    const exercises = w.exercises.map((e, i) => i !== exIdx ? e : {
+      ...e, sets: e.sets.map((s, j) => j !== setIdx ? s : { ...s, [field]: value }),
+    });
+    return { activeWorkout: { ...w, exercises } };
+  }),
+
+  toggleSetDone: (exIdx, setIdx) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    const exercises = w.exercises.map((e, i) => i !== exIdx ? e : {
+      ...e, sets: e.sets.map((s, j) => j !== setIdx ? s : { ...s, done: !s.done }),
+    });
+    return { activeWorkout: { ...w, exercises } };
+  }),
+
+  addSet: (exIdx) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    const exercises = w.exercises.map((e, i) => {
+      if (i !== exIdx) return e;
+      const last = e.sets[e.sets.length - 1];
+      return { ...e, sets: [...e.sets, { weight: last?.weight ?? '', reps: last?.reps ?? '', done: false }] };
+    });
+    return { activeWorkout: { ...w, exercises } };
+  }),
+
+  removeSet: (exIdx, setIdx) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    const exercises = w.exercises.map((e, i) => i !== exIdx ? e : { ...e, sets: e.sets.filter((_, j) => j !== setIdx) });
+    return { activeWorkout: { ...w, exercises } };
+  }),
+
+  setExerciseNote: (exIdx, note) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    return { activeWorkout: { ...w, exercises: w.exercises.map((e, i) => i === exIdx ? { ...e, note } : e) } };
+  }),
+
+  setWorkoutNote: (note) => set((state) => state.activeWorkout ? ({ activeWorkout: { ...state.activeWorkout, note } }) : {}),
+
+  moveExercise: (exIdx, dir) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    const arr = [...w.exercises];
+    const j = exIdx + dir;
+    if (j < 0 || j >= arr.length) return {};
+    [arr[exIdx], arr[j]] = [arr[j], arr[exIdx]];
+    return { activeWorkout: { ...w, exercises: arr } };
+  }),
+
+  removeExerciseFromWorkout: (exIdx) => set((state) => {
+    const w = state.activeWorkout; if (!w) return {};
+    return { activeWorkout: { ...w, exercises: w.exercises.filter((_, i) => i !== exIdx) } };
+  }),
+
+  cancelWorkout: () => set({ activeWorkout: null }),
+
+  finishWorkout: () => set((state) => {
+    const w = state.activeWorkout;
+    if (!w) return {};
+    const durationMin = Math.max(1, Math.round((Date.now() - w.startedAt) / 60000));
+    let volume = 0, totalReps = 0, doneSets = 0;
+    const prs = { ...state.personalRecords };
+    let prHit = null;
+
+    const exercises = w.exercises.map(e => {
+      const sets = e.sets.filter(s => s.done && (s.weight !== '' || s.reps !== ''));
+      sets.forEach(s => {
+        const wt = +s.weight || 0, rp = +s.reps || 0;
+        volume += wt * rp; totalReps += rp; doneSets++;
+        const est = e1rm(wt, rp);
+        const cur = prs[e.exerciseId];
+        if (!cur || est > cur.e1rm) { prs[e.exerciseId] = { e1rm: est, weight: wt, reps: rp, date: Date.now() }; if (est > (cur?.e1rm || 0) && wt > 0) prHit = e.name; }
+      });
+      return { name: e.name, muscle: e.muscle, icon: e.icon, note: e.note, sets: sets.map(s => ({ weight: +s.weight || 0, reps: +s.reps || 0 })) };
+    }).filter(e => e.sets.length > 0);
+
+    if (exercises.length === 0) { return { activeWorkout: null }; }
+
+    const session = {
+      id: Date.now(), name: w.name, date: Date.now(), durationMin,
+      volume, totalReps, sets: doneSets, note: w.note, exercises,
+    };
+
+    // stats + pet
+    const weeklyWorkouts = [...state.stats.weeklyWorkouts];
+    weeklyWorkouts[weeklyWorkouts.length - 1] += 1;
+    const burned = Math.round(durationMin * 6 + volume * 0.03);
+    const newStats = {
+      ...state.stats,
+      caloriesBurned: state.stats.caloriesBurned + burned,
+      activeMinutes: state.stats.activeMinutes + durationMin,
+      weeklyWorkouts,
+    };
+    const xp = 30 + (prHit ? 25 : 0);
+    const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6) };
+    const newPet = evolvePet(applyXp(boosted, xp), newStats);
+
+    return {
+      activeWorkout: null,
+      workoutHistory: [session, ...state.workoutHistory],
+      personalRecords: prs,
+      stats: newStats,
+      pet: newPet,
+      lastPR: prHit,
+    };
+  }),
+
+  clearLastPR: () => set({ lastPR: null }),
+
   addWater: (glasses = 1) => set((state) => ({
     stats: {
       ...state.stats,
@@ -500,5 +672,10 @@ export const useStore = create(persist((set, get) => ({
     favorites: state.favorites,
     customFoods: state.customFoods,
     recipes: state.recipes,
+    routines: state.routines,
+    customExercises: state.customExercises,
+    workoutHistory: state.workoutHistory,
+    personalRecords: state.personalRecords,
+    activeWorkout: state.activeWorkout,
   }),
 }));

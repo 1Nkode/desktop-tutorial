@@ -43,7 +43,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet } = useStore();
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR } = useStore();
   const state = petState(pet, stats, user);
 
   const elRef = useRef(null);
@@ -258,6 +258,17 @@ export default function InteractivePet() {
 
   // Base emotion follows the pet's stats/state
   useEffect(() => { setEmotion(baseEmotion()); }, [state, pet.energy, pet.motivation]);
+
+  // Personal-record celebration
+  useEffect(() => {
+    if (!lastPR) return;
+    p.behavior = 'celebrate'; p.timer = 100; if (p.onGround) p.vy = -14;
+    say(`¡Récord en ${lastPR}! 🏆`, 2200);
+    spawnParticles('🏆', 16);
+    flashEmotion('excited', 2000);
+    playSound('levelup');
+    clearLastPR();
+  }, [lastPR]);
 
   // Level-up celebration
   useEffect(() => {
