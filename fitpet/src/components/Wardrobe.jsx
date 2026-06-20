@@ -1,44 +1,44 @@
 import { useStore } from '../store/useStore';
 import PetSprite from './PetSprite';
-import PetClothes from './PetClothes';
-import { WARDROBE, SLOT_INFO } from '../data/clothing';
+import { FROG_VARIANTS } from './petMeta';
 import './Wardrobe.css';
 
+/*
+  Estilo de la mascota — recolorea el propio personaje (filtro sobre el vídeo),
+  así el color es parte de la mascota y no un PNG encima.
+*/
+const SWATCH = {
+  natural: '#79b13c', lime: '#aadb1f', aqua: '#3fd0e0',
+  royal: '#7b5bff', gold: '#ffca4a', shadow: '#5b6470',
+};
+
 export default function Wardrobe({ onClose }) {
-  const { pet, setOutfit } = useStore();
-  const outfit = pet.outfit || {};
+  const { pet, setPetVariant } = useStore();
+  const current = pet.variant || 'natural';
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal animate-slideUp wd-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-handle" />
-        <h3 className="modal-title">Vestuario 👕</h3>
+        <h3 className="modal-title">Estilo de la mascota 🎨</h3>
 
-        {/* live preview */}
         <div className="wd-preview">
           <div className="wd-pet">
-            <PetSprite pose="stand" emotion="happy" variant={pet.variant || 'natural'} />
-            <PetClothes outfit={outfit} />
+            <PetSprite pose="stand" emotion="happy" variant={current} />
           </div>
         </div>
 
-        {SLOT_INFO.map(slot => (
-          <div className="wd-slot" key={slot.id}>
-            <p className="wd-slot-label">{slot.icon} {slot.label}</p>
-            <div className="wd-items">
-              {WARDROBE[slot.id].map(g => {
-                const active = (outfit[slot.id] || 'none') === g.id;
-                return (
-                  <button key={g.id} className={`wd-item ${active ? 'on' : ''}`} onClick={() => setOutfit(slot.id, g.id)} title={g.label}>
-                    {g.color
-                      ? <span className="wd-swatch" style={{ background: g.id === 'crown' ? 'transparent' : g.color }}>{g.id === 'crown' ? '👑' : ''}</span>
-                      : <span className="wd-swatch wd-none">∅</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+        <p className="wd-slot-label">Color / estilo</p>
+        <div className="wd-items">
+          {Object.entries(FROG_VARIANTS).map(([id, v]) => (
+            <button key={id} className={`wd-variant ${current === id ? 'on' : ''}`} onClick={() => setPetVariant(id)}>
+              <span className="wd-swatch" style={{ background: SWATCH[id] || '#79b13c' }} />
+              <span className="wd-variant-label">{v.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <p className="wd-note">El color se aplica al propio personaje. Cambiar de animal y prendas reales llegará con sets de arte dedicados.</p>
 
         <button className="btn btn-primary modal-submit" style={{ marginTop: 12 }} onClick={onClose}>Listo</button>
       </div>

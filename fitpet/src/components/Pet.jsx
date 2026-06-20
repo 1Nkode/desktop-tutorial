@@ -139,8 +139,8 @@ export default function Pet() {
           <button className="care-btn" onClick={() => interactPet('tickle')}>😆 Cosquillas</button>
         </div>
         <div className="care-actions" style={{ marginTop: 8 }}>
-          <button className="care-btn" onClick={() => setShowWardrobe(true)}>👕 Ropa</button>
-          <button className="care-btn" onClick={() => setShowCustomize(true)}>🎨 Aspecto</button>
+          <button className="care-btn" onClick={() => setShowWardrobe(true)}>🎨 Estilo</button>
+          <button className="care-btn" onClick={() => setShowCustomize(true)}>🖼️ Escena</button>
           <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Juego</button>
           <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
             🎁 {dailyAvailable ? 'Premio' : 'Listo'}

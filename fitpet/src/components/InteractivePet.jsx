@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
 import PetSprite from './PetSprite';
-import PetClothes from './PetClothes';
 import { playSound } from '../sound';
 import './InteractivePet.css';
 
@@ -154,7 +153,6 @@ export default function InteractivePet() {
           blink={blink}
           variant={pet.variant || 'natural'}
         />
-        <PetClothes outfit={pet.outfit} />
         {sleepy && <span className="ipet-zzz">z</span>}
         {dirty && <span className="ipet-dirty">💨</span>}
       </div>
