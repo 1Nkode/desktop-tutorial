@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { useStore } from '../store/useStore';
+import { useStore, petState } from '../store/useStore';
+import InteractivePet, { STATE_INFO } from './InteractivePet';
 import './Pet.css';
+
+const STATE_ORDER = ['neglected', 'tired', 'base', 'strong', 'champion'];
 
 const PHYSIQUES = {
   normal: { emoji: '🐱', label: 'Normal', desc: 'Your pet is doing okay!', color: '#667eea' },
@@ -26,13 +29,15 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, setAccessory, renamePet } = useStore();
+  const { pet, stats, user, setAccessory, renamePet } = useStore();
   const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(pet.name);
   const physique = PHYSIQUES[pet.physique];
   const mood = MOODS[pet.mood];
   const xpPct = (pet.xp / pet.xpToNext) * 100;
+  const state = petState(pet, stats, user);
+  const stateInfo = STATE_INFO[state];
 
   const saveName = () => {
     renamePet(nameDraft);
@@ -51,7 +56,13 @@ export default function Pet() {
       {/* Main pet display */}
       <div className="pet-stage" style={{ background: `linear-gradient(135deg, ${physique.color}22, ${physique.color}44)` }}>
         <div className="pet-glow" style={{ background: physique.color }} />
-        <div className="pet-emoji animate-float">{physique.emoji}</div>
+        <div className="pet-state-chip" style={{ background: stateInfo.color + '22', color: stateInfo.color, borderColor: stateInfo.color + '55' }}>
+          {stateInfo.emoji} Estado {stateInfo.label}
+        </div>
+        <div className="pet-playground">
+          <InteractivePet />
+          <span className="pet-playground-hint">Tócalo, arrástralo y lánzalo · doble clic para celebrar</span>
+        </div>
         <div className="pet-accessory">{accessories.find(a => a.id === selectedAcc)?.emoji}</div>
         <div className="pet-name-tag">
           {editingName ? (
@@ -71,10 +82,10 @@ export default function Pet() {
           )}
           <span className="pet-level-tag">Lv.{pet.level}</span>
         </div>
-        <div className="pet-physique-label" style={{ color: physique.color }}>
-          {physique.label}
+        <div className="pet-physique-label" style={{ color: stateInfo.color }}>
+          {stateInfo.label} · {physique.label}
         </div>
-        <p className="pet-desc">{physique.desc}</p>
+        <p className="pet-desc">{stateInfo.desc}</p>
       </div>
 
       {/* XP Bar */}
@@ -95,21 +106,26 @@ export default function Pet() {
         <p className="xp-sub">{pet.xpToNext - pet.xp} XP until Level {pet.level + 1}</p>
       </div>
 
-      {/* Pet evolution info */}
+      {/* Evolution states */}
       <div className="card">
-        <h3 className="section-title" style={{ marginBottom: 14 }}>Evolution Stages</h3>
-        <div className="evolution-grid">
-          {Object.entries(PHYSIQUES).map(([key, val]) => (
-            <div
-              key={key}
-              className={`evo-card ${pet.physique === key ? 'active' : ''}`}
-              style={{ borderColor: pet.physique === key ? val.color : 'transparent' }}
-            >
-              <div className="evo-emoji">{val.emoji}</div>
-              <p className="evo-label">{val.label}</p>
-            </div>
-          ))}
+        <h3 className="section-title" style={{ marginBottom: 14 }}>Estados de evolución</h3>
+        <div className="evolution-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+          {STATE_ORDER.map((key) => {
+            const val = STATE_INFO[key];
+            const active = state === key;
+            return (
+              <div
+                key={key}
+                className={`evo-card ${active ? 'active' : ''}`}
+                style={{ borderColor: active ? val.color : 'transparent' }}
+              >
+                <div className="evo-emoji">{val.emoji}</div>
+                <p className="evo-label">{val.label}</p>
+              </div>
+            );
+          })}
         </div>
+        <p className="evo-caption">Tu mascota cambia de estado según tu actividad real 💪</p>
       </div>
 
       {/* Weekly stats that influence pet */}

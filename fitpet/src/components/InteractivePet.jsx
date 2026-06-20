@@ -1,135 +1,174 @@
 import { useEffect, useRef, useState } from 'react';
+import { useStore, petState } from '../store/useStore';
 import './InteractivePet.css';
 
 /*
-  InteractivePet — a fully interactive, physics-driven avatar.
+  InteractivePet — animated, interactive virtual companion (Pet tab).
+  Lives inside its parent ".pet-playground": walks, runs, jumps, dances,
+  sleeps, celebrates and reacts — roaming only within that stage.
 
-  Sprites (drop your 3 PNGs in fitpet/public/pet/):
-    - /pet/stand.png  → de pie con gafas  (idle / walk / run)
-    - /pet/flex.png   → flexionando        (jump / celebrate / react / drag)
-    - /pet/sit.png    → sentado            (sleep / rest)
-  If a PNG is missing it falls back to an emoji so it still works.
+  EVOLUTION STATES (driven by the user's real activity via petState()):
+    base       · energía media, movimientos suaves
+    strong     · musculoso y confiado, celebra y hace poses (consistencia)
+    neglected  · más lento y sedentario, bosteza (dejó de entrenar)
+    tired      · agotado, avisa que la racha está en riesgo
+    champion   · épico, con aura, corona y trofeos (grandes logros)
 
-  Behaviours: idle, walk, run, jump, celebrate, react, sleep, drag + throw.
-  Physics: gravity, ground bounce, wall collisions, friction, throw velocity.
+  Sprites (optional): fitpet/public/pet/{stand,flex,sit}.png
+  Fallback: emoji that adapts to the state, so it always works.
 */
 
-const SIZE = 88;
-const GRAVITY = 0.9;
+const SIZE = 96;
+const GRAVITY = 0.8;
 const FRICTION = 0.86;
-const NAV_H = 96;          // keep above the bottom nav
-const TOP_H = 70;          // keep below the top bar
 
-const POSE_EMOJI = { stand: '🐸', flex: '🐸', sit: '🐸' };
+export const STATE_INFO = {
+  base:      { label: 'Base',       emoji: '🐸', badge: '',   color: '#c2c1ff', desc: 'Energía media' },
+  strong:    { label: 'Fuerte',     emoji: '💪', badge: '💪', color: '#CCFF00', desc: '¡Consistencia!' },
+  neglected: { label: 'Descuidado', emoji: '🐽', badge: '🍔', color: '#9aa0aa', desc: 'Hora de moverse' },
+  tired:     { label: 'Cansado',    emoji: '😮‍💨', badge: '💤', color: '#FFB951', desc: 'Racha en riesgo' },
+  champion:  { label: 'Campeón',    emoji: '🏆', badge: '👑', color: '#FFD54F', desc: '¡Leyenda!' },
+};
 
-const REACTIONS = ['¡Hola! 👋', '¡Vamos! 💪', '¡Yeah! 🎉', '😎', '¡Juega conmigo!', '¡Más reps! 🏋️', '¡Woho! ⚡'];
+const STATE_RANK = { neglected: 0, tired: 1, base: 2, strong: 3, champion: 4 };
+const SPEED = { neglected: 0.5, tired: 0.6, base: 1, strong: 1.15, champion: 1.3 };
+const REACTIONS = {
+  base: ['¡Hola! 👋', '😊', '¡Vamos!'],
+  strong: ['¡Más reps! 🏋️', '¡Yeah! 💪', '😎', '¡Fuerza!'],
+  neglected: ['¿Salimos a caminar?', '🥱', 'Extraño entrenar...'],
+  tired: ['¡No pierdas la racha! 🔥', '😮‍💨', 'Un poco más...'],
+  champion: ['¡CAMPEÓN! 🏆', '👑 ¡Leyenda!', '¡Imparable! ⚡'],
+};
 
 export default function InteractivePet() {
+  const { pet, stats, user, addPetXp } = useStore();
+  const state = petState(pet, stats, user);
+
   const elRef = useRef(null);
-  const rootRectRef = useRef({ left: 0, width: 430, height: window.innerHeight });
+  const boundsRef = useRef({ w: 320, h: 220 });
+  const stateRef = useRef(state);
   const [pose, setPose] = useState('stand');
   const [bubble, setBubble] = useState(null);
   const [particles, setParticles] = useState([]);
-  const [hidden, setHidden] = useState(false);
   const [imgOk, setImgOk] = useState({ stand: true, flex: true, sit: true });
 
-  // Mutable physics/AI state (kept out of React state for 60fps)
   const p = useRef({
-    x: 60, y: 200, vx: 0, vy: 0,
-    onGround: false,
-    facing: 1,
-    behavior: 'idle',
-    timer: 60,
-    dragging: false,
-    dragDX: 0, dragDY: 0,
-    lastPx: 0, lastPy: 0,
+    x: 40, y: 60, vx: 0, vy: 0,
+    onGround: false, facing: 1,
+    behavior: 'idle', timer: 60,
+    dragging: false, dragDX: 0, dragDY: 0, lastPx: 0, lastPy: 0, moved: false,
     poseName: 'stand',
-    moved: false,
   }).current;
 
   const bubbleTimer = useRef(null);
-
   function say(text, ms = 1600) {
     setBubble(text);
     clearTimeout(bubbleTimer.current);
     bubbleTimer.current = setTimeout(() => setBubble(null), ms);
   }
 
-  function spawnParticles(kind = '✨', n = 8) {
+  function spawnParticles(kind = '✨', n = 9) {
     const created = Array.from({ length: n }).map((_, i) => ({
-      id: Date.now() + i,
-      emoji: kind,
-      dx: (Math.random() - 0.5) * 80,
-      dy: -40 - Math.random() * 60,
-      rot: (Math.random() - 0.5) * 120,
+      id: Date.now() + i + Math.random(), emoji: kind,
+      dx: (Math.random() - 0.5) * 100, dy: -40 - Math.random() * 70,
+      rot: (Math.random() - 0.5) * 140,
     }));
     setParticles(cur => [...cur, ...created]);
-    setTimeout(() => {
-      setParticles(cur => cur.filter(c => !created.find(x => x.id === c.id)));
-    }, 900);
+    setTimeout(() => setParticles(cur => cur.filter(c => !created.find(x => x.id === c.id))), 950);
   }
 
   function setPoseIfChanged(name) {
-    if (p.poseName !== name) {
-      p.poseName = name;
-      setPose(name);
-    }
+    if (p.poseName !== name) { p.poseName = name; setPose(name); }
   }
 
+  // Behaviour selection weighted by the current evolution state
   function pickBehavior() {
-    const roll = Math.random();
-    if (roll < 0.30) { p.behavior = 'idle'; p.timer = 80 + Math.random() * 120; p.vx = 0; }
-    else if (roll < 0.45) { p.behavior = 'sleep'; p.timer = 120 + Math.random() * 120; p.vx = 0; }
-    else if (roll < 0.72) { p.behavior = 'walk'; p.timer = 90 + Math.random() * 120; p.facing = Math.random() < 0.5 ? -1 : 1; p.vx = 0.7 * p.facing; }
-    else if (roll < 0.9) { p.behavior = 'run'; p.timer = 70 + Math.random() * 90; p.facing = Math.random() < 0.5 ? -1 : 1; p.vx = 2.1 * p.facing; }
-    else { p.behavior = 'jump'; p.timer = 40; if (p.onGround) p.vy = -15; }
+    const s = stateRef.current;
+    const r = Math.random();
+    if (s === 'neglected') {
+      if (r < 0.5) return set('sleep', 140 + Math.random() * 120, 0);
+      if (r < 0.85) return set('idle', 90 + Math.random() * 100, 0);
+      return walk();
+    }
+    if (s === 'tired') {
+      if (r < 0.45) return set('idle', 90, 0);
+      if (r < 0.7) return set('sleep', 120, 0);
+      return walk();
+    }
+    if (s === 'strong') {
+      if (r < 0.2) return set('idle', 60, 0);
+      if (r < 0.45) return walk();
+      if (r < 0.65) return run();
+      if (r < 0.82) return jump();
+      if (r < 0.92) return set('celebrate', 70, 0);
+      return set('dance', 110, 0);
+    }
+    if (s === 'champion') {
+      if (r < 0.15) return set('idle', 50, 0);
+      if (r < 0.35) return run();
+      if (r < 0.55) return jump();
+      if (r < 0.75) return set('dance', 130, 0);
+      return set('celebrate', 80, 0);
+    }
+    // base
+    if (r < 0.35) return set('idle', 80 + Math.random() * 100, 0);
+    if (r < 0.45) return set('sleep', 110, 0);
+    if (r < 0.75) return walk();
+    if (r < 0.9) return run();
+    return jump();
+
+    function set(b, t, vx) { p.behavior = b; p.timer = t; if (vx !== undefined) p.vx = vx; }
+    function walk() { p.behavior = 'walk'; p.timer = 80 + Math.random() * 100; p.facing = Math.random() < 0.5 ? -1 : 1; }
+    function run() { p.behavior = 'run'; p.timer = 60 + Math.random() * 80; p.facing = Math.random() < 0.5 ? -1 : 1; }
+    function jump() { p.behavior = 'jump'; p.timer = 40; if (p.onGround) p.vy = -13; }
   }
 
-  // --- Interaction handlers ---
+  function react() {
+    const s = stateRef.current;
+    p.behavior = (s === 'champion' || s === 'strong') ? 'dance' : 'celebrate';
+    p.timer = 70;
+    if (p.onGround) p.vy = -11;
+    setPoseIfChanged('flex');
+    const list = REACTIONS[s] || REACTIONS.base;
+    say(list[Math.floor(Math.random() * list.length)]);
+    spawnParticles(s === 'champion' ? '⭐' : s === 'neglected' || s === 'tired' ? '💧' : '❤️', 10);
+    addPetXp?.(2);
+  }
+
   function onPointerDown(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     const point = 'touches' in e ? e.touches[0] : e;
-    p.dragging = true;
-    p.moved = false;
-    p.behavior = 'drag';
-    p.dragDX = point.clientX - p.x;
-    p.dragDY = point.clientY - p.y;
-    p.lastPx = point.clientX;
-    p.lastPy = point.clientY;
+    p.dragging = true; p.moved = false; p.behavior = 'drag';
+    p.lastPx = point.clientX; p.lastPy = point.clientY;
     setPoseIfChanged('flex');
   }
 
+  // pointer move / up (drag + throw)
   useEffect(() => {
     function onMove(e) {
       if (!p.dragging) return;
       const point = 'touches' in e ? e.touches[0] : e;
-      const r = rootRectRef.current;
-      let nx = point.clientX - p.dragDX;
-      let ny = point.clientY - p.dragDY;
-      nx = Math.max(r.left, Math.min(nx, r.left + r.width - SIZE));
-      ny = Math.max(TOP_H, Math.min(ny, r.height - SIZE - NAV_H));
+      const r = elRef.current.parentElement.getBoundingClientRect();
+      const b = boundsRef.current;
+      let nx = point.clientX - r.left - SIZE / 2;
+      let ny = point.clientY - r.top - SIZE / 2;
+      nx = Math.max(0, Math.min(nx, b.w - SIZE));
+      ny = Math.max(0, Math.min(ny, b.h - SIZE));
       p.vx = point.clientX - p.lastPx;
       p.vy = point.clientY - p.lastPy;
-      p.lastPx = point.clientX;
-      p.lastPy = point.clientY;
+      p.lastPx = point.clientX; p.lastPy = point.clientY;
       if (Math.abs(p.vx) + Math.abs(p.vy) > 2) p.moved = true;
-      p.x = nx;
-      p.y = ny;
+      p.x = nx; p.y = ny;
     }
     function onUp() {
       if (!p.dragging) return;
       p.dragging = false;
-      if (!p.moved) {
-        // It was a tap, not a drag → react
-        react();
-      } else {
-        // Thrown → clamp throw velocity and let physics take over
-        p.vx = Math.max(-22, Math.min(22, p.vx));
-        p.vy = Math.max(-22, Math.min(22, p.vy));
-        p.behavior = 'idle';
-        p.timer = 30;
-        say('¡Wee! 🌀', 1000);
+      if (!p.moved) react();
+      else {
+        p.vx = Math.max(-20, Math.min(20, p.vx));
+        p.vy = Math.max(-20, Math.min(20, p.vy));
+        p.behavior = 'idle'; p.timer = 30;
+        say('¡Wee! 🌀', 900);
       }
     }
     window.addEventListener('pointermove', onMove);
@@ -144,117 +183,106 @@ export default function InteractivePet() {
     };
   }, []);
 
-  function react() {
-    p.behavior = 'celebrate';
-    p.timer = 60;
-    if (p.onGround) p.vy = -12;
-    setPoseIfChanged('flex');
-    say(REACTIONS[Math.floor(Math.random() * REACTIONS.length)]);
-    spawnParticles(Math.random() < 0.5 ? '✨' : '❤️', 10);
-  }
+  // React to evolution-state changes (smooth feedback)
+  useEffect(() => {
+    const prev = stateRef.current;
+    stateRef.current = state;
+    if (prev === state) return;
+    if (STATE_RANK[state] > STATE_RANK[prev]) {
+      p.behavior = 'celebrate'; p.timer = 80; if (p.onGround) p.vy = -12;
+      say(state === 'champion' ? '¡CAMPEÓN! 🏆' : '¡Subiste de forma! 💪');
+      spawnParticles(state === 'champion' ? '⭐' : '✨', 14);
+    } else {
+      p.behavior = 'idle'; p.timer = 90;
+      say(state === 'neglected' ? 'Me siento flojo... 🥱' : 'La racha está en riesgo 😮‍💨');
+      spawnParticles('💧', 6);
+    }
+  }, [state]);
 
-  // --- Game loop ---
+  // game loop
   useEffect(() => {
     function refreshBounds() {
-      const root = document.getElementById('root');
-      if (root) {
-        const r = root.getBoundingClientRect();
-        rootRectRef.current = { left: r.left, width: r.width, height: window.innerHeight };
-      }
+      const parent = elRef.current?.parentElement;
+      if (parent) boundsRef.current = { w: parent.clientWidth, h: parent.clientHeight };
     }
     refreshBounds();
     window.addEventListener('resize', refreshBounds);
 
-    let raf;
-    let tick = 0;
+    let raf, tick = 0;
     function loop() {
       tick++;
-      const r = rootRectRef.current;
-      const floor = r.height - SIZE - NAV_H;
+      refreshBounds();
+      const b = boundsRef.current;
+      const floor = b.h - SIZE;
+      const spd = SPEED[stateRef.current] || 1;
 
       if (!p.dragging) {
-        // Behaviour timer / AI
-        if (p.behavior !== 'celebrate' && p.behavior !== 'react') {
+        if (p.behavior !== 'celebrate' && p.behavior !== 'dance') {
           p.timer--;
           if (p.timer <= 0 && p.onGround) pickBehavior();
         } else {
           p.timer--;
           if (p.timer <= 0) { p.behavior = 'idle'; p.timer = 60; }
+          if (p.behavior === 'dance' && tick % 22 === 0) spawnParticles('🎵', 2);
         }
 
-        // Horizontal motion
-        if (p.behavior === 'walk') p.vx = 0.7 * p.facing;
-        else if (p.behavior === 'run') p.vx = 2.1 * p.facing;
+        if (p.behavior === 'walk') p.vx = 0.7 * spd * p.facing;
+        else if (p.behavior === 'run') p.vx = 2.0 * spd * p.facing;
         else if (p.onGround && p.behavior !== 'jump') p.vx *= FRICTION;
 
-        // Gravity
         p.vy += GRAVITY;
         p.x += p.vx;
         p.y += p.vy;
 
-        // Floor collision + bounce
         if (p.y >= floor) {
           p.y = floor;
-          if (p.vy > 6) { p.vy = -p.vy * 0.35; }   // bounce
-          else { p.vy = 0; p.onGround = true; }
-        } else {
-          p.onGround = false;
-        }
+          if (p.vy > 5) p.vy = -p.vy * 0.35; else { p.vy = 0; p.onGround = true; }
+        } else p.onGround = false;
 
-        // Wall collisions
-        const minX = r.left + 2;
-        const maxX = r.left + r.width - SIZE - 2;
-        if (p.x <= minX) { p.x = minX; p.facing = 1; p.vx = Math.abs(p.vx); }
+        const maxX = b.w - SIZE;
+        if (p.x <= 0) { p.x = 0; p.facing = 1; p.vx = Math.abs(p.vx); }
         if (p.x >= maxX) { p.x = maxX; p.facing = -1; p.vx = -Math.abs(p.vx); }
       }
 
-      // Decide pose from state
       let poseName;
-      if (p.dragging || p.behavior === 'celebrate') poseName = 'flex';
-      else if (!p.onGround) poseName = 'flex';            // airborne = flex
+      if (p.dragging || p.behavior === 'celebrate' || p.behavior === 'dance' || !p.onGround) poseName = 'flex';
       else if (p.behavior === 'sleep') poseName = 'sit';
       else poseName = 'stand';
       setPoseIfChanged(poseName);
 
-      // Visual transform (squash & stretch + waddle)
       const el = elRef.current;
       if (el) {
         let sx = 1, sy = 1, rot = 0;
-        if (!p.onGround) { sy = 1.12; sx = 0.9; }                         // stretch in air
+        if (!p.onGround) { sy = 1.12; sx = 0.9; }
         else if (p.behavior === 'walk' || p.behavior === 'run') {
-          const wobble = Math.sin(tick * (p.behavior === 'run' ? 0.5 : 0.3));
-          rot = wobble * (p.behavior === 'run' ? 8 : 4);
-          sy = 1 + Math.abs(wobble) * 0.04;
+          const wob = Math.sin(tick * (p.behavior === 'run' ? 0.5 : 0.3));
+          rot = wob * (p.behavior === 'run' ? 8 : 4);
+          sy = 1 + Math.abs(wob) * 0.04;
         } else if (p.behavior === 'celebrate') {
-          sy = 1 + Math.sin(tick * 0.6) * 0.08;
-          rot = Math.sin(tick * 0.6) * 10;
+          sy = 1 + Math.sin(tick * 0.6) * 0.08; rot = Math.sin(tick * 0.6) * 10;
+        } else if (p.behavior === 'dance') {
+          rot = Math.sin(tick * 0.4) * 16; sy = 1 + Math.abs(Math.sin(tick * 0.4)) * 0.1;
         } else if (p.behavior === 'idle') {
-          sy = 1 + Math.sin(tick * 0.06) * 0.03;                          // breathing
+          sy = 1 + Math.sin(tick * 0.06) * 0.03;
         } else if (p.behavior === 'sleep') {
           sy = 1 + Math.sin(tick * 0.04) * 0.05;
         }
         el.style.transform =
           `translate(${p.x}px, ${p.y}px) scaleX(${p.facing * sx}) scaleY(${sy}) rotate(${rot}deg)`;
       }
-
       raf = requestAnimationFrame(loop);
     }
     raf = requestAnimationFrame(loop);
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', refreshBounds); };
   }, []);
 
-  if (hidden) {
-    return (
-      <button className="pet-summon" onClick={() => setHidden(false)} title="Llamar a tu mascota">
-        <span className="material-symbols-outlined">pets</span>
-      </button>
-    );
-  }
+  const info = STATE_INFO[state];
+  const showZzz = state === 'tired' || state === 'neglected';
 
   return (
     <div
       ref={elRef}
-      className={`ipet ipet-${pose} ipet-${p.behavior}`}
+      className={`ipet ipet-${pose} ipet-${p.behavior} ipet-state-${state}`}
       onPointerDown={onPointerDown}
       onTouchStart={onPointerDown}
       onDoubleClick={react}
@@ -262,7 +290,9 @@ export default function InteractivePet() {
       aria-label="Mascota interactiva"
     >
       {bubble && <div className="ipet-bubble">{bubble}</div>}
-      <button className="ipet-close" onPointerDown={(e) => { e.stopPropagation(); setHidden(true); }}>×</button>
+
+      {/* state aura (champion / strong) */}
+      <div className="ipet-aura" />
 
       <div className="ipet-body">
         {imgOk[pose] ? (
@@ -274,17 +304,17 @@ export default function InteractivePet() {
             onError={() => setImgOk(s => ({ ...s, [pose]: false }))}
           />
         ) : (
-          <span className="ipet-emoji">{POSE_EMOJI[pose]}</span>
+          <span className="ipet-emoji">{info.emoji}</span>
         )}
+        {/* state badge (crown / muscle / burger / zzz) */}
+        {info.badge && <span className="ipet-badge">{info.badge}</span>}
+        {showZzz && <span className="ipet-zzz">z</span>}
         <div className="ipet-shadow" />
       </div>
 
       {particles.map(pt => (
-        <span
-          key={pt.id}
-          className="ipet-particle"
-          style={{ '--dx': `${pt.dx}px`, '--dy': `${pt.dy}px`, '--rot': `${pt.rot}deg` }}
-        >{pt.emoji}</span>
+        <span key={pt.id} className="ipet-particle"
+          style={{ '--dx': `${pt.dx}px`, '--dy': `${pt.dy}px`, '--rot': `${pt.rot}deg` }}>{pt.emoji}</span>
       ))}
     </div>
   );

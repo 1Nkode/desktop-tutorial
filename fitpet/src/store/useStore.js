@@ -178,6 +178,18 @@ export function evolvePet(pet, stats) {
   return { ...pet, physique, mood };
 }
 
+// Derives the high-level "evolution state" the companion displays.
+// base · strong · neglected · tired · champion
+export function petState(pet, stats, user) {
+  const workoutDays = stats.weeklyWorkouts.filter(v => v > 0).length;
+  const streak = user?.streak ?? 0;
+  if (pet.level >= 10 || (pet.physique === 'strong' && workoutDays >= 6)) return 'champion';
+  if (pet.physique === 'strong') return 'strong';
+  if (pet.physique === 'chubby') return 'neglected';
+  if (pet.mood === 'tired' || pet.mood === 'sad' || (streak > 0 && workoutDays <= 2)) return 'tired';
+  return 'base';
+}
+
 // Applies XP and rolls over into new levels when the bar fills.
 function applyXp(pet, amount) {
   let xp = pet.xp + amount;
@@ -328,6 +340,11 @@ export const useStore = create(persist((set, get) => ({
       pet: newPet,
     };
   }),
+
+  // XP from playing with the interactive pet
+  addPetXp: (amount = 1) => set((state) => ({
+    pet: applyXp(state.pet, amount),
+  })),
 
   // Pet customization
   setAccessory: (accId) => set((state) => ({
