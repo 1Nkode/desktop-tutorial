@@ -41,7 +41,7 @@ export default function Rewards() {
       <div className="card">
         <div className="section-header">
           <span className="section-title">Daily Missions</span>
-          <span className="tag" style={{ background: '#E8F5E9', color: 'var(--green-dark)' }}>
+          <span className="tag" style={{ background: 'rgba(204,255,0,0.15)', color: 'var(--lime)' }}>
             {dailyDone}/{missions.length} done
           </span>
         </div>
@@ -56,7 +56,7 @@ export default function Rewards() {
       <div className="card">
         <div className="section-header">
           <span className="section-title">Badges</span>
-          <span className="tag" style={{ background: '#FFF8E1', color: '#F57F17' }}>
+          <span className="tag" style={{ background: 'rgba(255,185,81,0.15)', color: 'var(--orange)' }}>
             {badges.filter(b => b.earned).length}/{badges.length} earned
           </span>
         </div>

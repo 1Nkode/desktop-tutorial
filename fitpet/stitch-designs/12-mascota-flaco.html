@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Low Energy Floating Animation for Slacker Titan */
+        @keyframes floating-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .pet-float-slow {
+            animation: floating-slow 6s ease-in-out infinite;
+        }
+
+        /* Dimmer Pulsing for Sedentary State */
+        @keyframes pulse-neon-dim {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(171, 214, 0, 0.2)); opacity: 0.8; }
+            50% { filter: drop-shadow(0 0 15px rgba(171, 214, 0, 0.4)); opacity: 1; }
+        }
+        .neon-pulse-dim {
+            animation: pulse-neon-dim 4s ease-in-out infinite;
+        }
+
+        /* Success Pulse for Active Mode */
+        @keyframes banner-glow-success {
+            0%, 100% { border-color: rgba(171, 214, 0, 0.2); box-shadow: 0 0 5px rgba(171, 214, 0, 0.1); }
+            50% { border-color: rgba(171, 214, 0, 0.5); box-shadow: 0 0 12px rgba(171, 214, 0, 0.2); }
+        }
+        .bestia-pulse-success {
+            animation: banner-glow-success 3s infinite;
+        }
+
+        /* Progress Bar Animation */
+        .progress-fill {
+            width: 0;
+            transition: width 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#131313",
+                        "on-primary-fixed": "#161e00",
+                        "on-primary": "#283500",
+                        "on-tertiary-container": "#646468",
+                        "background": "#131313",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#c3f400",
+                        "on-tertiary": "#303034",
+                        "on-secondary": "#1f1792",
+                        "inverse-surface": "#e5e2e1",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#393939",
+                        "on-error": "#690005",
+                        "primary": "#ffffff",
+                        "tertiary-fixed-dim": "#c8c6cb",
+                        "on-secondary-container": "#b1b1ff",
+                        "secondary-fixed": "#e2dfff",
+                        "error": "#ffb4ab",
+                        "primary-fixed": "#c3f400",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-tint": "#abd600",
+                        "secondary-fixed-dim": "#c2c1ff",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#abd600",
+                        "on-secondary-fixed-variant": "#3835a8",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "on-tertiary-fixed-variant": "#47464b",
+                        "on-tertiary-fixed": "#1b1b1f",
+                        "surface-container-highest": "#353534",
+                        "surface-container": "#201f1f",
+                        "on-secondary-fixed": "#0b006b",
+                        "on-primary-container": "#556d00",
+                        "on-background": "#e5e2e1",
+                        "tertiary": "#ffffff",
+                        "secondary-container": "#3a38ab",
+                        "outline-variant": "#444933",
+                        "on-surface-variant": "#c4c9ac",
+                        "surface-variant": "#353534",
+                        "secondary": "#c2c1ff",
+                        "surface-dim": "#131313",
+                        "tertiary-container": "#e4e1e7",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-fixed": "#e4e1e7",
+                        "inverse-primary": "#506600",
+                        "outline": "#8e9379",
+                        "on-error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "32px",
+                        "md": "20px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "xs": "4px",
+                        "xl": "48px",
+                        "gutter": "16px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "stats-xl": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-xl flex justify-between items-center px-container-margin h-16">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed/50">
+<img alt="Mini virtual pet avatar" class="w-full h-full object-cover grayscale-[0.5]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRpFdGGPUcYILuFxE-gWzipdL8XnHlydjUghJhN_UEy5IJFpMX7EyycW5ld4Etd96U1u_9zlxY3GLqChRHzlXLxICmr1NzXo5m8k7Yl_WQWPTUNHi_w6WqQB6vAhfn7HJoO7LvvRLfZ9BJWjZjfbNjKf_u-B3i8Lii4JkgzuB5z-gIO7dsV_m5UiwxA86FP_YVyoNhVJzv-7cMFAJi7GjKUwdjQCvM3-jQ5lvsXX9NW0n_byt72cOc8YTvRKZm2dKsSXLeFI0DNAtg"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-primary-container/20 rounded-full border border-primary-fixed/30 active:scale-95 duration-200 transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md text-primary-fixed uppercase tracking-widest">7 Day Streak</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 px-container-margin max-w-md mx-auto">
+<!-- Progress Bars Section (Medium State) -->
+<div class="grid grid-cols-2 gap-4 mb-lg">
+<div class="glass-panel rounded-lg p-4 border-primary-fixed/10">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Ánimo</span>
+<span class="material-symbols-outlined text-primary-fixed text-sm">sentiment_satisfied</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed/60 to-primary-fixed-dim/40 rounded-full progress-fill" data-target="58%"></div>
+</div>
+</div>
+<div class="glass-panel rounded-lg p-4 border-primary-fixed/10">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Fuerza</span>
+<span class="material-symbols-outlined text-primary-fixed text-sm">fitness_center</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed/60 to-primary-fixed-dim/40 rounded-full progress-fill" data-target="55%"></div>
+</div>
+</div>
+</div>
+<!-- Pet Environment -->
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden flex flex-col items-center justify-center border-white/5" style="background-color: #131313;">
+<!-- Central Pet (Thin State) -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="pet-float-slow w-64 h-64 relative">
+<div class="absolute inset-0 bg-primary-fixed/5 blur-3xl rounded-full"></div>
+<img alt="Fit-ish Gym Titan" class="w-full h-full object-contain neon-pulse-dim" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD62uGLOXU25wAiICZCpS--etjC8HAcs4cVlmGhd2NufzyV1uc5BjMJ_-3yF8RtuXBB-jOQoa_ziJeScwSf-X7DzB6WbMLYOsQaUyOQdePZLVqih9GUXTY6sDOnWBwpS06DzHnoiJiqYP4xpEmHpfzn5a3mIGdFsotdGcs8gJH4xQSxNLlg13Bko5AXc5DGEfvtpFK2ENcCVr2E9ugzpP7XhHcBmfB5VU9ZS7tb_qM_1wI9V5Fo80Ex-hmrjLVZNux9Kf4rfnzBjgMH"/>
+</div>
+<div class="mt-4 text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Gym Titan</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Level 42 Fit-ish</p>
+<!-- MODO NORMAL ACTIVO Alert -->
+<div class="mt-6 p-4 border rounded-xl text-left bestia-pulse-success bg-primary-fixed/10 border-primary-fixed/30 max-w-[280px] mx-auto">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm text-primary-fixed" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-label-md text-label-md uppercase text-primary-fixed">MODO NORMAL ACTIVO</span>
+</div>
+<p class="text-[12px] leading-tight text-on-surface-variant">Tu mascota está en su peso ideal, ¡pero le falta músculo! Entrena para alcanzar el Modo Bestia.</p>
+</div>
+</div>
+</div>
+<!-- Floating Action -->
+<button class="absolute bottom-6 right-6 w-14 h-14 bg-primary-fixed/60 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl active:scale-90 transition-transform duration-200 z-10">
+<span class="material-symbols-outlined text-on-primary-fixed text-[32px]">play_arrow</span>
+</button>
+</div>
+<!-- Accesorios Section -->
+<div class="mt-lg mb-8">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-headline-md text-headline-md text-primary opacity-90">Accesorios</h3>
+<span class="font-label-md text-label-md text-primary-fixed border-b border-primary-fixed/30 cursor-pointer">Ver todos</span>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<div class="flex-shrink-0 w-28 h-28 glass-panel rounded-lg flex flex-col items-center justify-center border border-primary-fixed/20 p-2 text-center">
+<span class="material-symbols-outlined text-primary-fixed text-2xl" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="text-[10px] text-on-surface mt-2">Corona Titán</span>
+</div>
+<div class="flex-shrink-0 w-28 h-28 glass-panel rounded-lg flex flex-col items-center justify-center border border-white/5 p-2 text-center opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl">fitness_center</span>
+<span class="text-[10px] text-on-surface-variant mt-2">Cinturón Pro</span>
+</div>
+<div class="flex-shrink-0 w-28 h-28 glass-panel rounded-lg flex flex-col items-center justify-center border border-white/5 p-2 text-center opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl">timer</span>
+<span class="text-[10px] text-on-surface-variant mt-2">Cronos V1</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 p-2 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 p-2 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 p-2 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-3 py-1 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 p-2 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<script>
+    // Progress Bars Animation
+    window.addEventListener('DOMContentLoaded', () => {
+        const progressBars = document.querySelectorAll('.progress-fill');
+        setTimeout(() => {
+            progressBars.forEach(bar => {
+                const targetWidth = bar.getAttribute('data-target');
+                bar.style.width = targetWidth;
+            });
+        }, 500);
+    });
+
+    // Navigation logic (simulated)
+    document.querySelectorAll('nav a').forEach((link, index) => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log(`Navigating to section: ${link.querySelector('span:last-child').innerText}`);
+        });
+    });
+
+    // Micro-interactions for pet
+    const petImg = document.querySelector('.neon-pulse-dim');
+    if (petImg) {
+        petImg.addEventListener('click', () => {
+            petImg.style.transform = 'scale(0.95)';
+            setTimeout(() => petImg.style.transform = 'scale(1)', 150);
+            if (window.navigator.vibrate) window.navigator.vibrate(5);
+        });
+    }
+</script>
+</body></html>

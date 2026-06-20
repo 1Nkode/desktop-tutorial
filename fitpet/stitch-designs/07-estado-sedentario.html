@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Floating Animation for Titan */
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .pet-float {
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        /* Pulsing Neon Glow */
+        @keyframes pulse-neon {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(195, 244, 0, 0.4)); }
+            50% { filter: drop-shadow(0 0 25px rgba(195, 244, 0, 0.8)); }
+        }
+        .neon-pulse {
+            animation: pulse-neon 2s ease-in-out infinite;
+        }
+
+        /* Bestia Banner Pulse */
+        @keyframes banner-glow {
+            0%, 100% { border-color: rgba(195, 244, 0, 0.2); box-shadow: 0 0 5px rgba(195, 244, 0, 0.1); }
+            50% { border-color: rgba(195, 244, 0, 0.6); box-shadow: 0 0 15px rgba(195, 244, 0, 0.3); }
+        }
+        .bestia-pulse {
+            animation: banner-glow 2s infinite;
+        }
+
+        /* Scanning Line Effect */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(400%); }
+        }
+        .scan-line::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(195, 244, 0, 0.4), transparent);
+            animation: scanline 4s linear infinite;
+            z-index: 5;
+        }
+
+        /* Progress Bar Animation */
+        .progress-fill {
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.3);
+        }
+        body {
+            background-color: #121212;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+        
+        /* Interaction */
+        .pet-active:active {
+            transform: scale(1.1) rotate(5deg);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#c2c1ff",
+                        "surface-dim": "#131313",
+                        "on-secondary": "#1f1792",
+                        "surface-bright": "#393939",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary-container": "#3a38ab",
+                        "on-surface-variant": "#c4c9ac",
+                        "primary-fixed-dim": "#abd600",
+                        "on-error-container": "#ffdad6",
+                        "on-surface": "#e5e2e1",
+                        "inverse-primary": "#506600",
+                        "on-secondary-container": "#b1b1ff",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-tint": "#abd600",
+                        "secondary": "#c2c1ff",
+                        "surface-variant": "#353534",
+                        "on-primary": "#283500",
+                        "on-tertiary": "#303034",
+                        "on-tertiary-fixed": "#1b1b1f",
+                        "primary": "#ffffff",
+                        "error": "#ffb4ab",
+                        "outline": "#8e9379",
+                        "surface-container-highest": "#353534",
+                        "on-secondary-fixed": "#0b006b",
+                        "surface-container": "#201f1f",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#3835a8",
+                        "tertiary-fixed-dim": "#c8c6cb",
+                        "primary-container": "#c3f400",
+                        "on-background": "#e5e2e1",
+                        "on-primary-container": "#556d00",
+                        "tertiary": "#ffffff",
+                        "surface": "#131313",
+                        "tertiary-fixed": "#e4e1e7",
+                        "primary-fixed": "#c3f400",
+                        "inverse-on-surface": "#313030",
+                        "outline-variant": "#444933",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed": "#161e00",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "on-tertiary-fixed-variant": "#47464b",
+                        "on-tertiary-container": "#646468",
+                        "secondary-fixed": "#e2dfff",
+                        "background": "#131313",
+                        "tertiary-container": "#e4e1e7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "20px",
+                        "lg": "32px",
+                        "md": "20px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "xs": "4px",
+                        "xl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "stats-xl": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-xl flex justify-between items-center px-container-margin h-16">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed neon-glow">
+<img class="w-full h-full object-cover" data-alt="A stylized 3D rendered close-up profile of a cute digital creature with smooth, vibrant green skin and large expressive eyes. The creature wears a tiny sweatband and has a determined yet happy expression. The lighting is cinematic with high-contrast neon green highlights against a deep dark background, following a sleek gaming aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRpFdGGPUcYILuFxE-gWzipdL8XnHlydjUghJhN_UEy5IJFpMX7EyycW5ld4Etd96U1u_9zlxY3GLqChRHzlXLxICmr1NzXo5m8k7Yl_WQWPTUNHi_w6WqQB6vAhfn7HJoO7LvvRLfZ9BJWjZjfbNjKf_u-B3i8Lii4JkgzuB5z-gIO7dsV_m5UiwxA86FP_YVyoNhVJzv-7cMFAJi7GjKUwdjQCvM3-jQ5lvsXX9NW0n_byt72cOc8YTvRKZm2dKsSXLeFI0DNAtg"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-primary-container/20 rounded-full border border-primary-fixed/30 active:scale-95 duration-200 transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md text-primary-fixed uppercase tracking-widest">7 Day Streak</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 px-container-margin max-w-md mx-auto">
+<!-- Progress Bars Section -->
+<div class="grid grid-cols-2 gap-4 mb-lg">
+<div class="glass-panel rounded-lg p-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Estado de ánimo</span>
+<span class="material-symbols-outlined text-primary-fixed text-sm">mood</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed to-primary-fixed-dim rounded-full shadow-[0_0_10px_rgba(195,244,0,0.5)] progress-fill" data-target="85%"></div>
+</div>
+</div>
+<div class="glass-panel rounded-lg p-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Fuerza</span>
+<span class="material-symbols-outlined text-primary-fixed text-sm">fitness_center</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed to-primary-fixed-dim rounded-full shadow-[0_0_10px_rgba(195,244,0,0.5)] progress-fill" data-target="15%" style="width: 15%;"></div>
+</div>
+</div>
+</div>
+<!-- Pet Environment -->
+<div class="relative w-full aspect-[4/5] glass-panel rounded-lg overflow-hidden flex flex-col items-center justify-center border-2 border-white/5 scan-line">
+<!-- Room Background Elements -->
+<div class="absolute inset-0 z-0 opacity-40">
+<img class="w-full h-full object-cover" data-alt="A futuristic, high-tech digital room interior designed for a virtual pet. The walls feature glowing neon green hexagonal patterns and glass display cases showing tiny trophies. The atmosphere is immersive and dark, with soft purple and green ambient lighting creating a sophisticated gym-like environment for a digital companion." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuyJOxQ5QTVAWDSj2cI3evZgxJ3L7Wlt_ZT2klLmzPR_0CY3J_KPWR-humH_xwHSZn6zMtTpLLzx4ewraoIIs7vjb2sNF1LyUtK9Dbg3qGSR1hVuQQ0MNiHPqYnNud7U3W6kQgfaQDk8NA_uT8ADFkc7zYO8pdnkFjBycM7-AikpefXu2UML0Tw7fgxKQ8TR9yv-qjMpEMvpzDgnTwq0MgrYOX2ckqxJaxINLBeYieXJkFTwYqp6JQ0RjxPusMpD7OpbM_fye8phqS"/>
+</div>
+<!-- Central Pet -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="pet-float w-56 h-56 relative cursor-pointer active:scale-110 transition-transform duration-300">
+<!-- The Evolved Pet -->
+<div class="absolute inset-0 bg-primary-fixed/20 blur-3xl rounded-full"></div>
+<img class="w-full h-full object-contain neon-pulse pet-active" data-alt="A unique 2D minimalist cartoon character for a fitness app, merging the style of https://lh3.googleusercontent.com/aida/ADBb0ugHOHg5HF5MG-zAPITzjsfbA32Te5AsyMT8zNDkpt18RJjVvvqTkzNVXtaOUT1xujXUnD6HqVmkcJN_gwNU8ox7b2QIXdsTBA0etcwuXnGoxd40Y2bTKmBUFeVjTeEbqdMA58FRtsUOx0b7Sw1tk06ppp046vJFX-BqgdHqLGTqy6oc4fBykidZxZMkBY2TI999f1PN31UUaAYddlL4ucRPNlg-LYkLdKPpSsUXCcK1Rno2H7N0L7Go7ao with the 'Gym Rat' aesthetic of https://lh3.googleusercontent.com/aida-public/AB6AXuDyZo8_vDlj19RoiczSEbsEtswoW4qMWSPchDyQ5xiIknncQgkeGYmUtgK979GZPy3S_oDDzBu-QCMyJL_Glm36NR1Y4vXYDM7FsNJS3-_YkYj-8n_wNzycqeZPWaG4cRkh597nXRb8UpQoCg2750hDYK9hOJBdfvL9sDyVIwC02p9zohLaK9kvgH3OAvByu10YpW3K2-TrBh_4EaY1SaaB54huDnbi5weyIQFyOqIQwuXwdQZ1BWrKA1rtdbQqzaMHnAcEe11ojYZe and https://lh3.googleusercontent.com/aida-public/AB6AXuA6SbdFUl_bNc5KbuPTRXuLnfe9YRwkx6AGPibsFIbBYdAG4-1s1nDPEZ6yc_1_1WmoSWughAObflaAL6CGM_uUvleKQxadgfgr-k9pRonjax0I6f3EyqafD00RUEwfr_44qWpNfvZxRgMsyUrJe0NrnUm_Dz0YtX9L-ot5jB2Ziy6etntTffpdzWDbkaCQf-p2p29uYhe4he3EYIqSOuYe28PbD52aHcFleD9J-wG-cNw9tchctWy-NrSUYaJyUP2yxnFhqeScIUu_. The character is a light green, pear-shaped organic being (Pou-inspired) with a very muscular and buff physique, showing defined arms and chest. It has large, expressive googly eyes. It is wearing a tight white gym tank top that shows its muscles, tiny blue gym shorts with a black weightlifting belt, and a black headband. The drawing style uses bold black outlines and flat colors, similar to a high-quality sticker or vector illustration. The character is in a confident bodybuilding pose on a solid dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmySFK0AKOExBItwirXzNbS4JZ_MK93J_d_DxQt-nBrbLOfrwZGNcCvov7Kp6rB2ktg6cElUDP2kxRvrPo4IRGhIKgP0tFEf9gJiS6c4Jl49r1wM97NhsLsDxhMlyZ5JI9yoQH7Voh9rf10R4ftWzo0zXg80PRmaWz7JE4T2gY3qEGSzpexXxXqH-7dXuWjXTIu6IKiDXQqWj386gS0zavsujeR9h0OcbCkHVkzW-6GKJnPkxg54ZSr6RLdIcfvkVlSTm5YyFO-mBS"/>
+</div>
+<div class="mt-6 text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Gym Titan</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Level 42 Slacker</p><div class="mt-4 p-3 border rounded-lg text-left bestia-pulse bg-yellow-500/10 border-yellow-500/40">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm text-yellow-500" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-label-md text-label-md uppercase text-yellow-500">MODO SEDENTARIO</span>
+</div>
+<p class="text-[12px] leading-tight text-on-surface-variant">Tu mascota ha perdido su forma f sica! Entrena hoy para recuperar su fuerza.</p>
+</div>
+</div>
+</div>
+<!-- Quick Action Floating Buttons -->
+<button class="absolute bottom-6 right-6 w-14 h-14 bg-primary-fixed rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform duration-200 z-10">
+<span class="material-symbols-outlined text-on-primary-fixed text-[32px]">play_arrow</span>
+</button>
+<button class="absolute bottom-6 left-6 w-14 h-14 glass-panel rounded-full flex items-center justify-center active:scale-90 transition-transform duration-200 border border-primary-fixed/20 z-10">
+<span class="material-symbols-outlined text-primary-fixed text-[28px]">restaurant</span>
+</button>
+</div>
+<!-- Accesorios Desbloqueados -->
+<div class="mt-lg">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-headline-md text-headline-md text-primary">Accesorios desbloqueados</h3>
+<span class="font-label-md text-label-md text-primary-fixed border-b-2 border-primary-fixed cursor-pointer">Ver todos</span>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"><div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center border-2 border-primary-fixed/40 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary-fixed text-3xl group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="text-[10px] text-on-surface mt-1">Corona Titán</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center opacity-60 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl group-hover:scale-110 transition-transform">fitness_center</span>
+<span class="text-[10px] font-bold text-primary-fixed mt-1">Cinturón Pro</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">100kg Press Banca</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center opacity-60 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl group-hover:scale-110 transition-transform">hat</span>
+<span class="text-[10px] font-bold text-primary-fixed mt-1">Gorra Beast</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">500kg Vol. Total</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center opacity-60 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl group-hover:scale-110 transition-transform">timer</span>
+<span class="text-[10px] font-bold text-primary-fixed mt-1">Cronos V1</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">20 Entrenos HIIT</span>
+</div></div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-4 py-2 active:scale-90 transition-all duration-300 shadow-[0_0_15px_rgba(195,244,0,0.2)]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<script>
+        // Progress Bars Animation on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            setTimeout(() => {
+                progressBars.forEach(bar => {
+                    const targetWidth = bar.getAttribute('data-target');
+                    bar.style.width = targetWidth;
+                });
+            }, 300);
+        });
+
+        // Micro-interactions: Subtle pet follow effect or hover light
+        const petContainer = document.querySelector('.relative.w-full.aspect-\\[4\\/5\\]');
+        const glowEffect = document.querySelector('.absolute.inset-0.bg-primary-fixed\\/20');
+
+        petContainer.addEventListener('mousemove', (e) => {
+            const rect = petContainer.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            glowEffect.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(195, 244, 0, 0.4) 0%, transparent 70%)`;
+        });
+
+        petContainer.addEventListener('mouseleave', () => {
+            glowEffect.style.background = `rgba(195, 244, 0, 0.2)`;
+        });
+
+        // Haptic feedback simulation on interactions
+        document.querySelectorAll('button, a, .pet-float').forEach(el => {
+            el.addEventListener('click', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+    </script>
+</body></html>

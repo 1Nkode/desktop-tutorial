@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Alive Animations for Titan */
+        @keyframes breathing {
+            0%, 100% { transform: scaleY(1) translateY(0); }
+            50% { transform: scaleY(1.03) translateY(-4px); }
+        }
+        @keyframes sway {
+            0%, 100% { rotate: -1.5deg; }
+            50% { rotate: 1.5deg; }
+        }
+        .pet-alive {
+            animation: breathing 4s ease-in-out infinite, sway 6s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        /* Eye Blink Effect - Using a CSS mask/clip approach */
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0); }
+        }
+        .blink-mask {
+            position: absolute;
+            top: 22%; /* Adjusted to position over eyes of IMAGE_38 */
+            left: 20%;
+            right: 20%;
+            height: 25%;
+            background: #131313;
+            transform-origin: center top;
+            animation: blink 5s infinite;
+            z-index: 25;
+            pointer-events: none;
+            opacity: 0; /* Default hidden, only shown if we want literal lids */
+        }
+        /* Alternative Blink: Image Clipping */
+        @keyframes eye-clip {
+            0%, 90%, 100% { clip-path: inset(0 0 0 0); }
+            95% { clip-path: inset(50% 0 50% 0); }
+        }
+        .blink-effect {
+            animation: eye-clip 5s infinite;
+        }
+
+        /* Pulsing Aura */
+        @keyframes aura-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); filter: blur(40px); }
+            50% { opacity: 0.6; transform: scale(1.15); filter: blur(60px); }
+        }
+        .aura-glow {
+            background: radial-gradient(circle, rgba(195, 244, 0, 0.4) 0%, transparent 70%);
+            animation: aura-pulse 3s ease-in-out infinite;
+        }
+
+        /* Interaction Animations */
+        @keyframes squish {
+            0% { transform: scale(1, 1); }
+            30% { transform: scale(1.2, 0.8); }
+            60% { transform: scale(0.9, 1.1); }
+            100% { transform: scale(1, 1); }
+        }
+        .animate-squish {
+            animation: squish 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes jiggle {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+        .animate-jiggle {
+            animation: jiggle 0.4s ease-in-out;
+        }
+
+        /* Particle System */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: particle-fly 0.8s ease-out forwards;
+            z-index: 50;
+            font-size: 20px;
+        }
+        @keyframes particle-fly {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.3);
+        }
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+        
+        .progress-fill {
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Dragging state */
+        .is-dragging {
+            cursor: grabbing !important;
+            transition: none !important;
+            z-index: 100 !important;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#c2c1ff",
+                        "surface-dim": "#131313",
+                        "on-secondary": "#1f1792",
+                        "surface-bright": "#393939",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary-container": "#3a38ab",
+                        "on-surface-variant": "#c4c9ac",
+                        "primary-fixed-dim": "#abd600",
+                        "on-error-container": "#ffdad6",
+                        "on-surface": "#e5e2e1",
+                        "inverse-primary": "#506600",
+                        "on-secondary-container": "#b1b1ff",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-tint": "#abd600",
+                        "secondary": "#c2c1ff",
+                        "surface-variant": "#353534",
+                        "on-primary": "#283500",
+                        "on-tertiary": "#303034",
+                        "on-tertiary-fixed": "#1b1b1f",
+                        "primary": "#ffffff",
+                        "error": "#ffb4ab",
+                        "outline": "#8e9379",
+                        "surface-container-highest": "#353534",
+                        "on-secondary-fixed": "#0b006b",
+                        "surface-container": "#201f1f",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#3835a8",
+                        "tertiary-fixed-dim": "#c8c6cb",
+                        "primary-container": "#c3f400",
+                        "on-background": "#e5e2e1",
+                        "on-primary-container": "#556d00",
+                        "tertiary": "#ffffff",
+                        "surface": "#131313",
+                        "tertiary-fixed": "#e4e1e7",
+                        "primary-fixed": "#c3f400",
+                        "inverse-on-surface": "#313030",
+                        "outline-variant": "#444933",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed": "#161e00",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "on-tertiary-fixed-variant": "#47464b",
+                        "on-tertiary-container": "#646468",
+                        "secondary-fixed": "#e2dfff",
+                        "background": "#131313",
+                        "tertiary-container": "#e4e1e7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "20px",
+                        "lg": "32px",
+                        "md": "20px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "xs": "4px",
+                        "xl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "stats-xl": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32 select-none overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-xl flex justify-between items-center px-container-margin h-16">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed neon-glow">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRpFdGGPUcYILuFxE-gWzipdL8XnHlydjUghJhN_UEy5IJFpMX7EyycW5ld4Etd96U1u_9zlxY3GLqChRHzlXLxICmr1NzXo5m8k7Yl_WQWPTUNHi_w6WqQB6vAhfn7HJoO7LvvRLfZ9BJWjZjfbNjKf_u-B3i8Lii4JkgzuB5z-gIO7dsV_m5UiwxA86FP_YVyoNhVJzv-7cMFAJi7GjKUwdjQCvM3-jQ5lvsXX9NW0n_byt72cOc8YTvRKZm2dKsSXLeFI0DNAtg"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-primary-container/20 rounded-full border border-primary-fixed/30 active:scale-95 duration-200 transition-opacity">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md text-primary-fixed uppercase tracking-widest">7 Day Streak</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 px-container-margin max-w-md mx-auto">
+<!-- Progress Bars Section -->
+<div class="grid grid-cols-2 gap-4 mb-lg">
+<div class="glass-panel rounded-lg p-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Estado de ánimo</span>
+<span class="material-symbols-outlined text-primary-fixed text-sm">mood</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed to-primary-fixed-dim rounded-full shadow-[0_0_10px_rgba(195,244,0,0.5)] progress-fill" data-target="85%"></div>
+</div>
+</div>
+<div class="glass-panel rounded-lg p-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Fuerza</span>
+<span class="material-symbols-outlined text-primary-fixed text-sm">fitness_center</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed to-primary-fixed-dim rounded-full shadow-[0_0_10px_rgba(195,244,0,0.5)] progress-fill" data-target="62%"></div>
+</div>
+</div>
+</div>
+<!-- Pet Environment -->
+<div class="relative w-full aspect-[4/5] bg-background rounded-lg overflow-hidden flex flex-col items-center justify-center border-2 border-white/5" id="environment">
+<!-- Interactive Aura -->
+<div class="absolute inset-0 aura-glow z-0 pointer-events-none" id="aura"></div>
+<!-- Central Pet -->
+<div class="relative z-10 flex flex-col items-center w-full" id="pet-stage">
+<div class="pet-alive pet-container w-64 h-64 relative cursor-grab active:cursor-grabbing transition-transform" id="pet-main">
+<img alt="Gym Titan" class="w-full h-full object-contain pet-active pointer-events-none blink-effect" id="pet-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8ZxVPNzfS1c0zCLiB126B6WWkNcJicxJlGdBPknvhMrDic20nZk_NnK64wJZ9dtB8_KEo4ggjRjFemLl5AahqsXY5Miw_GNe7labcBsXQsrvm_GVZ0DZm9IpAPd-ASwsHLO2udPeaEhomN5Gt1Oyi-gldXVe5hwRiOyR6vBhm62kwYg8ydeZKaHLBoGx4J9HS3OHDoid-OM5WBlZOTr5tm_jjxApF_m8N9TloSsdF5tGxXT2ABONB6PEfPLm7ykONmoDC5LT6lFn"/>
+</div>
+<div class="mt-4 text-center pointer-events-none" id="pet-info">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Gym Titan</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Level 42 Beast</p>
+<div class="mt-6 p-4 bg-primary-container/10 border border-primary-fixed/20 rounded-lg text-left max-w-[280px] mx-auto">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary-fixed text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label-md text-label-md text-primary-fixed uppercase">Modo Bestia Activo</span>
+</div>
+<p class="text-[12px] leading-tight text-on-surface-variant">¡Tu mascota está al máximo! Entrena antes de 48h para evitar que pierda su físico imponente.</p>
+</div>
+</div>
+</div>
+<!-- Quick Action Floating Buttons -->
+<button class="absolute bottom-6 right-6 w-14 h-14 bg-primary-fixed rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform duration-200 z-10">
+<span class="material-symbols-outlined text-on-primary-fixed text-[32px]">play_arrow</span>
+</button>
+<button class="absolute bottom-6 left-6 w-14 h-14 glass-panel rounded-full flex items-center justify-center active:scale-90 transition-transform duration-200 border border-primary-fixed/20 z-10">
+<span class="material-symbols-outlined text-primary-fixed text-[28px]">restaurant</span>
+</button>
+</div>
+<!-- Accessories -->
+<div class="mt-lg">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-headline-md text-headline-md text-primary">Accesorios desbloqueados</h3>
+<span class="font-label-md text-label-md text-primary-fixed border-b-2 border-primary-fixed cursor-pointer">Ver todos</span>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center border-2 border-primary-fixed/40 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary-fixed text-3xl group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="text-[10px] text-on-surface mt-1">Corona Titán</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center opacity-60 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl group-hover:scale-110 transition-transform">fitness_center</span>
+<span class="text-[10px] font-bold text-primary-fixed mt-1">Cinturón Pro</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">100kg Press Banca</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 glass-panel rounded-lg flex flex-col items-center justify-center opacity-60 p-2 text-center group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl group-hover:scale-110 transition-transform">hat</span>
+<span class="text-[10px] font-bold text-primary-fixed mt-1">Gorra Beast</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">500kg Vol. Total</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-4 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<script>
+    const pet = document.getElementById('pet-main');
+    const petImg = document.getElementById('pet-img');
+    const aura = document.getElementById('aura');
+    const env = document.getElementById('environment');
+    const stage = document.getElementById('pet-stage');
+
+    let isDragging = false;
+    let startX, startY;
+    let currentX = 0;
+    let currentY = 0;
+
+    // INTERACTION: Follow Mouse / Look At
+    window.addEventListener('pointermove', (e) => {
+        if (isDragging) return;
+
+        const rect = env.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+        if (x >= 0 && x <= 100 && y >= 0 && y <= 100) {
+            // Update Aura position
+            aura.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(195, 244, 0, 0.4) 0%, transparent 70%)`;
+            
+            // Look-at effect (slight tilt and translate)
+            const dx = (e.clientX - (rect.left + rect.width / 2)) / 30;
+            const dy = (e.clientY - (rect.top + rect.height / 2)) / 30;
+            pet.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.5}deg)`;
+        } else {
+            pet.style.transform = `translate(0px, 0px) rotate(0deg)`;
+        }
+    });
+
+    // INTERACTION: Petting / Particle effect
+    env.addEventListener('pointermove', (e) => {
+        const rect = pet.getBoundingClientRect();
+        if (e.clientX > rect.left && e.clientX < rect.right && e.clientY > rect.top && e.clientY < rect.bottom) {
+            if (Math.random() > 0.92) { // Throttle particles
+                spawnParticle(e.clientX, e.clientY);
+            }
+        }
+    });
+
+    function spawnParticle(x, y) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const rect = env.getBoundingClientRect();
+        p.style.left = (x - rect.left) + 'px';
+        p.style.top = (y - rect.top) + 'px';
+        
+        const emoji = ['❤️', '✨', '🔥', '💪', '🦁'][Math.floor(Math.random() * 5)];
+        p.textContent = emoji;
+        
+        const tx = (Math.random() - 0.5) * 100;
+        const ty = -100 - Math.random() * 50;
+        p.style.setProperty('--tx', `${tx}px`);
+        p.style.setProperty('--ty', `${ty}px`);
+        
+        env.appendChild(p);
+        setTimeout(() => p.remove(), 800);
+    }
+
+    // DRAG & DROP: Physics feel
+    pet.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        startX = e.clientX - currentX;
+        startY = e.clientY - currentY;
+        pet.classList.add('is-dragging');
+        pet.classList.add('animate-squish');
+        
+        if (navigator.vibrate) navigator.vibrate(10);
+        e.preventDefault();
+    });
+
+    window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        currentX = e.clientX - startX;
+        currentY = e.clientY - startY;
+        
+        // Boundaries (rough containment)
+        const rect = env.getBoundingClientRect();
+        const limitX = rect.width / 2 - 40;
+        const limitY = rect.height / 2 - 40;
+        
+        currentX = Math.max(-limitX, Math.min(limitX, currentX));
+        currentY = Math.max(-limitY, Math.min(limitY, currentY));
+        
+        pet.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    });
+
+    window.addEventListener('pointerup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        pet.classList.remove('is-dragging');
+        pet.classList.remove('animate-squish');
+        pet.classList.add('animate-jiggle');
+        
+        // Jiggle and return home or stay there
+        setTimeout(() => {
+            pet.classList.remove('animate-jiggle');
+        }, 400);
+    });
+
+    // Tap/Click interaction
+    pet.addEventListener('click', (e) => {
+        if (isDragging) return;
+        pet.classList.add('animate-squish');
+        setTimeout(() => pet.classList.remove('animate-squish'), 500);
+        spawnParticle(e.clientX, e.clientY);
+        spawnParticle(e.clientX, e.clientY);
+    });
+
+    // Initialize progress bars
+    window.addEventListener('DOMContentLoaded', () => {
+        const bars = document.querySelectorAll('.progress-fill');
+        setTimeout(() => {
+            bars.forEach(bar => {
+                bar.style.width = bar.getAttribute('data-target');
+            });
+        }, 300);
+    });
+</script>
+</body></html>

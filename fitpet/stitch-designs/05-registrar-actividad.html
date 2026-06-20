@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FitPet - Registro de Entrenamiento</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-border {
+            border: 1px solid rgba(204, 255, 0, 0.2);
+        }
+        .progress-gradient {
+            background: linear-gradient(90deg, #CCFF00 0%, #AACC00 100%);
+        }
+        body {
+            background-color: #121212;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c8c6cb",
+                        "tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#47464b",
+                        "inverse-on-surface": "#313030",
+                        "secondary-fixed-dim": "#c2c1ff",
+                        "secondary": "#c2c1ff",
+                        "surface-dim": "#131313",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-fixed": "#1b1b1f",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "secondary-container": "#3a38ab",
+                        "primary": "#ffffff",
+                        "on-primary-container": "#556d00",
+                        "on-primary-fixed": "#161e00",
+                        "primary-fixed": "#c3f400",
+                        "background": "#131313",
+                        "surface-tint": "#abd600",
+                        "outline": "#8e9379",
+                        "primary-container": "#c3f400",
+                        "inverse-primary": "#506600",
+                        "on-secondary-fixed-variant": "#3835a8",
+                        "surface": "#131313",
+                        "surface-variant": "#353534",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-container": "#e4e1e7",
+                        "on-tertiary-container": "#646468",
+                        "on-secondary": "#1f1792",
+                        "primary-fixed-dim": "#abd600",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#c4c9ac",
+                        "on-background": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#393939",
+                        "tertiary-fixed": "#e4e1e7",
+                        "secondary-fixed": "#e2dfff",
+                        "outline-variant": "#444933",
+                        "on-primary": "#283500",
+                        "on-secondary-fixed": "#0b006b",
+                        "on-secondary-container": "#b1b1ff",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "surface-container-highest": "#353534",
+                        "inverse-surface": "#e5e2e1",
+                        "on-surface": "#e5e2e1",
+                        "on-tertiary": "#303034"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "md": "20px",
+                        "xl": "48px",
+                        "lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "stats-xl": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="pb-24">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 flex justify-between items-center px-container-margin h-16 shadow-xl">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed">
+<img class="w-full h-full object-cover" data-alt="A close-up portrait of a cute 3D-styled Shiba Inu digital pet wearing a tiny sweatband and high-tech exercise glasses. The pet is vibrant and energetic, set against a dark background with neon green glows. The lighting is crisp and modern, reflecting the athletic and gamified theme of the FitPet application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQ1GSFUmZ4qiQuxCkQeJhyyDGMgFkLo9AAM9A0TO61c-YgrAi-SuhbGSm9Y7eTX4g39D157LtFqis-XN2OSfbZtsbZQfnYcxtuLkobclVB5xE03r9zxqfPkfz9AoSRkR3wDcgWXxX-gZ0gX204ruu0faET2vniVZ11Hgz6CJKDgsOkR7Ot0VY0JezR4XEbsmqP-nI887PBhugDsNdO5BaVSH2JdcIIyq7HZ-MSrQ_BIXhwSnl7GVcoxWxdb9zMRQf8h-wbNdO-VNjX"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-primary-container/10 border border-primary-fixed/20 rounded-full">
+<span class="material-symbols-outlined text-primary-fixed text-sm" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md text-primary-fixed">7 Day Streak</span>
+</div>
+</header>
+<main class="mt-20 px-container-margin">
+<!-- Device Connection Status -->
+<div class="flex items-center justify-between mb-8 p-4 glass-card rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-primary text-3xl">watch</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Fitbit Air</p>
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></div>
+<p class="font-body-md text-body-md text-primary-fixed font-semibold">Connected</p>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">sync</span>
+</div>
+<!-- Session Timer Section -->
+<div class="relative overflow-hidden p-8 glass-card rounded-lg mb-8 text-center border-t border-white/20">
+
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-2 relative z-10">Active Session</p>
+<h2 class="font-stats-xl text-stats-xl text-primary tracking-tight mb-4 relative z-10" id="timer">00:42:15</h2>
+<div class="grid grid-cols-2 gap-4 relative z-10">
+<div class="p-4 bg-white/5 rounded-xl">
+<p class="font-label-md text-label-md text-on-surface-variant">BPM</p>
+<p class="font-headline-md text-headline-md text-primary">142</p>
+</div>
+<div class="p-4 bg-white/5 rounded-xl">
+<p class="font-label-md text-label-md text-on-surface-variant">Calories</p>
+<p class="font-headline-md text-headline-md text-primary">312</p>
+</div>
+</div>
+</div>
+<!-- Activity Selection Grid -->
+<h3 class="font-headline-md text-headline-md text-primary mb-4">Quick Start</h3>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<button class="flex flex-col items-start p-5 glass-card rounded-xl active:scale-95 transition-transform text-left border-b-2 border-primary-fixed">
+<span class="material-symbols-outlined text-primary-fixed mb-4 text-3xl">directions_run</span>
+<p class="font-body-lg text-body-lg text-primary font-bold">Running</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Outdoor Track</p>
+</button>
+<button class="flex flex-col items-start p-5 glass-card rounded-xl active:scale-95 transition-transform text-left">
+<span class="material-symbols-outlined text-on-surface-variant mb-4 text-3xl">fitness_center</span>
+<p class="font-body-lg text-body-lg text-primary font-bold">Weightlifting</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Strength Training</p>
+</button>
+<button class="flex flex-col items-start p-5 glass-card rounded-xl active:scale-95 transition-transform text-left">
+<span class="material-symbols-outlined text-on-surface-variant mb-4 text-3xl">directions_bike</span>
+<p class="font-body-lg text-body-lg text-primary font-bold">Cycling</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Road Trip</p>
+</button>
+<button class="flex flex-col items-start p-5 glass-card rounded-xl active:scale-95 transition-transform text-left">
+<span class="material-symbols-outlined text-on-surface-variant mb-4 text-3xl">pool</span>
+<p class="font-body-lg text-body-lg text-primary font-bold">Swimming</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Laps</p>
+</button>
+</div>
+<!-- Metrics & RPE -->
+<div class="space-y-6 mb-12">
+<div class="glass-card p-6 rounded-xl">
+<div class="flex justify-between items-center mb-4">
+<h4 class="font-body-lg text-body-lg text-primary font-bold">Intensity (RPE)</h4>
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed text-xs font-bold rounded">Hard (8/10)</span>
+</div>
+<input class="w-full h-2 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary-fixed" max="10" min="1" type="range" value="8"/>
+<div class="flex justify-between mt-2">
+<span class="text-xs text-on-surface-variant">Very Easy</span>
+<span class="text-xs text-on-surface-variant">Max Effort</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl">
+<h4 class="font-body-lg text-body-lg text-primary font-bold mb-6">Heart Rate Zones</h4>
+<div class="space-y-4">
+<div class="space-y-1">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface-variant font-bold uppercase">Zone 4: Anaerobic</span>
+<span class="text-primary font-mono">12:30</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full w-[65%] progress-gradient"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface-variant font-bold uppercase">Zone 3: Aerobic</span>
+<span class="text-primary font-mono">24:45</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full w-[85%] bg-primary/40"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface-variant font-bold uppercase">Zone 2: Fat Burn</span>
+<span class="text-primary font-mono">05:00</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full w-[20%] bg-primary/20"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Finish Button -->
+<button class="w-full py-5 bg-primary-fixed text-on-primary-fixed rounded-full font-headline-md text-headline-md shadow-[0_0_20px_rgba(195,244,0,0.4)] mb-12 active:scale-95 transition-transform">
+            Finish Workout
+        </button>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 flex justify-around items-center px-4 pb-6 pt-3 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-3 py-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="book">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-3 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-3 py-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-3 py-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-3 py-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<script>
+        // Simple timer logic for interaction feel
+        let seconds = 2535; // 42:15 in seconds
+        const timerElement = document.getElementById('timer');
+        
+        setInterval(() => {
+            seconds++;
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            timerElement.textContent = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // Micro-interaction for activity buttons
+        const activityButtons = document.querySelectorAll('button.glass-card');
+        activityButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                activityButtons.forEach(b => b.classList.remove('border-b-2', 'border-primary-fixed'));
+                btn.classList.add('border-b-2', 'border-primary-fixed');
+            });
+        });
+    </script>
+</body></html>

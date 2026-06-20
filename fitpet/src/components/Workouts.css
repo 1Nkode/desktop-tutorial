@@ -1,6 +1,6 @@
 .workouts-page {
   padding: 0 16px;
-  padding-top: 60px;
+  padding-top: 76px;
 }
 
 .workout-header {
@@ -35,9 +35,9 @@
 }
 
 .tab.active {
-  background: linear-gradient(135deg, var(--green), var(--blue));
-  color: white;
-  box-shadow: 0 3px 10px rgba(0,200,83,0.3);
+  background: linear-gradient(135deg, var(--lime), var(--lime-dim));
+  color: #283500;
+  box-shadow: 0 3px 14px rgba(204,255,0,0.3);
 }
 
 .wearable-card {
@@ -280,7 +280,7 @@
 
 .type-btn.selected {
   border-color: var(--green);
-  background: #E8F5E9;
+  background: rgba(204,255,0,0.12);
   color: var(--green-dark);
 }
 
@@ -311,6 +311,6 @@
 
 .intensity-btn.active {
   border-color: var(--green);
-  background: #E8F5E9;
+  background: rgba(204,255,0,0.12);
   color: var(--green-dark);
 }

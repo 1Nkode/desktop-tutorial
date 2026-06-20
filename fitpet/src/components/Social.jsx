@@ -87,9 +87,9 @@ export default function Social() {
 
 function PostCard({ post, onLike, onComment }) {
   const typeColors = {
-    workout: { bg: '#E3F2FD', color: 'var(--blue)', label: '💪 Workout' },
-    meal: { bg: '#E8F5E9', color: 'var(--green-dark)', label: '🍽️ Meal' },
-    achievement: { bg: '#FFF8E1', color: '#F57F17', label: '🏆 Achievement' },
+    workout: { bg: 'rgba(194,193,255,0.15)', color: 'var(--lavender)', label: '💪 Workout' },
+    meal: { bg: 'rgba(204,255,0,0.15)', color: 'var(--lime)', label: '🍽️ Meal' },
+    achievement: { bg: 'rgba(255,185,81,0.15)', color: 'var(--orange)', label: '🏆 Achievement' },
   };
   const tc = typeColors[post.type] || typeColors.workout;
   const [showComments, setShowComments] = useState(false);

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FitPet | Connect Fitbit Air</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+        .animate-pulse-ring {
+            animation: pulse-ring 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .cyber-border {
+            border: 1px solid rgba(204, 255, 0, 0.2);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c8c6cb",
+                        "tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#47464b",
+                        "inverse-on-surface": "#313030",
+                        "secondary-fixed-dim": "#c2c1ff",
+                        "secondary": "#c2c1ff",
+                        "surface-dim": "#131313",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-fixed": "#1b1b1f",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "secondary-container": "#3a38ab",
+                        "primary": "#ffffff",
+                        "on-primary-container": "#556d00",
+                        "on-primary-fixed": "#161e00",
+                        "primary-fixed": "#c3f400",
+                        "background": "#131313",
+                        "surface-tint": "#abd600",
+                        "outline": "#8e9379",
+                        "primary-container": "#c3f400",
+                        "inverse-primary": "#506600",
+                        "on-secondary-fixed-variant": "#3835a8",
+                        "surface": "#131313",
+                        "surface-variant": "#353534",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-container": "#e4e1e7",
+                        "on-tertiary-container": "#646468",
+                        "on-secondary": "#1f1792",
+                        "primary-fixed-dim": "#abd600",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#c4c9ac",
+                        "on-background": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#393939",
+                        "tertiary-fixed": "#e4e1e7",
+                        "secondary-fixed": "#e2dfff",
+                        "outline-variant": "#444933",
+                        "on-primary": "#283500",
+                        "on-secondary-fixed": "#0b006b",
+                        "on-secondary-container": "#b1b1ff",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "surface-container-highest": "#353534",
+                        "inverse-surface": "#e5e2e1",
+                        "on-surface": "#e5e2e1",
+                        "on-tertiary": "#303034"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "md": "20px",
+                        "xl": "48px",
+                        "lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "stats-xl": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 flex justify-between items-center px-container-margin h-16 shadow-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed/20 flex items-center justify-center border border-primary-fixed/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small, stylized digital avatar of a futuristic robotic Shiba Inu dog with glowing lime green eyes and sleek chrome plating, set against a dark tech background. The aesthetic is high-end cyber-fitness, featuring sharp lines and vibrant neon accents consistent with a premium athletic app brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYAS90ejO4FEvGWoYsvKZo4jlcsYghjH2y6SDFXmpSOkRe9FBw4LfoyAedOW0rnFueOZh94qZfo7qLOy6sIJuVvZJZQHgyzIcdA__EjtPngLUF7Fm2Lm0rLieg4RjX_AzUVb75Y6rvmR846EHCEdSxRAd5WnuOJt7YFAuQDRH7as5Rnd50Vm9u96hlPg7GRWhN5jrFzukJumnbe0LAkbG3mYSsBRvcO4PQi5DzgRvZUl4ob21e_EPdaN4YvEJlQDN8x3rV3yhv8Mpk"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed text-lg">bolt</span>
+<span class="font-label-md text-primary">7 Day Streak</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-container-margin max-w-lg mx-auto">
+<!-- Visual Setup Illustration Section -->
+<section class="relative flex flex-col items-center mb-lg">
+<div class="relative w-64 h-64 flex items-center justify-center">
+<!-- Animated Background Rings -->
+<div class="absolute inset-0 rounded-full border border-primary-fixed/20 animate-pulse-ring"></div>
+<div class="absolute inset-4 rounded-full border border-primary-fixed/40 animate-pulse-ring" style="animation-delay: 1s;"></div>
+<!-- Central Device Illustration -->
+<div class="relative z-10 w-48 h-48 rounded-xl glass-card cyber-border overflow-hidden flex items-center justify-center shadow-2xl">
+<img class="w-40 h-40 object-contain" data-alt="A high-tech Fitbit Air smartwatch floating in a dark vacuum, its screen glowing with a vibrant lime green sync animation. The watch has a sleek matte black finish with metallic silver buttons. Behind the watch, ethereal digital data streams and pulse waves in neon green and soft violet create a sense of high-speed wireless connectivity and athletic precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2UjHYjaWwG-yLRTssfbjDgHnLA7LeJwmjAoiQWgFN_Lv4fHO_KwC6D9N0_N-5vLPbeV6icbMZ5YjbL-QVB_7MxFyqB1tiPCzMWorIJ6IcLRVf7RmGhFwjeZIzi65k9uvox3T7uetYxTxYLKLCoV3-smfZG9dbh2kqnDOdVYRZNKUWbHLDNXjPG3dSs5O749gltLwKuHo0UYIL3aziZe3Oql7ChNiEOcctBre11L2GnFczAKGSsgKXjwYT8lEz-xnXKDviOI12ia8D"/>
+</div>
+<!-- Floating Connection Nodes -->
+<div class="absolute top-0 right-4 w-12 h-12 glass-card rounded-full flex items-center justify-center border border-primary-fixed/30">
+<span class="material-symbols-outlined text-primary-fixed" style="font-variation-settings: 'FILL' 1;">bluetooth</span>
+</div>
+<div class="absolute bottom-4 left-4 w-10 h-10 glass-card rounded-full flex items-center justify-center border border-white/20">
+<span class="material-symbols-outlined text-white/70">sync</span>
+</div>
+</div>
+<div class="text-center mt-8">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-white mb-2">Connect Fitbit Air</h2>
+<p class="text-on-surface-variant font-body-md px-6">Sync your pet's vitality with your performance data. Bring your wearable close to begin pairing.</p>
+</div>
+</section>
+<!-- Search Action -->
+<div class="mb-lg">
+<button class="w-full bg-primary-fixed text-on-primary-fixed py-4 rounded-full font-label-md flex items-center justify-center gap-2 glow-hover active:scale-95 transition-all duration-200" id="search-btn">
+<span class="material-symbols-outlined" id="search-icon">search</span>
+<span id="search-text">Search for Devices</span>
+</button>
+</div>
+<!-- Found Devices List (Bento-style items) -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-label-md text-on-surface-variant uppercase tracking-widest">Available Devices</h3>
+<span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+</div>
+<div class="space-y-3" id="device-list">
+<!-- Device Item 1 (Fitbit Air) -->
+<div class="glass-card cyber-border p-4 rounded-lg flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-primary-fixed/50 transition-colors">
+<span class="material-symbols-outlined text-white/80 group-hover:text-primary-fixed">watch</span>
+</div>
+<div>
+<p class="font-headline-md text-body-lg text-white">Fitbit Air <span class="text-primary-fixed text-xs ml-2">PRO</span></p>
+<p class="text-on-surface-variant text-sm">SN: 4492-FK-99</p>
+</div>
+</div>
+<button class="bg-white/10 hover:bg-primary-fixed hover:text-on-primary-fixed text-white px-4 py-2 rounded-full text-sm font-semibold transition-all">
+                        Connect
+                    </button>
+</div>
+<!-- Device Item 2 -->
+<div class="glass-card border border-white/5 p-4 rounded-lg flex items-center justify-between group opacity-60">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-white/40">devices_other</span>
+</div>
+<div>
+<p class="font-headline-md text-body-lg text-white/80">Unknown Device</p>
+<p class="text-on-surface-variant text-sm">Signal Weak</p>
+</div>
+</div>
+</div>
+<!-- Empty State Placeholder (Hidden by default) -->
+<div class="hidden py-8 text-center glass-card rounded-lg border-dashed border-white/10" id="no-devices">
+<span class="material-symbols-outlined text-white/20 text-4xl mb-2">leak_remove</span>
+<p class="text-on-surface-variant text-sm px-10">No devices found nearby. Ensure your Fitbit Air has Bluetooth enabled.</p>
+</div>
+</div>
+</section>
+<!-- Informational Footer -->
+<div class="mt-xl p-6 rounded-lg bg-surface-container-low border border-white/5">
+<div class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary-fixed">info</span>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                    By connecting your Fitbit, you enable <span class="text-primary">Vitality Sync</span>. Your daily steps and heart rate will directly influence your pet's energy levels and unlock exclusive gym rewards.
+                </p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Suppressed on focus screens, but kept for context as per shared components logic) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-3 py-1 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<script>
+        const searchBtn = document.getElementById('search-btn');
+        const searchIcon = document.getElementById('search-icon');
+        const searchText = document.getElementById('search-text');
+        const deviceList = document.getElementById('device-list');
+
+        searchBtn.addEventListener('click', () => {
+            // Visual feedback for searching
+            searchText.innerText = 'Searching...';
+            searchIcon.classList.add('animate-spin');
+            searchIcon.innerText = 'autorenew';
+            searchBtn.classList.add('opacity-80');
+            
+            setTimeout(() => {
+                searchText.innerText = 'Search for Devices';
+                searchIcon.classList.remove('animate-spin');
+                searchIcon.innerText = 'search';
+                searchBtn.classList.remove('opacity-80');
+                
+                // Pulse effect on list items to simulate discovery
+                const items = deviceList.querySelectorAll('.glass-card');
+                items.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('scale-105', 'border-primary-fixed/40');
+                        setTimeout(() => {
+                            item.classList.remove('scale-105', 'border-primary-fixed/40');
+                        }, 300);
+                    }, index * 100);
+                });
+            }, 2000);
+        });
+
+        // Connection micro-interaction
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.innerText === 'Connect') {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.innerText = 'Pairing...';
+                    this.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        this.innerText = 'Linked';
+                        this.classList.remove('animate-pulse');
+                        this.classList.add('bg-primary-fixed', 'text-on-primary-fixed');
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</body></html>

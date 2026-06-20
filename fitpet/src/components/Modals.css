@@ -45,7 +45,7 @@
 
 .type-btn.selected {
   border-color: var(--green);
-  background: #E8F5E9;
+  background: rgba(204,255,0,0.12);
   color: var(--green-dark);
 }
 
@@ -76,7 +76,7 @@
 
 .intensity-btn.active {
   border-color: var(--green);
-  background: #E8F5E9;
+  background: rgba(204,255,0,0.12);
   color: var(--green-dark);
 }
 
@@ -152,7 +152,8 @@
 }
 
 .notif-item.unread {
-  background: #EEF6FF;
+  background: rgba(194,193,255,0.12);
+  border: 1px solid rgba(194,193,255,0.2);
 }
 
 .notif-icon {
@@ -266,8 +267,8 @@
 }
 
 .seg-btn.active {
-  background: white;
-  color: var(--green-dark);
+  background: rgba(204,255,0,0.15);
+  color: var(--lime);
   box-shadow: var(--shadow-sm);
 }
 

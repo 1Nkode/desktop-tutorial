@@ -1,0 +1,256 @@
+<!DOCTYPE html><html class="dark" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.3);
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-ring 3s infinite ease-in-out;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c8c6cb",
+                        "tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#47464b",
+                        "inverse-on-surface": "#313030",
+                        "secondary-fixed-dim": "#c2c1ff",
+                        "secondary": "#c2c1ff",
+                        "surface-dim": "#131313",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-fixed": "#1b1b1f",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "secondary-container": "#3a38ab",
+                        "primary": "#ffffff",
+                        "on-primary-container": "#556d00",
+                        "on-primary-fixed": "#161e00",
+                        "primary-fixed": "#c3f400",
+                        "background": "#131313",
+                        "surface-tint": "#abd600",
+                        "outline": "#8e9379",
+                        "primary-container": "#c3f400",
+                        "inverse-primary": "#506600",
+                        "on-secondary-fixed-variant": "#3835a8",
+                        "surface": "#131313",
+                        "surface-variant": "#353534",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-container": "#e4e1e7",
+                        "on-tertiary-container": "#646468",
+                        "on-secondary": "#1f1792",
+                        "primary-fixed-dim": "#abd600",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#c4c9ac",
+                        "on-background": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#393939",
+                        "tertiary-fixed": "#e4e1e7",
+                        "secondary-fixed": "#e2dfff",
+                        "outline-variant": "#444933",
+                        "on-primary": "#283500",
+                        "on-secondary-fixed": "#0b006b",
+                        "on-secondary-container": "#b1b1ff",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "surface-container-highest": "#353534",
+                        "inverse-surface": "#e5e2e1",
+                        "on-surface": "#e5e2e1",
+                        "on-tertiary": "#303034"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "md": "20px",
+                        "xl": "48px",
+                        "lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "stats-xl": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-surface/80 backdrop-blur-xl z-50 flex justify-between items-center px-container-margin h-16 border-b border-white/10 shadow-xl">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-2 border-primary-fixed overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A vibrant, stylized digital avatar of a virtual Shiba Inu pet, wearing small athletic sweatbands, set against a dark tech-focused background. The illustration uses neon lime green accents and sharp, clean lines to match a modern fitness app aesthetic, conveying energy and health. Soft atmospheric lighting highlights the character's friendly expression in a premium 3D render style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9d2VENg36Toy_QvtOx052KSfywM-uyTYjTRrigbDxyY2ocJNt2ZFU8jgdDyzs063qEYVWEHG_G-nhEAEKAuNOrs2Ji9qA80JFCtfEWlheB6KEboVggRahECmFF_STvLVf5EYarAr3oMyzPLdwyuRxoV7WdBoVI0CNYqAeXZA_S_HaP6_q4Oun4Vhf72psfJ4L_-xvTiz5jlRdUFt-YxEozi93o_Uv5wPerhfYiEgmfegC9Vq8tmuKvX8rJL45S6s3tuQDBHR4WcYW">
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="flex items-center bg-primary-container/10 px-3 py-1 rounded-full border border-primary-fixed/20 active:scale-95 duration-200 transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined text-primary-fixed mr-1" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md text-primary">7 Day Streak</span>
+</div>
+<a href="{{DATA:SCREEN:SCREEN_3}}" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-1 rounded-full border border-white/10 transition-all active:scale-95 ml-2"><span class="material-symbols-outlined text-primary-fixed text-sm">add_circle</span><span class="font-label-md text-xs text-primary">Conectar</span></a></header>
+<main class="pt-24 px-container-margin max-w-lg mx-auto space-y-lg">
+<!-- Main Circular Step Counter -->
+<a href="{{DATA:SCREEN:SCREEN_50}}" class="block w-full active:scale-[0.98] transition-transform"><section class="flex flex-col items-center justify-center py-base"><div class="relative w-64 h-64 flex items-center justify-center"><svg class="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 100 100"><circle cx="50" cy="50" fill="none" r="45" stroke="#2E2E32" stroke-width="8"></circle><circle class="drop-shadow-[0_0_8px_#CCFF00]" cx="50" cy="50" fill="none" r="45" stroke="url(#gradient)" stroke-dasharray="282.7" stroke-dashoffset="70" stroke-linecap="round" stroke-width="8"></circle><defs><linearGradient id="gradient" x1="0%" x2="100%" y1="0%" y2="0%"><stop offset="0%" stop-color="#CCFF00"></stop><stop offset="100%" stop-color="#AACC00"></stop></linearGradient></defs></svg><div class="text-center z-10"><span class="material-symbols-outlined text-primary-fixed text-4xl mb-1" style="font-variation-settings: 'FILL' 1;">footprint</span><h2 class="font-stats-xl text-stats-xl text-primary leading-none">8,432</h2><p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mt-1">Pasos Hoy</p></div><div class="absolute bottom-4 right-4 w-12 h-12 rounded-full border-2 border-primary-fixed animate-pulse-slow p-1"><img class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDic5d6hhKwsR-3hFtdyO_Gw9SGqPTabGHp9MMoGX-wdpesMw4is2_9_NXrJaYTgGrRy85D7YUvt7z7aVsLKo-JN9aVCi4VO7c3UujowX0wT_oUdAoHs5tX4GJeZvhbNy-odzgxbb43V-41_Glz-37evjYdac2WmuPOQESklcT55Cft0gHW7Hc-cMjurRvgbYFkuCRlL6hVZhNhj5aT7EY2HxPh1_OEdw86zH_ogEy1hqjs2TTRfy9lPgcCeiJLP9rMfauS1RGktWig"></div></div><div class="flex gap-lg mt-lg w-full justify-between"><div class="text-center"><p class="font-label-md text-label-md text-on-surface-variant">Objetivo</p><p class="font-headline-md text-headline-md text-primary">10k</p></div><div class="text-center"><p class="font-label-md text-label-md text-on-surface-variant">Distancia</p><p class="font-headline-md text-headline-md text-primary">6.2 km</p></div><div class="text-center"><p class="font-label-md text-label-md text-on-surface-variant">Tiempo</p><p class="font-headline-md text-headline-md text-primary">54m</p></div></div></section></a>
+<!-- Bento Grid for Metrics -->
+<div class="grid grid-cols-2 gap-md">
+<!-- Heart Rate Card (Wide) -->
+<div class="col-span-2 glass-card rounded-lg p-md overflow-hidden relative h-44">
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-red-500 animate-pulse" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Ritmo Cardíaco</p>
+</div>
+<h3 class="font-stats-xl text-stats-xl text-primary leading-none">72 <span class="text-body-md font-body-md text-on-surface-variant">BPM</span></h3>
+</div>
+<div class="bg-red-500/10 px-2 py-1 rounded text-[10px] text-red-500 font-bold border border-red-500/20">LIVE</div>
+</div>
+<!-- Heart Rate Graph Placeholder using SVG Path -->
+<div class="absolute bottom-0 left-0 w-full h-24 pointer-events-none">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 100">
+<path d="M0,80 L40,75 L80,85 L120,40 L160,70 L200,65 L240,82 L280,30 L320,60 L360,55 L400,75" fill="none" stroke="#CCFF00" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,80 L40,75 L80,85 L120,40 L160,70 L200,65 L240,82 L280,30 L320,60 L360,55 L400,75 V100 H0 Z" fill="url(#hrGradient)"></path>
+<defs>
+<linearGradient id="hrGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#CCFF00" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#CCFF00" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+</div>
+<!-- Sleep Score Card -->
+<div class="glass-card rounded-lg p-md flex flex-col justify-between aspect-square">
+<div>
+<span class="material-symbols-outlined text-secondary mb-2">bedtime</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Sueño</p>
+</div>
+<div>
+<h3 class="font-stats-xl text-stats-xl text-primary">84</h3>
+<p class="text-secondary font-label-md text-label-md">Excelente</p>
+</div>
+<div class="w-full bg-white/5 h-1.5 rounded-full mt-2">
+<div class="bg-secondary h-full rounded-full w-[84%]"></div>
+</div>
+</div>
+<!-- Calories Burned Card -->
+<div class="glass-card rounded-lg p-md flex flex-col justify-between aspect-square">
+<div>
+<span class="material-symbols-outlined text-primary-fixed mb-2" style="font-variation-settings: 'FILL' 1;">mode_fan</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Calorías</p>
+</div>
+<div>
+<h3 class="font-stats-xl text-stats-xl text-primary">420</h3>
+<p class="text-on-surface-variant font-label-md text-label-md">kcal quemadas</p>
+</div>
+<div class="w-full bg-white/5 h-1.5 rounded-full mt-2">
+<div class="bg-primary-fixed h-full rounded-full w-[65%]"></div>
+</div>
+</div>
+</div>
+<!-- Fitbit Air Connectivity Badge -->
+<div class="glass-card rounded-lg p-sm flex items-center justify-between border-primary-fixed/20 bg-primary-fixed/5">
+<div class="flex items-center gap-3">
+<div class="bg-primary-fixed/20 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary-fixed">watch</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary">Fitbit Air</p>
+<p class="text-xs text-on-surface-variant">Sincronizado hace 2 min</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-primary-fixed">
+<span class="text-xs font-bold">100%</span>
+<span class="material-symbols-outlined text-sm">battery_full</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-3 py-1 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="book" style="font-variation-settings: 'FILL' 1;">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<!-- Background Atmospheric Effect -->
+<div class="fixed inset-0 -z-10 pointer-events-none opacity-20">
+
+</div>
+<script>
+        // Micro-interaction for the heart rate number to flicker slightly for realism
+        const hrElement = document.querySelector('h3.font-stats-xl');
+        if (hrElement && hrElement.innerText.includes('72')) {
+            setInterval(() => {
+                const randomVariation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                const currentBPM = 72 + randomVariation;
+                const bpmText = hrElement.innerHTML.split(' <')[1];
+                hrElement.innerHTML = `${currentBPM} <${bpmText}`;
+            }, 3000);
+        }
+    </script>
+
+
+</body></html>

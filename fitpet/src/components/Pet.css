@@ -1,6 +1,6 @@
 .pet-page {
   padding: 0 16px;
-  padding-top: 60px;
+  padding-top: 76px;
 }
 
 .pet-header {
@@ -57,18 +57,20 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.7);
+  background: rgba(0,0,0,0.35);
   backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
   padding: 6px 16px;
   border-radius: 20px;
   font-weight: 700;
   font-size: 16px;
   margin-bottom: 8px;
+  color: var(--text);
 }
 
 .pet-level-tag {
-  background: linear-gradient(135deg, var(--green), var(--blue));
-  color: white;
+  background: linear-gradient(135deg, var(--lime), var(--lime-dim));
+  color: #283500;
   padding: 2px 8px;
   border-radius: 10px;
   font-size: 11px;
@@ -145,7 +147,7 @@
 }
 
 .evo-card.active {
-  background: white;
+  background: rgba(204,255,0,0.1);
   box-shadow: var(--shadow-sm);
 }
 
@@ -217,8 +219,8 @@
 }
 
 .acc-item.selected {
-  border-color: var(--green);
-  background: #E8F5E9;
+  border-color: var(--lime);
+  background: rgba(204,255,0,0.12);
 }
 
 .acc-item.locked {

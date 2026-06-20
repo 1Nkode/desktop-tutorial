@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>FitPet - Comunidad</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#131313",
+                    "on-primary-fixed": "#161e00",
+                    "on-primary": "#283500",
+                    "on-tertiary-container": "#646468",
+                    "background": "#131313",
+                    "surface-container-high": "#2a2a2a",
+                    "primary-container": "#c3f400",
+                    "on-tertiary": "#303034",
+                    "on-secondary": "#1f1792",
+                    "inverse-surface": "#e5e2e1",
+                    "inverse-on-surface": "#313030",
+                    "surface-container-low": "#1c1b1b",
+                    "surface-bright": "#393939",
+                    "on-error": "#690005",
+                    "primary": "#ffffff",
+                    "tertiary-fixed-dim": "#c8c6cb",
+                    "on-secondary-container": "#b1b1ff",
+                    "secondary-fixed": "#e2dfff",
+                    "error": "#ffb4ab",
+                    "primary-fixed": "#c3f400",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-tint": "#abd600",
+                    "secondary-fixed-dim": "#c2c1ff",
+                    "error-container": "#93000a",
+                    "primary-fixed-dim": "#abd600",
+                    "on-secondary-fixed-variant": "#3835a8",
+                    "on-primary-fixed-variant": "#3c4d00",
+                    "on-tertiary-fixed-variant": "#47464b",
+                    "on-tertiary-fixed": "#1b1b1f",
+                    "surface-container-highest": "#353534",
+                    "surface-container": "#201f1f",
+                    "on-secondary-fixed": "#0b006b",
+                    "on-primary-container": "#556d00",
+                    "on-background": "#e5e2e1",
+                    "tertiary": "#ffffff",
+                    "secondary-container": "#3a38ab",
+                    "outline-variant": "#444933",
+                    "on-surface-variant": "#c4c9ac",
+                    "surface-variant": "#353534",
+                    "secondary": "#c2c1ff",
+                    "surface-dim": "#131313",
+                    "tertiary-container": "#e4e1e7",
+                    "on-surface": "#e5e2e1",
+                    "tertiary-fixed": "#e4e1e7",
+                    "inverse-primary": "#506600",
+                    "outline": "#8e9379",
+                    "on-error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "32px",
+                    "md": "20px",
+                    "container-margin": "20px",
+                    "sm": "12px",
+                    "xs": "4px",
+                    "xl": "48px",
+                    "gutter": "16px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "stats-xl": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "stats-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e;
+            color: #e5e2e1;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: #1c1b1b;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md bg-background antialiased select-none">
+<!-- TopAppBar from COMPONENTS_17 -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-xl flex justify-between items-center px-container-margin h-16">
+<div class="flex items-center gap-3 active:scale-95 duration-200 transition-opacity hover:opacity-80 cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center overflow-hidden border-2 border-primary-fixed">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrjgCuPx8_ZUiWOmH-kAV5AM81gQiHaBItYUqGEx7IaqVQo_Rh6UY7ijOjQ-CcpaBUZvsmUzM7LmZGD0ci6O902VhZDHoIDiG7BVRIoLgdzqw_qRFo4a4DIbBX_VBPLK2DWJvh0UsoqBboCY-wWmsBEoA2LnKFpsgI19Ql8CVBwgHragisM-5cdRYAJ0gPA33wi_LZ9mhftFC9nifQaQEbsA_HeuqdwjKi6sKhWB6jugF3TO4QfwNTKMAQOxB2RAogPV4rhUM5C111"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">FitPet</h1>
+</div>
+<div class="bg-primary-container px-3 py-1 rounded-full text-on-primary-container font-label-md text-label-md active:scale-95 duration-200 transition-opacity hover:opacity-80 cursor-pointer">
+            7 Day Streak
+        </div>
+</header>
+<main class="pt-20 pb-32 px-container-margin max-w-lg mx-auto space-y-lg">
+<!-- Horizontal Story Bar -->
+<section class="flex gap-4 overflow-x-auto custom-scrollbar py-2" data-purpose="stories">
+<div class="flex flex-col items-center gap-2 flex-shrink-0">
+<div class="w-16 h-16 rounded-full p-1 border-2 border-primary-fixed cursor-pointer transition-transform active:scale-95">
+<img alt="Pet" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHx_RDkryTkjQv97sg2PzGiSe4e891u2RVxB1-hKVDnlIBcdqjkwT73tV7nztaDUra2P90K9zT09xulqIHXnKHY7zf2U552diih8SUrkI0vtg6HUHBVwMK9mvjK2ELqrvg1N0dAEJRV5bhmxW3dNXaX48R5BnbRcMe6P6_W2g4HPQbweO2-XDw-16vNBKju103_5FEXuWJ7lgTGzOp_BAJL15Wp77rl8CIKMn-jsdwPcrnW2MLXE-Qcl4ISB4kFSmXKmhkZH3CF_K_"/>
+</div>
+<span class="text-label-md font-label-md">Tú</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-shrink-0">
+<div class="w-16 h-16 rounded-full p-1 border-2 border-secondary cursor-pointer transition-transform active:scale-95">
+<img alt="Pet" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdSnHre56rG9m_3aGWmao1_MCzDsJ2j5CXnBjeo8zalP0Xnl-yjNF0t4D89cYMu9P01Cu_fHy49X9Umyc0oFI4_9yIVX7xTj_B3YOZhYa9TQTj9Q11C1ykGU7Hoy5H9Glo0T_X9uN_eClfv7SFWphKt-ENPbEG58QVLq63JctqYE58Z_EUrKcxI6bYIzUPnNZkychI5KdjbloHl01TpiqcThUO4jAiuXUy_OkP2_PS_Qvn-IU-8WLsCRwl9zBdXUwo64PcGeybD-5h"/>
+</div>
+<span class="text-label-md font-label-md">Luna</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-shrink-0">
+<div class="w-16 h-16 rounded-full p-1 border-2 border-primary-fixed cursor-pointer transition-transform active:scale-95">
+<img alt="Pet" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3GW8Wc1VKrHh4D-D_AvTiJRCHCVsTC-utz2Ldq8QqqlmA1fqlvCFU41IIwSv7XBQiH6PNg0AFzRE0xEOINzGl_uJKIdseGTRBKr7wGcVBr5apy5VV1br4z7IilZYxJQwd0CXMJuCW9Qvzv5oPLzOgjPzo5-yjihx5-7HccENYmIT9DlCgRnMMdfvcC4fcDU-EfKsphFzwcab-pJJMTgd5NzN64HjHbmT-TJB4e6EA2pCr19OBqzABuC53F51fqOjx0QPvwBiilNda"/>
+</div>
+<span class="text-label-md font-label-md">Rocky</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-shrink-0">
+<div class="w-16 h-16 rounded-full p-1 border-2 border-secondary cursor-pointer transition-transform active:scale-95">
+<img alt="Pet" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEiftXhjMUxKrNG6NkdQDeow6xzMd5orp9rVGUWgvDfadNUMkUPJyZCMQqdToMV2H1xf6hgoEQkFVLoBx4ARAFIbqHRlZT3O8SZb6CgWhF9k0vGlLBse11At4rj9NZDaue_J3tTJHhRQbUzjgNnAPAkg4EmX43gHs-agAyMfpkaoW1XVBlaNyFfjuKJ5KV-H4dHhxtI8csj4Y5VL7edowI-C7ZTH9FnBEitlyPd7H5Jc5bf-d1V1jOT8bP7LHc_VlinHMS7TV_d6ap"/>
+</div>
+<span class="text-label-md font-label-md">Max</span>
+</div>
+</section>
+<!-- Feed Section -->
+<div class="space-y-md" data-purpose="feed">
+<!-- Workout Post Card -->
+<article class="glass-card rounded-lg overflow-hidden flex flex-col">
+<div class="flex items-center justify-between p-md">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="User" class="w-10 h-10 rounded-full object-cover border border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdF-_z9uvmPmklrKVRKXWp3L0cyUAQ1zyiY442qLl-cLzKoRglgzztiUABv6I0-MqBesFUhIz3YsWlQt6xI-uDaeeq-LpWZCTSY3RPaHyZuv2Nf9pP3Sn6GkFLXUa-0ETs5AAkOeAAru-2mIYlFuBx72oUX_TcEBb0-Z-7_wyQNTmDD5CAiIOv15iZdgdm27w7CTibVDAfNFC-JwWOckznHFPRrTzJPnj9rp_mT5_oavpLkqNZCwuSAWRjVKUD5sEIW2uLnKLu2Blw"/>
+<span class="absolute -bottom-1 -right-1 bg-primary-fixed text-on-primary-fixed text-[10px] px-1 rounded-full font-bold">público</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-md text-primary">Carlos &amp; Rex</h3>
+<p class="text-on-surface-variant text-label-md font-label-md">Hace 2 horas • Entrenamiento</p>
+</div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant">more_horiz</button>
+</div>
+<div class="relative w-full aspect-square overflow-hidden">
+<img alt="Workout" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDENGdtDfO6lKUfq0BhhoR_2RllGFhp2_sjIyIu82OfI9mP23e01zFD6a8UL--JyF7AD64ZjxqhmMmtiSLEvRpDRDng0JzeDKgTmKmUs92dnGxHBnHkbP0uLgBO16MZNvrAfPmp756aueu7hcwndop2o0PRkuJuEwDOzPaJwn70ris5nKvS-nf3GsycS8hM2Sfa9XsCl5JLQGm08G1dE1wgI-LwhWdz-ouzmoHb2faHFeX5Doa725AkOCLnttQXLWkL0jjaXjzFM1lO"/>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<div class="bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed text-body-md">speed</span>
+<span class="text-primary font-label-md">5.2 km</span>
+</div>
+<div class="bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-body-md">timer</span>
+<span class="text-primary font-label-md">24 min</span>
+</div>
+</div>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex justify-between items-center">
+<div class="flex gap-4">
+<button class="flex items-center gap-1 group active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-primary-fixed group-hover:text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-label-md font-label-md">124</span>
+</button>
+<button class="flex items-center gap-1 group active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chat_bubble</span>
+<span class="text-label-md font-label-md">18</span>
+</button>
+<button class="flex items-center gap-1 group active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">share</span>
+</button>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">bookmark</button>
+</div>
+<p class="text-body-md">¡Hoy Rex rompió su récord personal! 🐕💨 La ruta nocturna estuvo increíble. <span class="text-primary-fixed">#FitnessPet</span> <span class="text-primary-fixed">#NocheActiva</span></p>
+</div>
+</article>
+<!-- Recipe Post Card -->
+<article class="glass-card rounded-lg overflow-hidden flex flex-col">
+<div class="flex items-center justify-between p-md">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="User" class="w-10 h-10 rounded-full object-cover border border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOoWuwKhKWSP5t_z_Te39_MOWQ5rdmb2Lh7BtpBbqc1GADNY1Qm0e27BXPtwt3wGjMc2D3dJhhUsZqbwPxfssc3WH-ZQ6oRCWV2XSYgpK_Ei-E2faFaEhbz1X6bwLLY2il0nWg423lQ_E7x5Uq6OWf4rUyIPEv9ABShtqwBTBl9Ud2YXYNTQHl_MlTKOwzlY6o9wiIG2-f8BWWMGtCaplSommQ-GQglaqGHPrVx7IOUNBc2J6Y3nULJUORJAtoo8NqhQCEJU9Oz_uc"/>
+<span class="absolute -bottom-1 -right-1 bg-surface-variant text-on-surface text-[10px] px-1 rounded-full font-bold">privado</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-md text-primary">Sofía</h3>
+<p class="text-on-surface-variant text-label-md font-label-md">Hace 5 horas • Nutrición</p>
+</div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant">more_horiz</button>
+</div>
+<div class="px-md">
+<div class="h-48 rounded-lg overflow-hidden mb-4">
+<img alt="Recipe" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo3fgPMFmitRicfQ-iMmulpvPpeOEPVN_YPwzos-fkUtKR3tPy0O1UpuYA5Go81tBxK7u2H9JTvxfb1JHjUvmeGRU8u7x7LLh5XSxpw_0jv33y8DigZoq_JLW_PcCiFGH6va7q3JIS00SoR8ZRvZZWzo-tlUqE5C3k6clbFiJrdj2a6yrhtCyM0yT4tqZ7Fhcwo23LYJ8dejNmp04M4QL6JynMWbdwbhWg_8net-VddYusesqxigHwC6piQcSbmekJuwWPmIj5Rler"/>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-md">
+<div class="bg-surface-container/50 p-3 rounded-lg flex flex-col items-center">
+<span class="text-primary-fixed font-stats-xl text-headline-md">24g</span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Prot</span>
+</div>
+<div class="bg-surface-container/50 p-3 rounded-lg flex flex-col items-center">
+<span class="text-secondary font-stats-xl text-headline-md">12g</span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Grasa</span>
+</div>
+<div class="bg-surface-container/50 p-3 rounded-lg flex flex-col items-center">
+<span class="text-outline font-stats-xl text-headline-md">45g</span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Carbs</span>
+</div>
+</div>
+</div>
+<div class="p-md pt-0 space-y-sm">
+<h4 class="font-headline-md text-body-lg text-primary">Bowl Post-Entreno "Green Power"</h4>
+<p class="text-body-md">Ideal para recuperar energías después de una caminata intensa. Rex también tuvo su ración especial de pavo. 🥑🍗</p>
+<div class="flex justify-between items-center pt-2">
+<div class="flex gap-4">
+<button class="flex items-center gap-1 group active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-fixed">favorite</span>
+<span class="text-label-md font-label-md">89</span>
+</button>
+<button class="flex items-center gap-1 group active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chat_bubble</span>
+<span class="text-label-md font-label-md">5</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar from COMPONENTS_17 with navigation logic from SCREEN_15 -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-4px_24px_rgba(0,0,0,0.4)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-200 hover:bg-white/5 px-3 py-1" href="{{DATA:SCREEN:SCREEN_21}}">
+<span class="material-symbols-outlined">book</span>
+<span class="font-label-md text-label-md">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-200 hover:bg-white/5 px-3 py-1" href="{{DATA:SCREEN:SCREEN_13}}">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-3 py-1 active:scale-90 transition-transform duration-200" href="{{DATA:SCREEN:SCREEN_19}}">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-label-md text-label-md">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-200 hover:bg-white/5 px-3 py-1" href="{{DATA:SCREEN:SCREEN_12}}">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-md text-label-md">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-200 hover:bg-white/5 px-3 py-1" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('.material-symbols-outlined');
+                if (icon && (icon.textContent === 'favorite' || icon.textContent === 'bookmark')) {
+                    const isFilled = icon.style.fontVariationSettings && icon.style.fontVariationSettings.includes("'FILL' 1");
+                    icon.style.fontVariationSettings = isFilled ? "'FILL' 0" : "'FILL' 1";
+                    
+                    if (icon.textContent === 'favorite') {
+                        const count = this.querySelector('.text-label-md');
+                        if (count) {
+                            let currentCount = parseInt(count.textContent);
+                            count.textContent = isFilled ? currentCount - 1 : currentCount + 1;
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

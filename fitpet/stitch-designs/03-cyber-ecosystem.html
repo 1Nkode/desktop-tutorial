@@ -1,0 +1,227 @@
+<!DOCTYPE html><html class="dark" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>FitPet - Perfil</title>
+<!-- Tailwind CSS v3 with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter and Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ccff00',
+                        'primary-container': '#263300',
+                        'primary-fixed': '#ccff00',
+                        'on-primary-fixed': '#000000',
+                        surface: '#131313',
+                        'surface-dim': '#131313',
+                        'surface-bright': '#393939',
+                        'surface-container-lowest': '#0e0e0e',
+                        'surface-container-low': '#1c1b1b',
+                        'surface-container': '#1c1b1b',
+                        'on-surface': '#ffffff',
+                        'on-surface-variant': '#c4c7c5',
+                        'brand-lime': '#ccff00',
+                        'accent-red': '#f28b82',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    padding: {
+                        'container-margin': '1.25rem',
+                    }
+                }
+            }
+        }
+    </script>
+<style data-purpose="custom-layout">
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .glass-card {
+            background-color: #1c1b1b;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .profile-avatar-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased select-none">
+<!-- BEGIN: Main Container -->
+<main class="min-h-screen flex flex-col pb-32">
+<!-- BEGIN: Top Navigation Bar (COMPONENTS_17 - TopAppBar) -->
+<header class="fixed top-0 w-full bg-surface/80 backdrop-blur-xl border-b border-white/10 z-50 flex justify-between items-center px-container-margin h-16" data-purpose="top-navigation">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center overflow-hidden border border-white/10">
+<span class="material-symbols-outlined text-brand-lime text-xl">pets</span>
+</div>
+<span class="text-xl font-bold tracking-tighter text-brand-lime">FitPet</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="bg-primary-container/30 px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1.5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-brand-lime text-sm fill">local_fire_department</span>
+<span class="text-brand-lime text-xs font-bold uppercase tracking-wide">7 Day Streak</span>
+</div>
+</div>
+</header>
+<!-- Spacer for Header -->
+<div class="h-16"></div>
+<!-- BEGIN: User Profile Header -->
+<section class="px-6 pt-8 pb-6 flex justify-between items-start" data-purpose="user-info">
+<div class="space-y-1 max-w-[70%]">
+<h1 class="text-3xl font-bold tracking-tight">1Nk-</h1>
+<p class="text-on-surface-variant break-all text-sm leading-relaxed">wryzt4gkqd@privaterelay.appleid.com</p>
+<p class="text-on-surface-variant italic text-xs pt-2">Tipo de cuenta: <span class="text-brand-lime font-medium">Gratuita</span></p>
+</div>
+<div class="relative group cursor-pointer" data-purpose="avatar">
+<div class="w-16 h-16 bg-surface-bright rounded-2xl flex items-center justify-center profile-avatar-shadow border border-white/10">
+<span class="material-symbols-outlined text-white/80 text-3xl">photo_camera</span>
+</div>
+<span class="absolute -bottom-6 left-0 right-0 text-center text-[10px] text-brand-lime font-bold uppercase tracking-wider">Editar</span>
+</div>
+</section>
+<!-- BEGIN: Quick Action Toolbar (New) -->
+<div class="px-6 flex gap-3 mb-8">
+<button class="bg-surface-container-low text-white px-4 py-2 rounded-full border border-white/10 flex items-center gap-2 text-sm font-semibold hover:bg-white/5 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg">settings</span>
+                Configuración
+            </button>
+<button class="bg-accent-red/20 text-accent-red px-4 py-2 rounded-full border border-accent-red/20 flex items-center gap-2 text-sm font-bold active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg fill">notifications</span>
+                51
+            </button>
+</div>
+<!-- BEGIN: Macro Grid Stats -->
+<section class="px-4 grid grid-cols-2 gap-3 mb-8" data-purpose="macro-stats">
+<!-- Calories Consumed -->
+<div class="bg-surface-container rounded-2xl p-4 flex items-center border border-white/5 shadow-sm cursor-pointer" onclick="window.location.href='{{DATA:SCREEN:SCREEN_50}}'">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">restaurant</span>
+<span class="underline decoration-dotted decoration-on-surface-variant underline-offset-4 font-bold text-lg">2359 cal</span>
+</div>
+</div>
+<!-- Calories Burned -->
+<div class="bg-surface-container rounded-2xl p-4 flex items-center border border-white/5 shadow-sm cursor-pointer" onclick="window.location.href='{{DATA:SCREEN:SCREEN_50}}'">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">directions_run</span>
+<span class="underline decoration-dotted decoration-on-surface-variant underline-offset-4 font-bold text-lg">186 cal</span>
+</div>
+</div>
+<!-- Weight -->
+<div class="bg-surface-container rounded-2xl p-4 flex items-center border border-white/5 shadow-sm cursor-pointer" onclick="window.location.href='{{DATA:SCREEN:SCREEN_50}}'">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">monitor_weight</span>
+<span class="underline decoration-dotted decoration-on-surface-variant underline-offset-4 font-bold text-lg">67,2 kg</span>
+</div>
+</div>
+<!-- Quick Tools -->
+<div class="flex gap-2">
+<button class="bg-surface-container rounded-2xl flex-1 flex items-center justify-center border border-white/5 py-4 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-white">camera</span>
+</button>
+<button class="bg-surface-container rounded-2xl flex-1 flex items-center justify-center border border-white/5 py-4 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-white">edit_note</span>
+</button>
+</div>
+</section>
+<!-- BEGIN: Menu Section List -->
+<section class="px-4 space-y-3" data-purpose="settings-menu">
+<!-- Group 1 -->
+<div class="space-y-3"><button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform" onclick="window.location.href='{{DATA:SCREEN:SCREEN_3}}'"><div class="p-2.5 bg-white/5 rounded-xl"><span class="material-symbols-outlined text-on-surface-variant">watch</span></div><span class="flex-1 text-left font-bold text-lg">Dispositivos</span><span class="material-symbols-outlined text-on-surface-variant">chevron_right</span></button>
+<button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform" onclick="window.location.href='{{DATA:SCREEN:SCREEN_11}}'">
+<div class="p-2.5 bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant">scale</span>
+</div>
+<span class="flex-1 text-left font-bold text-lg">Mi Peso</span>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform">
+<div class="p-2.5 bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant">star</span>
+</div>
+<span class="flex-1 text-left font-bold text-lg">Mis logros</span>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+<div class="h-2"></div>
+<!-- Group 2 -->
+<div class="space-y-3">
+<button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform" onclick="window.location.href='{{DATA:SCREEN:SCREEN_11}}'">
+<div class="p-2.5 bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant">alarm</span>
+</div>
+<span class="flex-1 text-left font-bold text-lg">Recordatorios</span>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform">
+<div class="p-2.5 bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant">photo_library</span>
+</div>
+<span class="flex-1 text-left font-bold text-lg">Álbum de fotos</span>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+<div class="h-2"></div>
+<!-- Group 3 -->
+<div class="space-y-3">
+<button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform" onclick="window.location.href='{{DATA:SCREEN:SCREEN_11}}'">
+<div class="p-2.5 bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+<span class="flex-1 text-left font-bold text-lg">Comunicación y privacidad</span>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full glass-card rounded-2xl p-5 flex items-center gap-4 text-white group active:scale-[0.98] transition-transform">
+<div class="p-2.5 bg-white/5 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant">support_agent</span>
+</div>
+<span class="flex-1 text-left font-bold text-lg">Contáctenos</span>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- BEGIN: Bottom Tab Navigation (COMPONENTS_17 - BottomNavBar) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-3 bg-surface-container/90 backdrop-blur-2xl border-t border-white/10 rounded-t-3xl shadow-[0px_-4px_24px_rgba(0,0,0,0.4)]" data-purpose="tab-bar">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all p-2 rounded-xl" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined">book</span>
+<span class="text-[10px] font-medium mt-0.5">Diario</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all p-2 rounded-xl" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="text-[10px] font-medium mt-0.5">Entreno</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all p-2 rounded-xl" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] font-medium mt-0.5">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all p-2 rounded-xl" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined">pets</span>
+<span class="text-[10px] font-medium mt-0.5">Mascota</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary-fixed rounded-xl px-4 py-1.5 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined fill">person</span>
+<span class="text-[10px] font-bold mt-0.5">Perfil</span>
+</a>
+</nav>
+<!-- END: Bottom Tab Navigation -->
+</main>
+<!-- END: Main Container -->
+
+
+</body></html>

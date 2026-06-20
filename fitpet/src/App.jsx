@@ -30,21 +30,27 @@ export default function App() {
 }
 
 function TopBar() {
-  const { setShowNotifications, setShowSettings, notifications } = useStore();
+  const { setShowNotifications, setShowSettings, setActiveTab, notifications, user } = useStore();
   const unread = notifications.filter(n => !n.read).length;
 
   return (
     <div className="topbar">
-      <div className="topbar-logo">
-        <span className="logo-icon">🐾</span>
+      <div className="topbar-logo" onClick={() => setActiveTab('profile')}>
+        <div className="topbar-avatar neon-glow">😄</div>
         <span className="logo-text">FitPet</span>
       </div>
       <div className="topbar-right">
+        <div className="streak-pill-top">
+          <span className="material-symbols-outlined fill">local_fire_department</span>
+          {user.streak}
+        </div>
         <button className="icon-btn notif-btn" onClick={() => setShowNotifications(true)}>
-          🔔
+          <span className="material-symbols-outlined">notifications</span>
           {unread > 0 && <span className="notif-badge">{unread}</span>}
         </button>
-        <button className="icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
+        <button className="icon-btn" onClick={() => setShowSettings(true)}>
+          <span className="material-symbols-outlined">settings</span>
+        </button>
       </div>
     </div>
   );
