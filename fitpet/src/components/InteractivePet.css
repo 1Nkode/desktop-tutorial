@@ -1,209 +1,108 @@
+/* The habitat that holds the pet */
+.pet-playground {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  z-index: 1;
+}
+
+/* Centered, integrated pet (no roaming/floating) */
 .ipet {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 96px;
-  height: 96px;
-  z-index: 5;
-  cursor: grab;
-  will-change: transform;
-  touch-action: none;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+  z-index: 2;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.ipet:active { cursor: grabbing; }
-
+/* body holds the sprite; top padding guarantees headroom so it never crops */
 .ipet-body {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 160px;
+  height: 184px;
+  padding-top: 14px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  transform-origin: 50% 100%;
+}
+.ipet.idle .ipet-body { animation: ipet-bob 3.2s ease-in-out infinite; }
+.ipet.resting .ipet-body { animation: ipet-bob 4.6s ease-in-out infinite; }
+.ipet.reacting .ipet-body { animation: ipet-jump 0.72s ease; }
+
+@keyframes ipet-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes ipet-jump {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-20px) scale(1.06); }
+  55% { transform: translateY(0) scale(0.97); }
+  72% { transform: translateY(-7px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
 }
 
-.ipet-img {
+/* video-frog sprite: whole frame visible (contain), never cropped */
+.petsprite,
+.frog-video-sprite { width: 100%; height: 100%; display: block; position: relative; }
+.frog-video-source { display: none; }
+.frog-video {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  pointer-events: none;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
-  image-rendering: auto;
-}
-
-.ipet-emoji {
-  font-size: 72px;
-  line-height: 1;
-  pointer-events: none;
+  object-position: center bottom;
+  display: block;
+  filter: var(--frog-filter, none) drop-shadow(0 6px 8px rgba(0,0,0,0.4));
   transition: filter 0.5s ease;
-  filter: drop-shadow(0 0 12px rgba(204, 255, 0, 0.4));
 }
+.frog-video-floor { display: none; }
 
-/* ---- Evolution-state visual treatments (smooth transitions) ---- */
-.ipet-img, .ipet-emoji, .petsprite { transition: filter 0.6s ease; pointer-events: none; }
-.petsprite { width: 100%; height: 100%; display: block; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.4)); }
+/* state glows */
+.ipet-state-strong .frog-video   { filter: var(--frog-filter, none) drop-shadow(0 0 14px rgba(204,255,0,0.5)); }
+.ipet-state-champion .frog-video { filter: var(--frog-filter, none) drop-shadow(0 0 18px rgba(255,213,79,0.7)); }
+.ipet-state-neglected .frog-video{ filter: var(--frog-filter, none) grayscale(0.35) brightness(0.92) drop-shadow(0 5px 8px rgba(0,0,0,0.5)); }
+.ipet-state-tired .frog-video    { filter: var(--frog-filter, none) saturate(0.8) drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 
-.ipet-state-base .petsprite,
-.ipet-state-base .ipet-emoji      { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
-.ipet-state-strong .petsprite,
-.ipet-state-strong .ipet-emoji,
-.ipet-state-strong .ipet-img      { filter: drop-shadow(0 0 14px rgba(204,255,0,0.55)); }
-.ipet-state-neglected .petsprite,
-.ipet-state-neglected .ipet-img,
-.ipet-state-neglected .ipet-emoji { filter: grayscale(0.45) brightness(0.9) drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
-.ipet-state-tired .petsprite,
-.ipet-state-tired .ipet-img,
-.ipet-state-tired .ipet-emoji     { filter: saturate(0.7) drop-shadow(0 0 10px rgba(255,185,81,0.4)); }
-.ipet-state-champion .petsprite,
-.ipet-state-champion .ipet-emoji,
-.ipet-state-champion .ipet-img    { filter: drop-shadow(0 0 18px rgba(255,213,79,0.75)); }
-
-/* Aura ring (only strong & champion) */
-.ipet-aura {
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-}
-.ipet-state-strong .ipet-aura {
-  opacity: 1;
-  background: radial-gradient(circle, rgba(204,255,0,0.18), transparent 65%);
-  animation: ipet-aura-pulse 2.4s ease-in-out infinite;
-}
-.ipet-state-champion .ipet-aura {
-  opacity: 1;
-  background: radial-gradient(circle, rgba(255,213,79,0.28), transparent 68%);
-  box-shadow: 0 0 26px rgba(255,213,79,0.5);
-  animation: ipet-aura-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes ipet-aura-pulse {
-  0%, 100% { transform: scale(0.92); opacity: 0.55; }
-  50% { transform: scale(1.08); opacity: 1; }
-}
-
-/* State badge (crown / muscle / burger / zzz) */
-.ipet-badge {
-  position: absolute;
-  top: -6px;
-  right: 4px;
-  font-size: 24px;
-  pointer-events: none;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-  animation: ipet-badge-bob 2s ease-in-out infinite;
-}
-.ipet-state-champion .ipet-badge { top: -14px; left: 50%; right: auto; transform: translateX(-50%); }
-
-@keyframes ipet-badge-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-.ipet-state-champion .ipet-badge { animation: ipet-crown-bob 2s ease-in-out infinite; }
-@keyframes ipet-crown-bob {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-4px); }
-}
-
-/* Sleepy "z" for tired / neglected */
-.ipet-zzz {
-  position: absolute;
-  top: 4px;
-  right: 0;
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--lavender, #c2c1ff);
-  pointer-events: none;
-  animation: ipet-zzz 2.2s ease-in-out infinite;
-}
-@keyframes ipet-zzz {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.6); }
-  30% { opacity: 1; }
-  100% { opacity: 0; transform: translate(14px, -22px) scale(1.1); }
-}
-
-/* Ground shadow that squashes with the pet */
+/* ground shadow */
 .ipet-shadow {
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  width: 56px;
-  height: 12px;
+  width: 96px; height: 16px; margin-top: -4px;
   background: radial-gradient(ellipse, rgba(0,0,0,0.45), transparent 70%);
   border-radius: 50%;
-  transform: translateX(-50%);
-  z-index: -1;
 }
+.ipet.idle .ipet-shadow { animation: ipet-shadow 3.2s ease-in-out infinite; }
+@keyframes ipet-shadow { 0%,100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.88); opacity: 0.7; } }
 
-/* Speech bubble */
+/* aura for strong/champion */
+.ipet-aura { position: absolute; bottom: 26px; width: 130px; height: 130px; border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+.ipet-state-strong .ipet-aura { opacity: 1; background: radial-gradient(circle, rgba(204,255,0,0.16), transparent 65%); animation: ipet-aura 2.4s ease-in-out infinite; }
+.ipet-state-champion .ipet-aura { opacity: 1; background: radial-gradient(circle, rgba(255,213,79,0.26), transparent 68%); animation: ipet-aura 1.8s ease-in-out infinite; }
+@keyframes ipet-aura { 0%,100% { transform: scale(0.92); opacity: 0.5; } 50% { transform: scale(1.08); opacity: 1; } }
+
+/* zzz / dirty cues */
+.ipet-zzz { position: absolute; top: 16px; right: 18px; font-size: 16px; font-weight: 800; color: var(--lavender, #c2c1ff); pointer-events: none; animation: ipet-zzz 2.2s ease-in-out infinite; }
+.ipet-dirty { position: absolute; top: 22px; left: 16px; font-size: 18px; pointer-events: none; animation: ipet-zzz 2.6s ease-in-out infinite; }
+@keyframes ipet-zzz { 0% { opacity: 0; transform: translate(0,0) scale(0.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(14px,-22px) scale(1.1); } }
+
+/* speech bubble */
 .ipet-bubble {
-  position: absolute;
-  bottom: 92px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--lime, #CCFF00);
-  color: #1a1f00;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-  padding: 6px 12px;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(204, 255, 0, 0.4);
-  animation: ipet-pop 0.25s ease;
+  position: absolute; bottom: 196px; left: 50%; transform: translateX(-50%);
+  background: var(--lime, #CCFF00); color: #1a1f00; font-size: 12px; font-weight: 800;
+  white-space: nowrap; padding: 6px 12px; border-radius: 14px; box-shadow: 0 4px 14px rgba(204,255,0,0.4);
+  animation: ipet-pop 0.25s ease; z-index: 3;
 }
+.ipet-bubble::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: var(--lime, #CCFF00); }
+@keyframes ipet-pop { from { transform: translateX(-50%) scale(0.6); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
 
-.ipet-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  width: 10px;
-  height: 10px;
-  background: var(--lime, #CCFF00);
-}
-
-@keyframes ipet-pop {
-  from { transform: translateX(-50%) scale(0.6); opacity: 0; }
-  to   { transform: translateX(-50%) scale(1); opacity: 1; }
-}
-
-/* Floating particles on interaction */
-.ipet-particle {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  font-size: 18px;
-  pointer-events: none;
-  animation: ipet-float 0.9s ease-out forwards;
-}
-
+/* particles */
+.ipet-particle { position: absolute; top: 44px; left: 50%; font-size: 18px; pointer-events: none; animation: ipet-float 0.95s ease-out forwards; z-index: 3; }
 @keyframes ipet-float {
-  0%   { transform: translate(-50%, 0) rotate(0deg) scale(0.6); opacity: 0; }
-  20%  { opacity: 1; }
+  0% { transform: translate(-50%, 0) rotate(0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; }
   100% { transform: translate(calc(-50% + var(--dx)), var(--dy)) rotate(var(--rot)) scale(1.1); opacity: 0; }
 }
-
-/* Playground stage that contains the interactive pet */
-.pet-playground {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  overflow: hidden;
-}
-
-.pet-playground-hint {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  pointer-events: none;
-  opacity: 0.7;
-}
-
-.ipet-dirty { position: absolute; top: 8px; left: 4px; font-size: 18px; animation: ipet-zzz 2.4s ease-in-out infinite; pointer-events: none; }

@@ -49,8 +49,12 @@ const basepet = {
   motivation: 75,   // 0-100, restored by playing / training
   cleanliness: 90,  // 0-100, decays over time, restored by bathing
   species: 'frog',  // frog/dog/cat/bear/panda/rabbit/fox/penguin/turtle/lion
+  variant: 'natural',
   color: null,      // optional body-color override
+  colors: {},       // optional per-part overrides: body, belly, eyes, accent
   background: 'default',
+  fitness: 60,      // 0-100 slow-moving condition score (drives physique)
+  lastEvalDay: null,// last calendar day the fitness score was nudged
 };
 
 const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
@@ -223,57 +227,62 @@ const mockMeals = [
 // Derives the pet's physique and mood from the user's real activity data.
 // physique: based on net calorie balance + workout consistency over the week.
 // mood: based on how close the user is to their daily goals + streak.
+// Physique evolves SLOWLY: a smoothed "fitness" score (0-100) drifts a small
+// amount once per calendar day toward the user's recent activity. Physique is
+// just a band on that score, so it takes weeks of sustained habits to change
+// — not a few good/bad days.
+//   strong   fitness >= 82   (weeks/months of consistency — a real reward)
+//   normal   48 .. 82        (default for most users)
+//   fit      24 .. 48        (skinny — several weeks of decline)
+//   chubby   < 24            (months of prolonged inactivity)
 export function evolvePet(pet, stats) {
-  const workoutDays = stats.weeklyWorkouts.filter(v => v > 0).length;
-  const netCalories = stats.caloriesConsumed - stats.caloriesBurned;
-  const calorieRatio = stats.caloriesConsumed / stats.caloriesGoal;
   const stepRatio = stats.steps / stats.stepsGoal;
   const activeRatio = stats.activeMinutes / stats.activeGoal;
+  const calorieRatio = stats.caloriesConsumed / stats.caloriesGoal;
+  const workoutDays = stats.weeklyWorkouts.filter(v => v > 0).length;
 
-  // --- Physique ---
+  let fitness = pet.fitness ?? 60;
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Only nudge once per day so repeated interactions don't move it.
+  if (pet.lastEvalDay !== today) {
+    const activity = (
+      Math.min(workoutDays / 5, 1) +
+      Math.min(stepRatio, 1) +
+      Math.min(activeRatio, 1) +
+      Math.min((pet.streak ?? 0) / 14, 1)
+    ) / 4; // 0..1
+    // around 0.45 = maintenance; above gains, below loses (slowly, capped)
+    const nudge = Math.max(-1, Math.min(1.6, (activity - 0.45) * 3.2));
+    fitness = Math.max(0, Math.min(100, fitness + nudge));
+  }
+
   let physique;
-  if (workoutDays >= 5 && activeRatio >= 1) {
-    physique = 'strong';        // trains constantly + hits active goal
-  } else if (workoutDays >= 3 && netCalories <= 0) {
-    physique = 'fit';           // good activity + calorie deficit
-  } else if (workoutDays <= 1 || calorieRatio > 1.15) {
-    physique = 'chubby';        // little activity or big calorie surplus
-  } else {
-    physique = 'normal';
-  }
+  if (fitness >= 82) physique = 'strong';
+  else if (fitness >= 48) physique = 'normal';
+  else if (fitness >= 24) physique = 'fit';      // leaner / declining
+  else physique = 'chubby';                       // prolonged abandonment
 
-  // --- Mood ---
-  // Score the day's progress toward goals (0..1 each), average it.
-  const goalScore = (
-    Math.min(calorieRatio, 1) +
-    Math.min(stepRatio, 1) +
-    Math.min(activeRatio, 1)
-  ) / 3;
-
+  // Mood stays responsive day-to-day (it's just an expression, not the body).
+  const goalScore = (Math.min(calorieRatio, 1) + Math.min(stepRatio, 1) + Math.min(activeRatio, 1)) / 3;
   let mood;
-  if (physique === 'strong' && goalScore >= 0.7) {
-    mood = 'motivated';
-  } else if (goalScore >= 0.6) {
-    mood = 'happy';
-  } else if (workoutDays === 0 && stepRatio < 0.4) {
-    mood = 'sad';
-  } else {
-    mood = 'tired';
-  }
+  if (fitness >= 82 && goalScore >= 0.6) mood = 'motivated';
+  else if (goalScore >= 0.55) mood = 'happy';
+  else if (workoutDays === 0 && stepRatio < 0.4) mood = 'sad';
+  else mood = 'tired';
 
-  return { ...pet, physique, mood };
+  return { ...pet, physique, mood, fitness, lastEvalDay: today };
 }
 
-// Derives the high-level "evolution state" the companion displays.
+// High-level evolution state shown in the UI (driven by the slow fitness band).
 // base · strong · neglected · tired · champion
-export function petState(pet, stats, user) {
-  const workoutDays = stats.weeklyWorkouts.filter(v => v > 0).length;
-  const streak = user?.streak ?? 0;
-  if (pet.level >= 10 || (pet.physique === 'strong' && workoutDays >= 6)) return 'champion';
+export function petState(pet) {
+  const fitness = pet.fitness ?? 60;
+  if (pet.level >= 20 || fitness >= 94) return 'champion';  // legendary reward
   if (pet.physique === 'strong') return 'strong';
-  if (pet.physique === 'chubby') return 'neglected';
-  if (pet.mood === 'tired' || pet.mood === 'sad' || (streak > 0 && workoutDays <= 2)) return 'tired';
-  return 'base';
+  if (pet.physique === 'chubby') return 'neglected';        // gordito (prolonged)
+  if (pet.physique === 'fit') return 'tired';               // skinny (declining)
+  return 'base';                                            // normal (default)
 }
 
 // Pet reacts to eating habits: on-target boosts motivation, big overshoot
@@ -287,7 +296,7 @@ function nutritionReact(pet, stats) {
 }
 
 // Pet happiness (0-100) derived from care + real habits.
-export function petHappiness(pet, stats, user) {
+export function petHappiness(pet, stats) {
   const goalScore = Math.min(stats.steps / stats.stepsGoal, 1) * 100;
   const h = (pet.motivation ?? 75) * 0.4 + (pet.energy ?? 80) * 0.2
     + (pet.cleanliness ?? 90) * 0.2 + goalScore * 0.2;
@@ -812,7 +821,14 @@ export const useStore = create(persist((set, get) => ({
 
   // Pet species & customization
   setSpecies: (species) => set((state) => ({ pet: { ...state.pet, species } })),
-  setPetColor: (color) => set((state) => ({ pet: { ...state.pet, color } })),
+  setPetVariant: (variant) => set((state) => ({ pet: { ...state.pet, variant, species: 'frog' } })),
+  setPetColor: (color) => set((state) => ({ pet: { ...state.pet, color, colors: color ? { ...(state.pet.colors || {}), body: color } : {} } })),
+  setPetPartColor: (part, color) => set((state) => {
+    const colors = { ...(state.pet.colors || {}) };
+    if (color == null) delete colors[part];
+    else colors[part] = color;
+    return { pet: { ...state.pet, colors, color: colors.body || null } };
+  }),
   setBackground: (background) => set((state) => ({ pet: { ...state.pet, background } })),
   bathePet: () => set((state) => ({ pet: { ...state.pet, cleanliness: 100 } })),
 

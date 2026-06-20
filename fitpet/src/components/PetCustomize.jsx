@@ -1,23 +1,16 @@
-import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import PetSprite, { SPECIES } from './PetSprite';
+import PetSprite from './PetSprite';
 import SceneBackground from './SceneBackground';
-import { BACKGROUNDS, BG_CATEGORIES, bgUnlocked } from './backgrounds';
+import { BACKGROUNDS, bgUnlocked } from './backgrounds';
+import { FROG_VARIANTS } from './petMeta';
 import './PetCustomize.css';
 
-const COLORS = [
-  { id: null, label: 'Auto' },
-  '#79b13c', '#3b6fd4', '#c2c1ff', '#FFB951', '#ff5b6e',
-  '#9b59b6', '#1abc9c', '#e67e22', '#34495e', '#f1c40f',
-];
-
-const SPECIES_LIST = Object.entries(SPECIES);
+const VARIANT_LIST = Object.entries(FROG_VARIANTS);
 
 export default function PetCustomize({ onClose }) {
-  const { pet, user, setSpecies, setPetColor, setBackground } = useStore();
+  const { pet, user, setPetVariant, setBackground } = useStore();
   const level = Math.max(user.level || 1, pet.level || 1);
-  const [cat, setCat] = useState('Gimnasio');
-  const curBg = BACKGROUNDS[pet.background] || BACKGROUNDS.default;
+  const activeVariant = pet.variant || 'natural';
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -25,53 +18,38 @@ export default function PetCustomize({ onClose }) {
         <div className="modal-handle" />
         <h3 className="modal-title">Personalizar mascota</h3>
 
-        {/* live animated preview */}
+        {/* live animated preview in the chosen scene */}
         <div className="pc-preview">
-          <SceneBackground bg={curBg} />
+          <SceneBackground id={pet.background || 'default'} />
           <div className="pc-preview-sprite">
-            <PetSprite pose="stand" emotion="happy" species={pet.species} color={pet.color} accessory={pet.accessories?.[0]} />
+            <PetSprite pose="stand" emotion="happy" variant={activeVariant} />
           </div>
         </div>
 
-        <p className="pc-label">Especie</p>
-        <div className="pc-species">
-          {SPECIES_LIST.map(([id, sp]) => (
-            <button key={id} className={`pc-sp ${pet.species === id ? 'on' : ''}`} onClick={() => setSpecies(id)}>
-              <span className="pc-sp-emoji">{sp.emoji}</span>
+        <p className="pc-label">Estilo de rana animada</p>
+        <div className="pc-variants">
+          {VARIANT_LIST.map(([id, variant]) => (
+            <button
+              key={id}
+              className={`pc-variant ${activeVariant === id ? 'on' : ''}`}
+              onClick={() => setPetVariant(id)}
+              style={{ '--frog-filter': variant.filter, '--frog-glow': variant.glow }}
+            >
+              <span className="pc-variant-orb" />
+              <span className="pc-variant-label">{variant.label}</span>
             </button>
           ))}
         </div>
 
-        <p className="pc-label">Color</p>
-        <div className="pc-colors">
-          {COLORS.map((c, i) => {
-            const val = typeof c === 'string' ? c : c.id;
-            const isAuto = val === null;
-            const active = pet.color === val;
-            return (
-              <button key={i} className={`pc-color ${active ? 'on' : ''}`}
-                style={{ background: isAuto ? 'transparent' : val, border: isAuto ? '1px dashed var(--glass-border)' : 'none' }}
-                onClick={() => setPetColor(val)}>
-                {isAuto ? 'A' : ''}
-              </button>
-            );
-          })}
-        </div>
-
-        <p className="pc-label">Fondo dinámico</p>
-        <div className="pc-cats">
-          {BG_CATEGORIES.map(c => (
-            <button key={c.id} className={`pc-cat ${cat === c.id ? 'on' : ''}`} onClick={() => setCat(c.id)}>{c.icon} {c.id}</button>
-          ))}
-        </div>
+        <p className="pc-label">Fondo (entorno real)</p>
         <div className="pc-bgs">
-          {Object.entries(BACKGROUNDS).filter(([, bg]) => bg.cat === cat).map(([id, bg]) => {
+          {Object.entries(BACKGROUNDS).map(([id, bg]) => {
             const unlocked = bgUnlocked(bg, level);
             return (
               <button key={id} className={`pc-bg ${pet.background === id ? 'on' : ''} ${unlocked ? '' : 'locked'}`}
-                style={{ background: bg.css }} disabled={!unlocked}
-                onClick={() => unlocked && setBackground(id)}>
-                <span>{bg.label}</span>
+                disabled={!unlocked} onClick={() => unlocked && setBackground(id)}>
+                <div className="pc-bg-scene"><SceneBackground id={id} /></div>
+                <span className="pc-bg-label">{bg.label}</span>
                 {!unlocked && <span className="pc-lock">🔒 Nv {bg.unlock}</span>}
               </button>
             );

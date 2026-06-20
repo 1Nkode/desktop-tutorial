@@ -1,35 +1,35 @@
 import { useState } from 'react';
 import { useStore, petState, petHappiness } from '../store/useStore';
-import InteractivePet, { STATE_INFO } from './InteractivePet';
+import InteractivePet from './InteractivePet';
+import { STATE_INFO } from './petMeta';
 import Minigame from './Minigame';
 import PetCustomize from './PetCustomize';
 import SceneBackground from './SceneBackground';
-import { BACKGROUNDS } from './backgrounds';
 import { playSound } from '../sound';
 import './Pet.css';
 
 const STATE_ORDER = ['neglected', 'tired', 'base', 'strong', 'champion'];
 
 const PHYSIQUES = {
-  normal: { emoji: '🐱', label: 'Normal', desc: 'Your pet is doing okay!', color: '#667eea' },
-  fit: { emoji: '🐆', label: 'Fit & Active', desc: 'Active lifestyle detected!', color: 'var(--green)' },
-  strong: { emoji: '🦁', label: 'Super Strong', desc: 'Crushing those workouts!', color: 'var(--orange)' },
-  chubby: { emoji: '🐻', label: 'Fluffy Mode', desc: 'Time to get moving!', color: '#9E9E9E' },
+  normal: { emoji: '🐱', label: 'Normal', desc: 'Tu mascota está saludable', color: '#667eea' },
+  fit: { emoji: '🐆', label: 'En forma', desc: 'Estilo de vida activo', color: 'var(--green)' },
+  strong: { emoji: '🦁', label: 'Fuerte', desc: '¡Gran consistencia!', color: 'var(--orange)' },
+  chubby: { emoji: '🐻', label: 'Gordito', desc: 'Hora de moverse', color: '#9E9E9E' },
 };
 
 const MOODS = {
-  happy: { emoji: '😸', label: 'Happy', color: 'var(--green)' },
-  motivated: { emoji: '😤', label: 'Motivated', color: 'var(--orange)' },
-  tired: { emoji: '😴', label: 'Tired', color: '#9E9E9E' },
-  sad: { emoji: '😿', label: 'Sad', color: 'var(--red)' },
+  happy: { emoji: '😸', label: 'Feliz', color: 'var(--green)' },
+  motivated: { emoji: '😤', label: 'Motivada', color: 'var(--orange)' },
+  tired: { emoji: '😴', label: 'Cansada', color: '#9E9E9E' },
+  sad: { emoji: '😿', label: 'Triste', color: 'var(--red)' },
 };
 
 const accessories = [
   { id: 'bandana', emoji: '🎀', label: 'Bandana', unlocked: true },
-  { id: 'glasses', emoji: '😎', label: 'Shades', unlocked: true },
-  { id: 'crown', emoji: '👑', label: 'Crown', unlocked: false, req: 'Reach Level 10' },
-  { id: 'wings', emoji: '🦋', label: 'Wings', unlocked: false, req: '30-day streak' },
-  { id: 'trophy', emoji: '🏆', label: 'Trophy', unlocked: false, req: 'Win a challenge' },
+  { id: 'glasses', emoji: '😎', label: 'Gafas', unlocked: true },
+  { id: 'crown', emoji: '👑', label: 'Corona', unlocked: false, req: 'Nivel 10' },
+  { id: 'wings', emoji: '🦋', label: 'Alas', unlocked: false, req: 'Racha 30 días' },
+  { id: 'trophy', emoji: '🏆', label: 'Trofeo', unlocked: false, req: 'Gana un reto' },
   { id: 'muscle', emoji: '💪', label: 'Flex', unlocked: true },
 ];
 
@@ -43,7 +43,6 @@ export default function Pet() {
   const mood = MOODS[pet.mood];
   const xpPct = (pet.xp / pet.xpToNext) * 100;
   const state = petState(pet, stats, user);
-  const stateInfo = STATE_INFO[state];
   const happiness = petHappiness(pet, stats, user);
   const [showGame, setShowGame] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
@@ -56,7 +55,7 @@ export default function Pet() {
   return (
     <div className="pet-page animate-fadeIn">
       <div className="pet-header">
-        <h2 className="section-title">My Pet</h2>
+        <h2 className="section-title">Mi Mascota</h2>
         <div className="mood-badge" style={{ background: mood.color + '22', color: mood.color }}>
           {mood.emoji} {mood.label}
         </div>
@@ -64,44 +63,37 @@ export default function Pet() {
 
       {/* Main pet display */}
       <div className="pet-stage">
-        <SceneBackground bg={pet.background && pet.background !== 'default' ? BACKGROUNDS[pet.background] : { css: `linear-gradient(135deg, ${physique.color}22, ${physique.color}44)`, fx: 'none' }} />
+        <SceneBackground id={pet.background || 'default'} />
         <div className="pet-glow" style={{ background: physique.color }} />
-        <div className="pet-state-chip" style={{ background: stateInfo.color + '22', color: stateInfo.color, borderColor: stateInfo.color + '55' }}>
-          {stateInfo.emoji} Estado {stateInfo.label}
-        </div>
         <div className="pet-playground">
           <InteractivePet />
-          <span className="pet-playground-hint">Tócalo, arrástralo y lánzalo · doble clic para celebrar</span>
         </div>
-        <div className="pet-accessory">{accessories.find(a => a.id === selectedAcc)?.emoji}</div>
-        <div className="pet-name-tag">
-          {editingName ? (
-            <input
-              className="pet-name-input"
-              value={nameDraft}
-              autoFocus
-              maxLength={14}
-              onChange={e => setNameDraft(e.target.value)}
-              onBlur={saveName}
-              onKeyDown={e => e.key === 'Enter' && saveName()}
-            />
-          ) : (
-            <span onClick={() => { setNameDraft(pet.name); setEditingName(true); }}>
-              {pet.name} <span className="pet-edit-icon">✏️</span>
-            </span>
-          )}
-          <span className="pet-level-tag">Lv.{pet.level}</span>
+        <div className="pet-info-stack">
+          <div className="pet-name-tag">
+            {editingName ? (
+              <input
+                className="pet-name-input"
+                value={nameDraft}
+                autoFocus
+                maxLength={14}
+                onChange={e => setNameDraft(e.target.value)}
+                onBlur={saveName}
+                onKeyDown={e => e.key === 'Enter' && saveName()}
+              />
+            ) : (
+              <button className="pet-name-button" onClick={() => { setNameDraft(pet.name); setEditingName(true); }}>
+                {pet.name} ✏️
+              </button>
+            )}
+            <span className="pet-level-tag">Lv.{pet.level}</span>
+          </div>
         </div>
-        <div className="pet-physique-label" style={{ color: stateInfo.color }}>
-          {stateInfo.label} · {physique.label}
-        </div>
-        <p className="pet-desc">{stateInfo.desc}</p>
       </div>
 
       {/* XP Bar */}
       <div className="card xp-card">
         <div className="xp-header">
-          <span className="xp-title">Experience Points</span>
+          <span className="xp-title">Experiencia</span>
           <span className="xp-num">{pet.xp} / {pet.xpToNext} XP</span>
         </div>
         <div className="progress-bar" style={{ height: 12, marginTop: 8 }}>
@@ -113,7 +105,7 @@ export default function Pet() {
             }}
           />
         </div>
-        <p className="xp-sub">{pet.xpToNext - pet.xp} XP until Level {pet.level + 1}</p>
+        <p className="xp-sub">{pet.xpToNext - pet.xp} XP para el nivel {pet.level + 1}</p>
       </div>
 
       {/* Care: happiness + energy + motivation + cleanliness + actions */}
@@ -174,23 +166,23 @@ export default function Pet() {
             );
           })}
         </div>
-        <p className="evo-caption">Tu mascota cambia de estado según tu actividad real 💪</p>
+        <p className="evo-caption">Tu mascota evoluciona lentamente según semanas de hábitos reales 💪</p>
       </div>
 
       {/* Weekly stats that influence pet */}
       <div className="card">
-        <h3 className="section-title" style={{ marginBottom: 14 }}>Weekly Report Card</h3>
+        <h3 className="section-title" style={{ marginBottom: 14 }}>Resumen semanal</h3>
         <div className="report-items">
-          <ReportItem label="Workouts" value={stats.weeklyWorkouts.filter(v => v > 0).length} max={7} suffix="days" color="var(--green)" icon="💪" />
-          <ReportItem label="Calorie Goal" value={Math.round((stats.caloriesConsumed / stats.caloriesGoal) * 100)} max={100} suffix="%" color="var(--blue)" icon="🍎" />
-          <ReportItem label="Daily Steps" value={Math.round((stats.steps / stats.stepsGoal) * 100)} max={100} suffix="%" color="var(--orange)" icon="👟" />
-          <ReportItem label="Active Mins" value={stats.activeMinutes} max={stats.activeGoal} suffix="min" color="var(--purple)" icon="⏱️" />
+          <ReportItem label="Entrenos" value={stats.weeklyWorkouts.filter(v => v > 0).length} max={7} suffix=" días" color="var(--green)" icon="💪" />
+          <ReportItem label="Meta calorías" value={Math.round((stats.caloriesConsumed / stats.caloriesGoal) * 100)} max={100} suffix="%" color="var(--blue)" icon="🍎" />
+          <ReportItem label="Pasos diarios" value={Math.round((stats.steps / stats.stepsGoal) * 100)} max={100} suffix="%" color="var(--orange)" icon="👟" />
+          <ReportItem label="Min activos" value={stats.activeMinutes} max={stats.activeGoal} suffix=" min" color="var(--purple)" icon="⏱️" />
         </div>
       </div>
 
       {/* Accessories */}
       <div className="card">
-        <h3 className="section-title" style={{ marginBottom: 14 }}>Accessories</h3>
+        <h3 className="section-title" style={{ marginBottom: 14 }}>Accesorios</h3>
         <div className="acc-grid">
           {accessories.map(acc => (
             <div
