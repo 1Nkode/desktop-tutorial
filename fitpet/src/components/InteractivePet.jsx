@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
-import PetSprite from './PetSprite';
 import { playSound } from '../sound';
 import { talkOnce } from '../talk';
 import './InteractivePet.css';
@@ -162,15 +161,12 @@ export default function InteractivePet() {
       {bubble && <div className="ipet-bubble">{bubble}</div>}
       <div className="ipet-aura" />
       <div className="ipet-body">
-        <PetSprite
-          pose={pose}
-          state={state}
-          emotion={reacting ? 'excited' : emotion}
-          pupil={pupil}
-          blink={blink}
-          variant={pet.variant || 'natural'}
+        <img
+          className="tom-img"
+          draggable={false}
+          src={`${import.meta.env.BASE_URL}tom/${talkMode === 'listening' ? 'tom_listening.jpg' : talkMode === 'talking' ? 'tom_talking.gif' : 'Tom.jpg'}`}
+          alt="Talking Tom"
         />
-        {sleepy && <span className="ipet-zzz">z</span>}
         {dirty && <span className="ipet-dirty">💨</span>}
       </div>
       <div className="ipet-shadow" />

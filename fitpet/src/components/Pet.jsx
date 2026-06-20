@@ -4,7 +4,6 @@ import InteractivePet from './InteractivePet';
 import { STATE_INFO } from './petMeta';
 import Minigame from './Minigame';
 import PetCustomize from './PetCustomize';
-import Wardrobe from './Wardrobe';
 import SceneBackground from './SceneBackground';
 import { playSound } from '../sound';
 import { talkOnce } from '../talk';
@@ -26,20 +25,10 @@ const MOODS = {
   sad: { emoji: '😿', label: 'Triste', color: 'var(--red)' },
 };
 
-const accessories = [
-  { id: 'bandana', emoji: '🎀', label: 'Bandana', unlocked: true },
-  { id: 'glasses', emoji: '😎', label: 'Gafas', unlocked: true },
-  { id: 'crown', emoji: '👑', label: 'Corona', unlocked: false, req: 'Nivel 10' },
-  { id: 'wings', emoji: '🦋', label: 'Alas', unlocked: false, req: 'Racha 30 días' },
-  { id: 'trophy', emoji: '🏆', label: 'Trofeo', unlocked: false, req: 'Gana un reto' },
-  { id: 'muscle', emoji: '💪', label: 'Flex', unlocked: true },
-];
-
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, setTalk, talkMode } = useStore();
+  const { pet, stats, user, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, setTalk, talkMode } = useStore();
   const handleTalk = () => { if (talkMode === 'idle') talkOnce(setTalk); };
   const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
-  const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(pet.name);
   const physique = PHYSIQUES[pet.physique];
@@ -49,7 +38,6 @@ export default function Pet() {
   const happiness = petHappiness(pet, stats, user);
   const [showGame, setShowGame] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
-  const [showWardrobe, setShowWardrobe] = useState(false);
 
   const saveName = () => {
     renamePet(nameDraft);
@@ -141,7 +129,6 @@ export default function Pet() {
           <button className="care-btn" onClick={() => interactPet('tickle')}>😆 Cosquillas</button>
         </div>
         <div className="care-actions" style={{ marginTop: 8 }}>
-          <button className="care-btn" onClick={() => setShowWardrobe(true)}>🎨 Estilo</button>
           <button className="care-btn" onClick={() => setShowCustomize(true)}>🖼️ Escena</button>
           <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Juego</button>
           <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
@@ -156,7 +143,6 @@ export default function Pet() {
 
       {showGame && <Minigame onClose={() => setShowGame(false)} />}
       {showCustomize && <PetCustomize onClose={() => setShowCustomize(false)} />}
-      {showWardrobe && <Wardrobe onClose={() => setShowWardrobe(false)} />}
 
       {/* Evolution states */}
       <div className="card">
@@ -188,24 +174,6 @@ export default function Pet() {
           <ReportItem label="Meta calorías" value={Math.round((stats.caloriesConsumed / stats.caloriesGoal) * 100)} max={100} suffix="%" color="var(--blue)" icon="🍎" />
           <ReportItem label="Pasos diarios" value={Math.round((stats.steps / stats.stepsGoal) * 100)} max={100} suffix="%" color="var(--orange)" icon="👟" />
           <ReportItem label="Min activos" value={stats.activeMinutes} max={stats.activeGoal} suffix=" min" color="var(--purple)" icon="⏱️" />
-        </div>
-      </div>
-
-      {/* Accessories */}
-      <div className="card">
-        <h3 className="section-title" style={{ marginBottom: 14 }}>Accesorios</h3>
-        <div className="acc-grid">
-          {accessories.map(acc => (
-            <div
-              key={acc.id}
-              className={`acc-item ${selectedAcc === acc.id ? 'selected' : ''} ${!acc.unlocked ? 'locked' : ''}`}
-              onClick={() => acc.unlocked && setAccessory(acc.id)}
-            >
-              <div className="acc-emoji">{acc.unlocked ? acc.emoji : '🔒'}</div>
-              <p className="acc-label">{acc.label}</p>
-              {!acc.unlocked && <p className="acc-req">{acc.req}</p>}
-            </div>
-          ))}
         </div>
       </div>
 
