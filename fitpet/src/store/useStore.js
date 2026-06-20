@@ -150,6 +150,27 @@ const mockStories = [
   ]},
 ];
 
+// Hevy-style friend activity feed
+const mockFriendActivity = [
+  { id: 'a1', user: 'Maria G.', avatar: '🏃‍♀️', kind: 'workout', text: 'completó Push Day', detail: '5 ejercicios · 18 series · 4.2t', time: 'hace 25 min' },
+  { id: 'a2', user: 'Carlos M.', avatar: '💪', kind: 'pr', text: 'consiguió un nuevo PR en Press de banca', detail: '100kg × 5', time: 'hace 1h' },
+  { id: 'a3', user: 'Ana P.', avatar: '🧘‍♀️', kind: 'streak', text: 'lleva 14 días de racha', detail: '🔥 ¡imparable!', time: 'hace 2h' },
+  { id: 'a4', user: 'Luis R.', avatar: '🏋️', kind: 'pet', text: 'evolucionó su rana a nivel Fuerte', detail: '🐸 Lv.12', time: 'hace 3h' },
+  { id: 'a5', user: 'Sofia V.', avatar: '🌿', kind: 'achievement', text: 'desbloqueó la insignia "Clean Eater"', detail: '🥗 7 días saludables', time: 'hace 5h' },
+  { id: 'a6', user: 'Maria G.', avatar: '🏃‍♀️', kind: 'challenge', text: 'completó el reto 10K Steps', detail: '🏆 +200 XP', time: 'hace 6h' },
+];
+
+// Users you can discover & follow
+const mockDiscover = [
+  { name: 'Maria G.', avatar: '🏃‍♀️', bio: 'Runner · 5K en 27:40', followers: '12.4k' },
+  { name: 'Carlos M.', avatar: '💪', bio: 'Powerlifter · Bench 100kg', followers: '8.1k' },
+  { name: 'Ana P.', avatar: '🧘‍♀️', bio: 'Yoga & movilidad', followers: '5.6k' },
+  { name: 'Luis R.', avatar: '🏋️', bio: 'Hipertrofia · Push/Pull/Legs', followers: '3.2k' },
+  { name: 'Sofia V.', avatar: '🌿', bio: 'Nutrición basada en plantas', followers: '2.9k' },
+  { name: 'Diego F.', avatar: '🚴', bio: 'Ciclismo & cardio', followers: '1.8k' },
+  { name: 'Lucia T.', avatar: '🤸', bio: 'Calistenia', followers: '1.1k' },
+];
+
 const mockNotifications = [
   { id: 1, icon: '❤️', text: 'Maria G. liked your workout', time: '5m ago', read: false },
   { id: 2, icon: '💬', text: 'Carlos M. commented: "Nice gains!"', time: '20m ago', read: false },
@@ -291,6 +312,8 @@ export const useStore = create(persist((set, get) => ({
   feed: enrichFeed(mockFeed),
   stories: mockStories,
   following: ['Maria G.', 'Ana P.'],
+  friendActivity: mockFriendActivity,
+  discoverUsers: mockDiscover,
   missions: mockMissions,
   badges: mockBadges,
   workouts: mockWorkouts,
@@ -303,6 +326,7 @@ export const useStore = create(persist((set, get) => ({
     notificationsEnabled: true,
     autoSync: true,
     sound: true,
+    autoShareWorkout: true,   // auto-post completed workouts to the feed
   },
 
   // UI (transient — not persisted)
@@ -561,16 +585,19 @@ export const useStore = create(persist((set, get) => ({
     let volume = 0, totalReps = 0, doneSets = 0;
     const prs = { ...state.personalRecords };
     let prHit = null;
+    const prNames = [];
 
     const exercises = w.exercises.map(e => {
       const sets = e.sets.filter(s => s.done && (s.weight !== '' || s.reps !== ''));
+      let exPR = null;
       sets.forEach(s => {
         const wt = +s.weight || 0, rp = +s.reps || 0;
         volume += wt * rp; totalReps += rp; doneSets++;
         const est = e1rm(wt, rp);
         const cur = prs[e.exerciseId];
-        if (!cur || est > cur.e1rm) { prs[e.exerciseId] = { e1rm: est, weight: wt, reps: rp, date: Date.now() }; if (est > (cur?.e1rm || 0) && wt > 0) prHit = e.name; }
+        if (!cur || est > cur.e1rm) { prs[e.exerciseId] = { e1rm: est, weight: wt, reps: rp, date: Date.now() }; if (est > (cur?.e1rm || 0) && wt > 0) { prHit = e.name; exPR = { weight: wt, reps: rp }; } }
       });
+      if (exPR) prNames.push({ name: e.name, ...exPR });
       return { name: e.name, muscle: e.muscle, icon: e.icon, note: e.note, sets: sets.map(s => ({ weight: +s.weight || 0, reps: +s.reps || 0 })) };
     }).filter(e => e.sets.length > 0);
 
@@ -578,7 +605,7 @@ export const useStore = create(persist((set, get) => ({
 
     const session = {
       id: Date.now(), name: w.name, date: Date.now(), durationMin,
-      volume, totalReps, sets: doneSets, note: w.note, exercises,
+      volume, totalReps, sets: doneSets, note: w.note, exercises, prs: prNames,
     };
 
     // stats + pet
@@ -595,6 +622,18 @@ export const useStore = create(persist((set, get) => ({
     const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6) };
     const newPet = evolvePet(applyXp(boosted, xp), newStats);
 
+    // Auto-share to the community feed (Hevy-style)
+    let feed = state.feed;
+    if (state.settings.autoShareWorkout !== false) {
+      const post = {
+        id: Date.now() + 1, user: state.user.name, avatar: '😄', type: 'workout-log',
+        content: `Completé ${session.name} 💪`, time: 'Justo ahora',
+        liked: false, likes: 0, saved: false, comments: [], petLevel: newPet.level,
+        workout: session,
+      };
+      feed = [post, ...state.feed];
+    }
+
     return {
       activeWorkout: null,
       workoutHistory: [session, ...state.workoutHistory],
@@ -602,6 +641,7 @@ export const useStore = create(persist((set, get) => ({
       stats: newStats,
       pet: newPet,
       lastPR: prHit,
+      feed,
     };
   }),
 

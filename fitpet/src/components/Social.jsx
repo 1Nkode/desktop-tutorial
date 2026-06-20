@@ -13,7 +13,7 @@ const initialChallenges = [
 const TRENDING = ['#transformación', '#PR', '#mealprep', '#5K', '#piernas', '#streak', '#nochesinexcusas'];
 
 export default function Social() {
-  const { feed, stories, toggleLike, toggleSave, addComment, addReply, toggleFollow, following, user, pet, setShowAddPost, setActiveTab, markStorySeen } = useStore();
+  const { feed, stories, toggleLike, toggleSave, addComment, addReply, toggleFollow, following, friendActivity, discoverUsers, user, pet, setShowAddPost, setActiveTab, markStorySeen } = useStore();
   const [section, setSection] = useState('feed');
   const [challenges, setChallenges] = useState(initialChallenges);
   const [storyIdx, setStoryIdx] = useState(null);     // index into stories for viewer
@@ -22,14 +22,6 @@ export default function Social() {
 
   const toggleJoin = (id) => setChallenges(cs => cs.map(c =>
     c.id === id ? { ...c, joined: !c.joined, participants: c.joined ? c.participants - 1 : c.participants + 1 } : c));
-
-  const leaderboard = [
-    { rank: 1, name: 'Maria G.', avatar: '🏃‍♀️', points: 2840, badge: '🥇' },
-    { rank: 2, name: 'Carlos M.', avatar: '💪', points: 2650, badge: '🥈' },
-    { rank: 3, name: user.name, avatar: '😄', points: 2410, badge: '🥉', isMe: true },
-    { rank: 4, name: 'Ana P.', avatar: '🧘‍♀️', points: 2200, badge: null },
-    { rank: 5, name: 'Luis R.', avatar: '🏋️', points: 1980, badge: null },
-  ];
 
   // infinite scroll
   useEffect(() => {
@@ -62,7 +54,7 @@ export default function Social() {
       </div>
 
       <div className="social-tabs">
-        {[['feed', '📰 Feed'], ['explore', '🔍 Explorar'], ['challenges', '⚔️ Retos'], ['leaderboard', '🏆 Rankings']].map(([s, l]) => (
+        {[['feed', '📰 Feed'], ['friends', '👟 Amigos'], ['explore', '🔍 Explorar'], ['challenges', '⚔️ Retos'], ['leaderboard', '🏆 Rankings']].map(([s, l]) => (
           <button key={s} className={`social-tab ${section === s ? 'active' : ''}`} onClick={() => setSection(s)}>{l}</button>
         ))}
       </div>
@@ -94,6 +86,10 @@ export default function Social() {
         </>
       )}
 
+      {section === 'friends' && (
+        <Friends activity={friendActivity} discover={discoverUsers} following={following} onFollow={toggleFollow} />
+      )}
+
       {section === 'explore' && <Explore feed={feed} onOpen={(id) => { setSection('feed'); setCommentsFor(id); }} />}
 
       {section === 'challenges' && (
@@ -103,12 +99,7 @@ export default function Social() {
         </div>
       )}
 
-      {section === 'leaderboard' && (
-        <div className="leaderboard-section">
-          <p className="section-desc">Ranking de actividad semanal</p>
-          {leaderboard.map(u => <LeaderCard key={u.rank} user={u} />)}
-        </div>
-      )}
+      {section === 'leaderboard' && <Rankings user={user} />}
 
       <div style={{ height: 100 }} />
 
@@ -160,7 +151,9 @@ function PostCard({ post, me, following, onLike, onSave, onFollow, onOpenComment
         )}
       </div>
 
-      {post.image && (
+      {post.workout && <WorkoutLogBody w={post.workout} petLevel={post.petLevel} onDouble={dblLike} burst={burst} />}
+
+      {post.image && !post.workout && (
         <div className="ig-img-wrap" onClick={onImgClick} onDoubleClick={dblLike}>
           <img className="ig-img" src={post.image} alt="" loading="lazy" />
           {post.petLevel && <span className="ig-pet-badge">🐸 Lv.{post.petLevel}</span>}
@@ -326,6 +319,111 @@ function Explore({ feed, onOpen }) {
   );
 }
 
+/* ---------------- Hevy-style workout log card ---------------- */
+function WorkoutLogBody({ w, petLevel, onDouble, burst }) {
+  return (
+    <div className="wl-card" onDoubleClick={onDouble}>
+      <div className="wl-head">
+        <div className="wl-metric"><span className="wl-v">{w.durationMin}m</span><span className="wl-l">Duración</span></div>
+        <div className="wl-metric"><span className="wl-v">{(w.volume / 1000).toFixed(1)}t</span><span className="wl-l">Volumen</span></div>
+        <div className="wl-metric"><span className="wl-v">{w.sets}</span><span className="wl-l">Series</span></div>
+        {petLevel && <div className="wl-metric"><span className="wl-v">🐸{petLevel}</span><span className="wl-l">Rana</span></div>}
+      </div>
+      {w.prs?.length > 0 && (
+        <div className="wl-prs">
+          {w.prs.map((p, i) => <span key={i} className="wl-pr">🏆 {p.name} {p.weight}kg×{p.reps}</span>)}
+        </div>
+      )}
+      <div className="wl-ex-list">
+        <div className="wl-ex-head"><span>Ejercicio</span><span>Mejor serie</span></div>
+        {w.exercises.map((e, i) => {
+          const best = e.sets.reduce((b, s) => (s.weight * s.reps > (b.weight * b.reps) ? s : b), e.sets[0] || { weight: 0, reps: 0 });
+          return (
+            <div className="wl-ex" key={i}>
+              <span className="wl-ex-name">{e.icon} {e.sets.length}× {e.name}</span>
+              <span className="wl-ex-best">{best.weight}kg × {best.reps}</span>
+            </div>
+          );
+        })}
+      </div>
+      {burst && <span className="ig-heart-burst" style={{ position: 'absolute', inset: 0 }}>❤️</span>}
+    </div>
+  );
+}
+
+/* ---------------- Friends: activity + discover ---------------- */
+function Friends({ activity, discover, following, onFollow }) {
+  const [q, setQ] = useState('');
+  const KIND = {
+    workout: { icon: '💪', color: 'var(--lavender)' },
+    pr: { icon: '🏆', color: '#FFD54F' },
+    streak: { icon: '🔥', color: 'var(--orange)' },
+    pet: { icon: '🐸', color: 'var(--lime)' },
+    achievement: { icon: '🎖️', color: 'var(--lavender)' },
+    challenge: { icon: '⚔️', color: 'var(--orange)' },
+  };
+  const results = discover.filter(u => !q.trim() || u.name.toLowerCase().includes(q.toLowerCase()));
+
+  return (
+    <div className="friends">
+      <div className="fs-searchbar" style={{ marginBottom: 14 }}>
+        <span className="material-symbols-outlined">person_search</span>
+        <input className="fs-input" placeholder="Buscar amigos por nombre…" value={q} onChange={e => setQ(e.target.value)} />
+      </div>
+
+      {q.trim() ? (
+        <div className="fr-discover">
+          {results.map(u => (
+            <div className="fr-user" key={u.name}>
+              <div className="avatar" style={{ width: 44, height: 44, fontSize: 20 }}>{u.avatar}</div>
+              <div className="fr-user-info">
+                <p className="fr-user-name">{u.name}</p>
+                <p className="fr-user-bio">{u.bio} · {u.followers}</p>
+              </div>
+              <button className={`ig-follow ${following.includes(u.name) ? 'on' : ''}`} onClick={() => onFollow(u.name)}>
+                {following.includes(u.name) ? 'Siguiendo' : 'Seguir'}
+              </button>
+            </div>
+          ))}
+          {results.length === 0 && <p className="no-comments">Sin resultados</p>}
+        </div>
+      ) : (
+        <>
+          <div className="fr-suggest">
+            <p className="fr-suggest-title">Sugerencias para ti</p>
+            <div className="fr-suggest-row">
+              {discover.slice(0, 5).map(u => (
+                <div className="fr-sg" key={u.name}>
+                  <div className="avatar" style={{ width: 48, height: 48, fontSize: 22 }}>{u.avatar}</div>
+                  <p className="fr-sg-name">{u.name.split(' ')[0]}</p>
+                  <button className={`ex-follow`} onClick={() => onFollow(u.name)}>{following.includes(u.name) ? '✓' : 'Seguir'}</button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="section-header" style={{ marginTop: 6 }}><span className="section-title">Actividad reciente</span></div>
+          <div className="fr-activity">
+            {activity.map(a => {
+              const k = KIND[a.kind] || KIND.workout;
+              return (
+                <div className="fr-act" key={a.id}>
+                  <div className="fr-act-icon" style={{ background: k.color + '22', color: k.color }}>{k.icon}</div>
+                  <div className="fr-act-body">
+                    <p className="fr-act-text"><strong>{a.user}</strong> {a.text}</p>
+                    <p className="fr-act-detail">{a.detail} · {a.time}</p>
+                  </div>
+                  <button className="fr-act-like">🤍</button>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function ChallengeCard({ challenge, onToggle }) {
   return (
     <div className="card challenge-card">
@@ -342,13 +440,48 @@ function ChallengeCard({ challenge, onToggle }) {
   );
 }
 
+/* ---------------- Rankings (multiple types) ---------------- */
+function Rankings({ user }) {
+  const [type, setType] = useState('points');
+  const DATA = {
+    points: { label: '⭐ Puntos', unit: 'pts', rows: [
+      ['Maria G.', '🏃‍♀️', 2840], ['Carlos M.', '💪', 2650], [user.name, '😄', 2410, true], ['Ana P.', '🧘‍♀️', 2200], ['Luis R.', '🏋️', 1980],
+    ]},
+    volume: { label: '🏋️ Volumen', unit: 't', rows: [
+      ['Luis R.', '🏋️', 48.2], ['Carlos M.', '💪', 41.7], [user.name, '😄', 33.5, true], ['Maria G.', '🏃‍♀️', 22.1], ['Ana P.', '🧘‍♀️', 12.4],
+    ]},
+    workouts: { label: '💪 Entrenos', unit: '', rows: [
+      ['Carlos M.', '💪', 21], ['Maria G.', '🏃‍♀️', 19], ['Luis R.', '🏋️', 18], [user.name, '😄', 14, true], ['Ana P.', '🧘‍♀️', 11],
+    ]},
+    streak: { label: '🔥 Racha', unit: 'd', rows: [
+      ['Ana P.', '🧘‍♀️', 14], [user.name, '😄', 12, true], ['Maria G.', '🏃‍♀️', 9], ['Carlos M.', '💪', 7], ['Luis R.', '🏋️', 4],
+    ]},
+  };
+  const cfg = DATA[type];
+  const medals = ['🥇', '🥈', '🥉'];
+
+  return (
+    <div className="leaderboard-section">
+      <div className="rk-tabs">
+        {Object.entries(DATA).map(([k, v]) => (
+          <button key={k} className={`rk-tab ${type === k ? 'active' : ''}`} onClick={() => setType(k)}>{v.label}</button>
+        ))}
+      </div>
+      <p className="section-desc">Ranking semanal · {cfg.label}</p>
+      {cfg.rows.map((r, i) => (
+        <LeaderCard key={i} user={{ rank: i + 1, name: r[0], avatar: r[1], points: r[2], unit: cfg.unit, badge: medals[i] || null, isMe: r[3] }} />
+      ))}
+    </div>
+  );
+}
+
 function LeaderCard({ user }) {
   return (
     <div className={`card leader-card ${user.isMe ? 'is-me' : ''}`}>
       <div className="rank-num" style={{ color: user.rank <= 3 ? 'var(--orange)' : 'var(--text-secondary)' }}>{user.badge || `#${user.rank}`}</div>
       <div className="avatar">{user.avatar}</div>
       <div className="leader-info"><p className="leader-name">{user.name} {user.isMe && <span className="you-tag">Tú</span>}</p></div>
-      <div className="leader-points"><p className="points-num">{user.points.toLocaleString()}</p><p className="points-label">pts</p></div>
+      <div className="leader-points"><p className="points-num">{user.points.toLocaleString()}{user.unit && user.unit !== 'pts' ? user.unit : ''}</p><p className="points-label">{user.unit || 'pts'}</p></div>
     </div>
   );
 }
