@@ -860,8 +860,10 @@ export const useStore = create(persist((set, get) => ({
   // 3D character animation/style
   modelAnim: null,
   modelAnimList: [],
+  modelGender: 'default',   // default | male | female (loads model/<gender>.glb)
   setModelAnim: (name) => set({ modelAnim: name }),
   setModelAnimList: (list) => set({ modelAnimList: list }),
+  setModelGender: (g) => set({ modelGender: g, modelAnim: null }),
 
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({
@@ -968,5 +970,6 @@ export const useStore = create(persist((set, get) => ({
     connectedDevices: state.connectedDevices,
     dashboardLayout: state.dashboardLayout,
     dashboardTemplates: state.dashboardTemplates,
+    modelGender: state.modelGender,
   }),
 }));
