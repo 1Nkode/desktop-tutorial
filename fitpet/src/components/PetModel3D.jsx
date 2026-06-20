@@ -49,9 +49,25 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
         }
       });
 
-      // IMPORTANT: update world matrices before measuring, or the box is wrong
+      // Measure ONLY the main body mesh (ignore stray empties/props that
+      // inflate the bounding box and push the body out of frame).
       model.updateMatrixWorld(true);
-      let box = new THREE.Box3().setFromObject(model);
+      let main = null, maxV = -1;
+      model.traverse((c) => {
+        if (c.isMesh && c.geometry?.attributes?.position) {
+          const n = c.geometry.attributes.position.count;
+          if (n > maxV) { maxV = n; main = c; }
+        }
+      });
+      const measure = () => {
+        if (main) {
+          main.geometry.computeBoundingBox();
+          return main.geometry.boundingBox.clone().applyMatrix4(main.matrixWorld);
+        }
+        return new THREE.Box3().setFromObject(model);
+      };
+
+      let box = measure();
       let size = box.getSize(new THREE.Vector3());
 
       // normalize the model to a known height so framing is reliable
@@ -61,7 +77,7 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
       model.updateMatrixWorld(true);
 
       // re-measure after scaling, then center at origin
-      box = new THREE.Box3().setFromObject(model);
+      box = measure();
       size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
       model.position.sub(center);
