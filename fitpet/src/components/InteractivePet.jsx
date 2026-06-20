@@ -16,7 +16,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction } = useStore();
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText } = useStore();
   const state = petState(pet, stats, user);
   const stateRef = useRef(state);
 
@@ -122,15 +122,23 @@ export default function InteractivePet() {
     if (!lastInteraction) return;
     if (lastInteraction.type === 'tickle') { setReacting(true); setPose('flex'); setTimeout(() => { setReacting(false); setPose('stand'); }, 720); say('¡Jaja! 😆'); spawn('😂', 8); flashEmotion('excited', 1200); playSound('celebrate'); }
     else if (lastInteraction.type === 'pet') { say('😊'); spawn('❤️', 6); flashEmotion('happy', 1200); playSound('tap'); }
-    else if (lastInteraction.type === 'talk') {
-      // talking-tom: show what it says + a "talking" animation while speaking
-      const ms = Math.min(6000, 1400 + (lastInteraction.text?.length || 0) * 70);
-      setEmotion('excited');
-      say(lastInteraction.text || '...', ms);
-      clearTimeout(emoTimer.current);
-      emoTimer.current = setTimeout(() => setEmotion(baseEmotion()), ms);
-    }
   }, [lastInteraction]);
+
+  // Talking-Tom: drive the frog animation precisely from talk mode
+  useEffect(() => {
+    clearTimeout(emoTimer.current);
+    clearTimeout(bubbleTimer.current);
+    if (talkMode === 'talking') {
+      setEmotion('excited');            // -> talking clip
+      setBubble(talkText || '...');
+    } else if (talkMode === 'listening') {
+      setEmotion('surprised');          // attentive
+      setBubble('Te escucho… 👂');
+    } else {
+      setEmotion(baseEmotion());
+      setBubble(null);
+    }
+  }, [talkMode, talkText]);
 
   // occasional motivational line
   useEffect(() => {

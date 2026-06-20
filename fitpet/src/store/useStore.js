@@ -852,6 +852,11 @@ export const useStore = create(persist((set, get) => ({
     lastInteraction: { type: 'talk', text, at: Date.now() },
   })),
 
+  // Talking-Tom mode: idle | listening | talking (drives the frog animation)
+  talkMode: 'idle',
+  talkText: '',
+  setTalk: (mode, text = '') => set({ talkMode: mode, talkText: text }),
+
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({
     pet: { ...state.pet, energy: clamp(state.pet.energy + 18) },

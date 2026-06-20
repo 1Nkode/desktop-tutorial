@@ -36,21 +36,31 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, sayPet } = useStore();
+  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, setTalk } = useStore();
   const [listening, setListening] = useState(false);
+
+  const frogSpeak = (text) => {
+    setTalk('talking', text);
+    speak(text, {
+      onstart: () => setTalk('talking', text),
+      onend: () => setTalk('idle'),
+    });
+    // safety: clear after a max in case onend never fires
+    setTimeout(() => setTalk('idle'), Math.min(8000, 1500 + text.length * 90));
+  };
 
   const handleTalk = () => {
     if (listening) return;
     if (speechSupported()) {
       listen({
-        onStart: () => setListening(true),
+        onStart: () => { setListening(true); setTalk('listening'); },
         onEnd: () => setListening(false),
-        onError: () => setListening(false),
-        onResult: (text) => { sayPet(text); speak(text); },
+        onError: () => { setListening(false); setTalk('idle'); },
+        onResult: (text) => frogSpeak(text),
       });
     } else {
       const text = prompt('Tu navegador no soporta micrófono. Escribe algo y tu mascota lo repetirá:');
-      if (text) { sayPet(text); speak(text); }
+      if (text) frogSpeak(text);
     }
   };
   const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
