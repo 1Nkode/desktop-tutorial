@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore, petState } from '../store/useStore';
 import InteractivePet, { STATE_INFO } from './InteractivePet';
+import { playSound } from '../sound';
 import './Pet.css';
 
 const STATE_ORDER = ['neglected', 'tired', 'base', 'strong', 'champion'];
@@ -29,7 +30,8 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet } = useStore();
+  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, claimDailyReward, lastDailyClaim } = useStore();
+  const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
   const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(pet.name);
@@ -104,6 +106,27 @@ export default function Pet() {
           />
         </div>
         <p className="xp-sub">{pet.xpToNext - pet.xp} XP until Level {pet.level + 1}</p>
+      </div>
+
+      {/* Care: energy + motivation bars + actions */}
+      <div className="card care-card">
+        <div className="care-bar">
+          <span className="care-ico">⚡</span>
+          <div className="care-track"><div className="care-fill energy" style={{ width: `${pet.energy}%` }} /></div>
+          <span className="care-val">{pet.energy}</span>
+        </div>
+        <div className="care-bar">
+          <span className="care-ico">🔥</span>
+          <div className="care-track"><div className="care-fill motivation" style={{ width: `${pet.motivation}%` }} /></div>
+          <span className="care-val">{pet.motivation}</span>
+        </div>
+        <div className="care-actions">
+          <button className="care-btn" onClick={() => { feedPet(); playSound('eat'); }}>🍎 Alimentar</button>
+          <button className="care-btn" onClick={() => { playWithPet(); playSound('celebrate'); }}>🎾 Jugar</button>
+          <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
+            🎁 {dailyAvailable ? 'Recompensa' : 'Reclamado'}
+          </button>
+        </div>
       </div>
 
       {/* Evolution states */}

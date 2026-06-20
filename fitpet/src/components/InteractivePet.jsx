@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
 import PetSprite from './PetSprite';
+import { playSound } from '../sound';
 import './InteractivePet.css';
 
 /*
@@ -42,7 +43,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp } = useStore();
+  const { pet, stats, user, addPetXp, pokePet } = useStore();
   const state = petState(pet, stats, user);
 
   const elRef = useRef(null);
@@ -52,6 +53,29 @@ export default function InteractivePet() {
   const [bubble, setBubble] = useState(null);
   const [particles, setParticles] = useState([]);
   const [imgOk, setImgOk] = useState({ stand: true, flex: true, sit: true });
+
+  // "Alive" rig: eye tracking, blinking, emotions
+  const [pupil, setPupil] = useState({ x: 0, y: 0 });
+  const [blink, setBlink] = useState(false);
+  const [emotion, setEmotion] = useState('happy');
+  const emotionTimer = useRef(null);
+  const lastEyeUpdate = useRef(0);
+  const levelRef = useRef(pet.level);
+
+  function baseEmotion() {
+    const s = stateRef.current;
+    if (pet.energy <= 25) return 'tired';
+    if (pet.motivation <= 25) return 'sad';
+    if (s === 'champion' || s === 'strong') return 'happy';
+    if (s === 'neglected') return 'sad';
+    if (s === 'tired') return 'tired';
+    return 'happy';
+  }
+  function flashEmotion(e, ms = 1500) {
+    setEmotion(e);
+    clearTimeout(emotionTimer.current);
+    emotionTimer.current = setTimeout(() => setEmotion(baseEmotion()), ms);
+  }
 
   const p = useRef({
     x: 40, y: 60, vx: 0, vy: 0,
@@ -133,7 +157,10 @@ export default function InteractivePet() {
     const list = REACTIONS[s] || REACTIONS.base;
     say(list[Math.floor(Math.random() * list.length)]);
     spawnParticles(s === 'champion' ? '⭐' : s === 'neglected' || s === 'tired' ? '💧' : '❤️', 10);
+    flashEmotion('excited', 1400);
+    playSound(s === 'champion' || s === 'strong' ? 'celebrate' : 'tap');
     addPetXp?.(2);
+    pokePet?.();
   }
 
   function onPointerDown(e) {
@@ -144,11 +171,24 @@ export default function InteractivePet() {
     setPoseIfChanged('flex');
   }
 
-  // pointer move / up (drag + throw)
+  // pointer move / up (drag + throw + eye tracking)
   useEffect(() => {
+    function trackEyes(point) {
+      const now = performance.now();
+      if (now - lastEyeUpdate.current < 40) return;   // throttle ~25fps
+      lastEyeUpdate.current = now;
+      const el = elRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const nx = Math.max(-1, Math.min(1, (point.clientX - cx) / 120));
+      const ny = Math.max(-1, Math.min(1, (point.clientY - cy) / 120));
+      setPupil({ x: nx, y: ny });
+    }
     function onMove(e) {
-      if (!p.dragging) return;
       const point = 'touches' in e ? e.touches[0] : e;
+      if (!p.dragging) { trackEyes(point); return; }
       const r = elRef.current.parentElement.getBoundingClientRect();
       const b = boundsRef.current;
       let nx = point.clientX - r.left - SIZE / 2;
@@ -197,8 +237,53 @@ export default function InteractivePet() {
       p.behavior = 'idle'; p.timer = 90;
       say(state === 'neglected' ? 'Me siento flojo... 🥱' : 'La racha está en riesgo 😮‍💨');
       spawnParticles('💧', 6);
+      flashEmotion('sad', 2000);
+      playSound('sad');
     }
   }, [state]);
+
+  // Natural blinking
+  useEffect(() => {
+    let t;
+    function scheduleBlink() {
+      t = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => setBlink(false), 140);
+        scheduleBlink();
+      }, 2200 + Math.random() * 2800);
+    }
+    scheduleBlink();
+    return () => clearTimeout(t);
+  }, []);
+
+  // Base emotion follows the pet's stats/state
+  useEffect(() => { setEmotion(baseEmotion()); }, [state, pet.energy, pet.motivation]);
+
+  // Level-up celebration
+  useEffect(() => {
+    if (pet.level > levelRef.current) {
+      levelRef.current = pet.level;
+      p.behavior = 'celebrate'; p.timer = 90; if (p.onGround) p.vy = -13;
+      say(`¡Nivel ${pet.level}! 🎉`);
+      spawnParticles('⭐', 16);
+      flashEmotion('excited', 1800);
+      playSound('levelup');
+    } else {
+      levelRef.current = pet.level;
+    }
+  }, [pet.level]);
+
+  // Idle eyes drift back to center + occasional motivational message
+  useEffect(() => {
+    const drift = setInterval(() => {
+      if (!p.dragging) setPupil(pu => ({ x: pu.x * 0.4, y: pu.y * 0.4 }));
+    }, 1400);
+    const PHRASES = ['¡Tú puedes! 💪', '¿Listo para entrenar?', '¡Vamos por esa racha! 🔥', '¡Hidrátate! 💧', '¡Un día más!'];
+    const motivate = setInterval(() => {
+      if (!bubble && Math.random() < 0.4) say(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
+    }, 9000);
+    return () => { clearInterval(drift); clearInterval(motivate); };
+  }, []);
 
   // game loop
   useEffect(() => {
@@ -305,7 +390,13 @@ export default function InteractivePet() {
             onError={() => setImgOk(s => ({ ...s, [pose]: false }))}
           />
         ) : (
-          <PetSprite pose={pose} state={state} />
+          <PetSprite
+            pose={pose}
+            state={state}
+            emotion={(p.behavior === 'celebrate' || p.behavior === 'dance') ? 'excited' : emotion}
+            pupil={pupil}
+            blink={blink}
+          />
         )}
         {/* state badge (crown / muscle / burger / zzz) */}
         {info.badge && <span className="ipet-badge">{info.badge}</span>}

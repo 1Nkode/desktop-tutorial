@@ -299,6 +299,7 @@ function SettingsPanel() {
         <span className="settings-label">Preferences</span>
         <Toggle label="Push notifications" value={settings.notificationsEnabled} onChange={v => updateSetting('notificationsEnabled', v)} />
         <Toggle label="Auto-sync wearables" value={settings.autoSync} onChange={v => updateSetting('autoSync', v)} />
+        <Toggle label="Sonidos de la mascota" value={settings.sound !== false} onChange={v => updateSetting('sound', v)} />
         <div className="setting-row">
           <span>Units</span>
           <div className="seg">

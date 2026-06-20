@@ -24,7 +24,12 @@ const basepet = {
   physique: 'normal', // normal, fit, strong, chubby
   accessories: ['bandana'],
   streak: 3,
+  energy: 80,       // 0-100, restored by feeding / rest
+  motivation: 75,   // 0-100, restored by playing / training
 };
+
+const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
+const todayKey = () => new Date().toISOString().slice(0, 10);
 
 const mockFeed = [
   {
@@ -234,6 +239,7 @@ export const useStore = create(persist((set, get) => ({
     units: 'metric',          // metric | imperial
     notificationsEnabled: true,
     autoSync: true,
+    sound: true,
   },
 
   // UI (transient — not persisted)
@@ -296,7 +302,8 @@ export const useStore = create(persist((set, get) => ({
       activeMinutes: state.stats.activeMinutes + workout.duration,
       weeklyWorkouts,
     };
-    const newPet = evolvePet(applyXp(state.pet, 25), newStats);
+    const boosted = { ...state.pet, motivation: clamp(state.pet.motivation + 12), energy: clamp(state.pet.energy + 6) };
+    const newPet = evolvePet(applyXp(boosted, 25), newStats);
     return { workouts: [newWorkout, ...state.workouts], stats: newStats, pet: newPet };
   }),
 
@@ -345,6 +352,35 @@ export const useStore = create(persist((set, get) => ({
   addPetXp: (amount = 1) => set((state) => ({
     pet: applyXp(state.pet, amount),
   })),
+
+  // Pou/Tom-style care: feed restores energy, play restores motivation
+  feedPet: () => set((state) => ({
+    pet: { ...state.pet, energy: clamp(state.pet.energy + 18) },
+  })),
+
+  playWithPet: () => set((state) => ({
+    pet: applyXp({
+      ...state.pet,
+      motivation: clamp(state.pet.motivation + 15),
+      energy: clamp(state.pet.energy - 4),
+    }, 3),
+  })),
+
+  // small energy cost when poked
+  pokePet: () => set((state) => ({
+    pet: { ...state.pet, energy: clamp(state.pet.energy - 1) },
+  })),
+
+  // Daily reward (claim once per calendar day)
+  lastDailyClaim: null,
+  dailyReward: 50,
+  claimDailyReward: () => set((state) => {
+    if (state.lastDailyClaim === todayKey()) return {};
+    return {
+      lastDailyClaim: todayKey(),
+      pet: applyXp({ ...state.pet, energy: clamp(state.pet.energy + 20), motivation: clamp(state.pet.motivation + 20) }, state.dailyReward),
+    };
+  }),
 
   // Pet customization
   setAccessory: (accId) => set((state) => ({
@@ -397,5 +433,6 @@ export const useStore = create(persist((set, get) => ({
     meals: state.meals,
     notifications: state.notifications,
     settings: state.settings,
+    lastDailyClaim: state.lastDailyClaim,
   }),
 }));

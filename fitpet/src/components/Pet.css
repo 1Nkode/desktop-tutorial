@@ -120,6 +120,74 @@
   margin-top: 12px;
 }
 
+/* Care card (energy / motivation + actions) */
+.care-card { margin-bottom: 14px; }
+
+.care-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.care-ico { font-size: 18px; width: 22px; text-align: center; }
+
+.care-track {
+  flex: 1;
+  height: 12px;
+  background: var(--surface-high);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.care-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+.care-fill.energy { background: linear-gradient(90deg, #FFD54F, #FFB951); }
+.care-fill.motivation { background: linear-gradient(90deg, #ff7a59, #ff4d6d); }
+
+.care-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  width: 26px;
+  text-align: right;
+}
+
+.care-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.care-btn {
+  flex: 1;
+  padding: 11px 6px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.care-btn:hover { background: rgba(204,255,0,0.1); border-color: rgba(204,255,0,0.3); }
+
+.care-btn.daily.ready {
+  background: linear-gradient(135deg, var(--lime), var(--lime-dim));
+  color: #283500;
+  border-color: transparent;
+  animation: glow 2s ease-in-out infinite;
+}
+
+.care-btn:disabled { opacity: 0.5; cursor: default; }
+.care-btn.daily:disabled:hover { background: rgba(255,255,255,0.05); border-color: var(--glass-border); }
+
 .pet-desc {
   font-size: 13px;
   color: var(--text-secondary);
