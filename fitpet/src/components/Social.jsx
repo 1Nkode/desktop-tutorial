@@ -18,6 +18,7 @@ export default function Social() {
   const [challenges, setChallenges] = useState(initialChallenges);
   const [storyIdx, setStoryIdx] = useState(null);     // index into stories for viewer
   const [commentsFor, setCommentsFor] = useState(null);
+  const [profileUser, setProfileUser] = useState(null);
   const [visible, setVisible] = useState(8);           // infinite scroll window
 
   const toggleJoin = (id) => setChallenges(cs => cs.map(c =>
@@ -79,7 +80,8 @@ export default function Social() {
             {feed.slice(0, visible).map(post => (
               <PostCard key={post.id} post={post} me={user.name} following={following}
                 onLike={() => toggleLike(post.id)} onSave={() => toggleSave(post.id)}
-                onFollow={() => toggleFollow(post.user)} onOpenComments={() => setCommentsFor(post.id)} />
+                onFollow={() => toggleFollow(post.user)} onOpenComments={() => setCommentsFor(post.id)}
+                onOpenUser={() => post.user !== user.name && setProfileUser(post.user)} />
             ))}
             {visible < feed.length && <p className="feed-loading">Cargando más… ⏳</p>}
           </div>
@@ -87,7 +89,7 @@ export default function Social() {
       )}
 
       {section === 'friends' && (
-        <Friends activity={friendActivity} discover={discoverUsers} following={following} onFollow={toggleFollow} />
+        <Friends activity={friendActivity} discover={discoverUsers} following={following} onFollow={toggleFollow} onOpenUser={setProfileUser} />
       )}
 
       {section === 'explore' && <Explore feed={feed} onOpen={(id) => { setSection('feed'); setCommentsFor(id); }} />}
@@ -105,12 +107,14 @@ export default function Social() {
 
       {storyIdx != null && <StoryViewer stories={stories} startIdx={storyIdx} onClose={() => setStoryIdx(null)} markSeen={markStorySeen} />}
       {commentPost && <CommentsSheet post={commentPost} me={user.name} onClose={() => setCommentsFor(null)} onAdd={addComment} onReply={addReply} />}
+      {profileUser && <UserProfileSheet name={profileUser} discover={discoverUsers} feed={feed} activity={friendActivity}
+        following={following.includes(profileUser)} onFollow={() => toggleFollow(profileUser)} onClose={() => setProfileUser(null)} />}
     </div>
   );
 }
 
 /* ---------------- Post ---------------- */
-function PostCard({ post, me, following, onLike, onSave, onFollow, onOpenComments }) {
+function PostCard({ post, me, following, onLike, onSave, onFollow, onOpenComments, onOpenUser }) {
   const typeMeta = {
     workout: { color: 'var(--lavender)', label: '💪 Entreno' },
     meal: { color: 'var(--lime)', label: '🍽️ Comida' },
@@ -138,8 +142,8 @@ function PostCard({ post, me, following, onLike, onSave, onFollow, onOpenComment
   return (
     <div className="ig-post">
       <div className="ig-post-head">
-        <div className="avatar" style={{ width: 36, height: 36, fontSize: 16 }}>{post.avatar}</div>
-        <div className="ig-post-user">
+        <div className="avatar" style={{ width: 36, height: 36, fontSize: 16, cursor: 'pointer' }} onClick={onOpenUser}>{post.avatar}</div>
+        <div className="ig-post-user" style={{ cursor: 'pointer' }} onClick={onOpenUser}>
           <span className="ig-name">{post.user}</span>
           <span className="ig-time">{post.time}</span>
         </div>
@@ -352,7 +356,7 @@ function WorkoutLogBody({ w, petLevel, onDouble, burst }) {
 }
 
 /* ---------------- Friends: activity + discover ---------------- */
-function Friends({ activity, discover, following, onFollow }) {
+function Friends({ activity, discover, following, onFollow, onOpenUser }) {
   const [q, setQ] = useState('');
   const KIND = {
     workout: { icon: '💪', color: 'var(--lavender)' },
@@ -375,8 +379,8 @@ function Friends({ activity, discover, following, onFollow }) {
         <div className="fr-discover">
           {results.map(u => (
             <div className="fr-user" key={u.name}>
-              <div className="avatar" style={{ width: 44, height: 44, fontSize: 20 }}>{u.avatar}</div>
-              <div className="fr-user-info">
+              <div className="avatar" style={{ width: 44, height: 44, fontSize: 20, cursor: 'pointer' }} onClick={() => onOpenUser(u.name)}>{u.avatar}</div>
+              <div className="fr-user-info" style={{ cursor: 'pointer' }} onClick={() => onOpenUser(u.name)}>
                 <p className="fr-user-name">{u.name}</p>
                 <p className="fr-user-bio">{u.bio} · {u.followers}</p>
               </div>
@@ -409,7 +413,7 @@ function Friends({ activity, discover, following, onFollow }) {
               return (
                 <div className="fr-act" key={a.id}>
                   <div className="fr-act-icon" style={{ background: k.color + '22', color: k.color }}>{k.icon}</div>
-                  <div className="fr-act-body">
+                  <div className="fr-act-body" style={{ cursor: 'pointer' }} onClick={() => onOpenUser(a.user)}>
                     <p className="fr-act-text"><strong>{a.user}</strong> {a.text}</p>
                     <p className="fr-act-detail">{a.detail} · {a.time}</p>
                   </div>
@@ -420,6 +424,67 @@ function Friends({ activity, discover, following, onFollow }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/* ---------------- Public user profile ---------------- */
+function UserProfileSheet({ name, discover, feed, activity, following, onFollow, onClose }) {
+  const u = discover.find(d => d.name === name) || { name, avatar: '🐸', bio: 'Atleta FitPet', followers: '—' };
+  // deterministic pseudo-stats from the name
+  const h = [...name].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const workouts = 40 + (h % 160);
+  const volume = (20 + (h % 60)).toFixed(1);
+  const streak = 3 + (h % 25);
+  const petLvl = 5 + (h % 22);
+  const posts = feed.filter(p => p.user === name);
+  const acts = activity.filter(a => a.user === name);
+  const goals = ['Ganar músculo 💪', 'Perder grasa 🔥', 'Correr un 10K 🏃', 'Más fuerza 🏋️', 'Mantener el hábito 🌱'];
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal animate-slideUp up-sheet" onClick={e => e.stopPropagation()}>
+        <div className="modal-handle" />
+        <div className="up-head">
+          <div className="avatar" style={{ width: 64, height: 64, fontSize: 30 }}>{u.avatar}</div>
+          <div className="up-id">
+            <p className="up-name">{u.name}</p>
+            <p className="up-bio">{u.bio}</p>
+            <p className="up-goal">🎯 {goals[h % goals.length]}</p>
+          </div>
+        </div>
+
+        <div className="up-followrow">
+          <button className={`btn ${following ? 'btn-outline' : 'btn-primary'}`} style={{ flex: 1, justifyContent: 'center' }} onClick={onFollow}>
+            {following ? 'Siguiendo ✓' : 'Seguir'}
+          </button>
+          <div className="up-fc"><b>{u.followers}</b><span>seguidores</span></div>
+        </div>
+
+        <div className="up-stats">
+          <div className="up-stat"><b>{workouts}</b><span>Entrenos</span></div>
+          <div className="up-stat"><b>{volume}t</b><span>Volumen</span></div>
+          <div className="up-stat"><b>🔥{streak}</b><span>Racha</span></div>
+          <div className="up-stat"><b>🐸{petLvl}</b><span>Rana</span></div>
+        </div>
+
+        {acts.length > 0 && (
+          <>
+            <p className="up-section">Actividad reciente</p>
+            {acts.map(a => <p key={a.id} className="up-act">• {a.text} <span>· {a.time}</span></p>)}
+          </>
+        )}
+
+        {posts.length > 0 && (
+          <>
+            <p className="up-section">Publicaciones</p>
+            <div className="up-grid">
+              {posts.filter(p => p.image).map(p => <img key={p.id} src={p.image} alt="" className="up-cell" />)}
+              {posts.filter(p => p.workout).map(p => <div key={p.id} className="up-cell up-wl">🏋️<span>{(p.workout.volume/1000).toFixed(1)}t</span></div>)}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

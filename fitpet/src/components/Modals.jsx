@@ -373,9 +373,60 @@ function Toggle({ label, value, onChange }) {
   );
 }
 
+function WorkoutShareSheet() {
+  const { pendingShare, shareWorkout, discardPendingShare, pet } = useStore();
+  const s = pendingShare;
+  const [caption, setCaption] = useState(`Completé ${s.name} 💪`);
+  const [withPhoto, setWithPhoto] = useState(false);
+
+  const publish = () => {
+    shareWorkout(caption, withPhoto ? `https://picsum.photos/seed/w${Date.now()}/600/600` : null);
+    playSound('celebrate');
+  };
+
+  return (
+    <div className="modal-overlay" onClick={discardPendingShare}>
+      <div className="modal animate-slideUp" onClick={e => e.stopPropagation()}>
+        <div className="modal-handle" />
+        <h3 className="modal-title">¡Entreno completado! 🎉</h3>
+
+        {/* preview card */}
+        <div className="ws-card">
+          <div className="ws-row">
+            <div className="ws-m"><b>{s.durationMin}m</b><span>Duración</span></div>
+            <div className="ws-m"><b>{(s.volume / 1000).toFixed(1)}t</b><span>Volumen</span></div>
+            <div className="ws-m"><b>{s.sets}</b><span>Series</span></div>
+            <div className="ws-m"><b>🐸{pet.level}</b><span>Rana</span></div>
+          </div>
+          {s.prs?.length > 0 && (
+            <div className="ws-prs">{s.prs.map((p, i) => <span key={i} className="wl-pr">🏆 {p.name} {p.weight}kg×{p.reps}</span>)}</div>
+          )}
+          <div className="ws-ex">
+            {s.exercises.map((e, i) => <p key={i} className="ws-ex-line">{e.icon} {e.sets.length}× {e.name}</p>)}
+          </div>
+        </div>
+
+        <div style={{ margin: '14px 0' }}>
+          <span className="label">Descripción</span>
+          <textarea className="input" rows={2} style={{ resize: 'none', fontFamily: 'inherit' }}
+            value={caption} onChange={e => setCaption(e.target.value)} />
+        </div>
+        <div className="setting-row" style={{ borderBottom: 'none', padding: '0 0 14px' }}>
+          <span>📷 Añadir foto</span>
+          <button className={`toggle ${withPhoto ? 'on' : ''}`} onClick={() => setWithPhoto(v => !v)}><span className="toggle-knob" /></button>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={discardPendingShare}>Ahora no</button>
+          <button className="btn btn-primary" style={{ flex: 2, justifyContent: 'center' }} onClick={publish}>Compartir con amigos</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Renders whichever modal/panel is currently open (driven by store flags).
 export default function Modals() {
-  const { showAddWorkout, showAddMeal, showAddWater, showAddPost, showNotifications, showSettings } = useStore();
+  const { showAddWorkout, showAddMeal, showAddWater, showAddPost, showNotifications, showSettings, pendingShare } = useStore();
   return (
     <>
       {showAddWorkout && <AddWorkoutModal />}
@@ -384,6 +435,7 @@ export default function Modals() {
       {showAddPost && <AddPostModal />}
       {showNotifications && <NotificationsPanel />}
       {showSettings && <SettingsPanel />}
+      {pendingShare && <WorkoutShareSheet />}
     </>
   );
 }

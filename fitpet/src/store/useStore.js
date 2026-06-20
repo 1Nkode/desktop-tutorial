@@ -622,17 +622,8 @@ export const useStore = create(persist((set, get) => ({
     const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6) };
     const newPet = evolvePet(applyXp(boosted, xp), newStats);
 
-    // Auto-share to the community feed (Hevy-style)
-    let feed = state.feed;
-    if (state.settings.autoShareWorkout !== false) {
-      const post = {
-        id: Date.now() + 1, user: state.user.name, avatar: '😄', type: 'workout-log',
-        content: `Completé ${session.name} 💪`, time: 'Justo ahora',
-        liked: false, likes: 0, saved: false, comments: [], petLevel: newPet.level,
-        workout: session,
-      };
-      feed = [post, ...state.feed];
-    }
+    // Hevy-style: after finishing, open a share draft the user can edit
+    const pendingShare = state.settings.autoShareWorkout !== false ? session : null;
 
     return {
       activeWorkout: null,
@@ -641,9 +632,24 @@ export const useStore = create(persist((set, get) => ({
       stats: newStats,
       pet: newPet,
       lastPR: prHit,
-      feed,
+      pendingShare,
     };
   }),
+
+  // Publish (or discard) the post-workout share draft
+  pendingShare: null,
+  shareWorkout: (caption, image) => set((state) => {
+    const s = state.pendingShare;
+    if (!s) return { pendingShare: null };
+    const post = {
+      id: Date.now() + 1, user: state.user.name, avatar: '😄', type: 'workout-log',
+      content: caption?.trim() || `Completé ${s.name} 💪`, time: 'Justo ahora',
+      liked: false, likes: 0, saved: false, comments: [], petLevel: state.pet.level,
+      image: image || null, workout: s,
+    };
+    return { feed: [post, ...state.feed], pendingShare: null };
+  }),
+  discardPendingShare: () => set({ pendingShare: null }),
 
   clearLastPR: () => set({ lastPR: null }),
 
