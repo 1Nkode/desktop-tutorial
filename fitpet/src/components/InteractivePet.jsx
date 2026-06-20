@@ -396,6 +396,7 @@ export default function InteractivePet() {
             emotion={(p.behavior === 'celebrate' || p.behavior === 'dance') ? 'excited' : emotion}
             pupil={pupil}
             blink={blink}
+            accessory={pet.accessories?.[0]}
           />
         )}
         {/* state badge (crown / muscle / burger / zzz) */}

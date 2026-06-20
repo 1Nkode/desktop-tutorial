@@ -371,6 +371,15 @@ export const useStore = create(persist((set, get) => ({
     pet: { ...state.pet, energy: clamp(state.pet.energy - 1) },
   })),
 
+  // Reward from the fitness minigame
+  rewardMinigame: (points) => set((state) => ({
+    pet: applyXp({
+      ...state.pet,
+      motivation: clamp(state.pet.motivation + Math.min(25, Math.round(points / 2))),
+      energy: clamp(state.pet.energy - 5),
+    }, Math.max(5, points)),
+  })),
+
   // Daily reward (claim once per calendar day)
   lastDailyClaim: null,
   dailyReward: 50,

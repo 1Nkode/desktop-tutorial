@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore, petState } from '../store/useStore';
 import InteractivePet, { STATE_INFO } from './InteractivePet';
+import Minigame from './Minigame';
 import { playSound } from '../sound';
 import './Pet.css';
 
@@ -40,6 +41,7 @@ export default function Pet() {
   const xpPct = (pet.xp / pet.xpToNext) * 100;
   const state = petState(pet, stats, user);
   const stateInfo = STATE_INFO[state];
+  const [showGame, setShowGame] = useState(false);
 
   const saveName = () => {
     renamePet(nameDraft);
@@ -123,11 +125,14 @@ export default function Pet() {
         <div className="care-actions">
           <button className="care-btn" onClick={() => { feedPet(); playSound('eat'); }}>🍎 Alimentar</button>
           <button className="care-btn" onClick={() => { playWithPet(); playSound('celebrate'); }}>🎾 Jugar</button>
+          <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Minijuego</button>
           <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
-            🎁 {dailyAvailable ? 'Recompensa' : 'Reclamado'}
+            🎁 {dailyAvailable ? 'Premio' : 'Listo'}
           </button>
         </div>
       </div>
+
+      {showGame && <Minigame onClose={() => setShowGame(false)} />}
 
       {/* Evolution states */}
       <div className="card">

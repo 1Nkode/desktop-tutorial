@@ -13,6 +13,7 @@ export default function PetSprite({
   emotion = 'happy',
   pupil = { x: 0, y: 0 },
   blink = false,
+  accessory = null,
 }) {
   const green = state === 'neglected' ? '#7e9e63' : '#79b13c';
   const greenDark = state === 'neglected' ? '#5d7a44' : '#5d8f28';
@@ -124,6 +125,40 @@ export default function PetSprite({
           <circle cx="16" cy="26" r="6" fill={green} stroke={greenDark} strokeWidth="2" />
           <circle cx="84" cy="26" r="6" fill={green} stroke={greenDark} strokeWidth="2" />
         </>
+      )}
+
+      {/* ---- equippable accessories (rendered ON the frog) ---- */}
+      {accessory === 'glasses' && (
+        <g>
+          <rect x="24" y="27" width="24" height="14" rx="7" fill="#15202b" />
+          <rect x="52" y="27" width="24" height="14" rx="7" fill="#15202b" />
+          <rect x="46" y="32" width="8" height="3" fill="#15202b" />
+          <rect x="27" y="30" width="7" height="3" rx="1.5" fill="#ffffff" opacity="0.35" />
+          <rect x="55" y="30" width="7" height="3" rx="1.5" fill="#ffffff" opacity="0.35" />
+        </g>
+      )}
+      {accessory === 'crown' && (
+        <g>
+          <path d="M30 20 L36 9 L43 17 L50 6 L57 17 L64 9 L70 20 Z" fill="#FFD54F" stroke="#c9a227" strokeWidth="1.5" strokeLinejoin="round" />
+          <circle cx="50" cy="8" r="2" fill="#ff5b6e" />
+          <rect x="30" y="19" width="40" height="4" rx="2" fill="#e6b800" />
+        </g>
+      )}
+      {accessory === 'bandana' && (
+        <g>
+          <rect x="20" y="16" width="60" height="8" rx="3" fill="#ff4d6d" />
+          <path d="M78 18 l12 -4 l-2 8 Z" fill="#ff4d6d" />
+          <rect x="20" y="18" width="60" height="2" fill="#ffffff" opacity="0.4" />
+        </g>
+      )}
+      {accessory === 'muscle' && (
+        <text x="86" y="60" fontSize="16" textAnchor="middle">💪</text>
+      )}
+      {accessory === 'trophy' && (
+        <text x="50" y="14" fontSize="16" textAnchor="middle">🏆</text>
+      )}
+      {accessory === 'wings' && (
+        <text x="50" y="14" fontSize="16" textAnchor="middle">🦋</text>
       )}
     </svg>
   );
