@@ -42,6 +42,10 @@ const basepet = {
   streak: 3,
   energy: 80,       // 0-100, restored by feeding / rest
   motivation: 75,   // 0-100, restored by playing / training
+  cleanliness: 90,  // 0-100, decays over time, restored by bathing
+  species: 'frog',  // frog/dog/cat/bear/panda/rabbit/fox/penguin/turtle/lion
+  color: null,      // optional body-color override
+  background: 'default',
 };
 
 const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
@@ -275,6 +279,14 @@ function nutritionReact(pet, stats) {
   if (ratio > 1.25) motivation = Math.max(0, motivation - 8);        // big overshoot
   else if (ratio >= 0.8 && ratio <= 1.05) motivation = Math.min(100, motivation + 6); // on target
   return { ...pet, motivation };
+}
+
+// Pet happiness (0-100) derived from care + real habits.
+export function petHappiness(pet, stats, user) {
+  const goalScore = Math.min(stats.steps / stats.stepsGoal, 1) * 100;
+  const h = (pet.motivation ?? 75) * 0.4 + (pet.energy ?? 80) * 0.2
+    + (pet.cleanliness ?? 90) * 0.2 + goalScore * 0.2;
+  return Math.round(Math.max(0, Math.min(100, h)));
 }
 
 // Applies XP and rolls over into new levels when the bar fills.
@@ -626,7 +638,7 @@ export const useStore = create(persist((set, get) => ({
       weeklyWorkouts,
     };
     const xp = 30 + (prHit ? 25 : 0);
-    const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6) };
+    const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6), cleanliness: clamp((state.pet.cleanliness ?? 90) - 10) };
     const newPet = evolvePet(applyXp(boosted, xp), newStats);
 
     // Hevy-style: after finishing, open a share draft the user can edit
@@ -722,9 +734,11 @@ export const useStore = create(persist((set, get) => ({
       activeMinutes: state.stats.activeMinutes + (Math.random() < 0.3 ? 1 : 0),
     };
     const crossed = wasUnder && newStats.steps >= newStats.stepsGoal;
+    const dirtied = Math.random() < 0.25;   // gets a little dirty over time
+    const basePet = { ...state.pet, cleanliness: clamp((state.pet.cleanliness ?? 90) - (dirtied ? 1 : 0)) };
     const pet = crossed
-      ? evolvePet(applyXp({ ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + 15) }, 15), newStats)
-      : evolvePet(state.pet, newStats);
+      ? evolvePet(applyXp({ ...basePet, motivation: clamp((state.pet.motivation ?? 75) + 15) }, 15), newStats)
+      : evolvePet(basePet, newStats);
     return { stats: newStats, pet };
   }),
 
@@ -756,6 +770,12 @@ export const useStore = create(persist((set, get) => ({
   addPetXp: (amount = 1) => set((state) => ({
     pet: applyXp(state.pet, amount),
   })),
+
+  // Pet species & customization
+  setSpecies: (species) => set((state) => ({ pet: { ...state.pet, species } })),
+  setPetColor: (color) => set((state) => ({ pet: { ...state.pet, color } })),
+  setBackground: (background) => set((state) => ({ pet: { ...state.pet, background } })),
+  bathePet: () => set((state) => ({ pet: { ...state.pet, cleanliness: 100 } })),
 
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({

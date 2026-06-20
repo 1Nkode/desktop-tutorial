@@ -408,8 +408,11 @@ export default function InteractivePet() {
             pupil={pupil}
             blink={blink}
             accessory={pet.accessories?.[0]}
+            species={pet.species}
+            color={pet.color}
           />
         )}
+        {pet.cleanliness < 35 && <span className="ipet-dirty">💨</span>}
         {/* state badge (crown / muscle / burger / zzz) */}
         {info.badge && <span className="ipet-badge">{info.badge}</span>}
         {showZzz && <span className="ipet-zzz">z</span>}

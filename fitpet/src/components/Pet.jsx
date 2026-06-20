@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { useStore, petState } from '../store/useStore';
+import { useStore, petState, petHappiness } from '../store/useStore';
 import InteractivePet, { STATE_INFO } from './InteractivePet';
 import Minigame from './Minigame';
+import PetCustomize from './PetCustomize';
+import { BACKGROUNDS } from './backgrounds';
 import { playSound } from '../sound';
 import './Pet.css';
 
@@ -31,7 +33,7 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, claimDailyReward, lastDailyClaim } = useStore();
+  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim } = useStore();
   const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
   const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
@@ -41,7 +43,9 @@ export default function Pet() {
   const xpPct = (pet.xp / pet.xpToNext) * 100;
   const state = petState(pet, stats, user);
   const stateInfo = STATE_INFO[state];
+  const happiness = petHappiness(pet, stats, user);
   const [showGame, setShowGame] = useState(false);
+  const [showCustomize, setShowCustomize] = useState(false);
 
   const saveName = () => {
     renamePet(nameDraft);
@@ -58,7 +62,7 @@ export default function Pet() {
       </div>
 
       {/* Main pet display */}
-      <div className="pet-stage" style={{ background: `linear-gradient(135deg, ${physique.color}22, ${physique.color}44)` }}>
+      <div className="pet-stage" style={{ background: pet.background && pet.background !== 'default' ? BACKGROUNDS[pet.background]?.css : `linear-gradient(135deg, ${physique.color}22, ${physique.color}44)` }}>
         <div className="pet-glow" style={{ background: physique.color }} />
         <div className="pet-state-chip" style={{ background: stateInfo.color + '22', color: stateInfo.color, borderColor: stateInfo.color + '55' }}>
           {stateInfo.emoji} Estado {stateInfo.label}
@@ -110,8 +114,13 @@ export default function Pet() {
         <p className="xp-sub">{pet.xpToNext - pet.xp} XP until Level {pet.level + 1}</p>
       </div>
 
-      {/* Care: energy + motivation bars + actions */}
+      {/* Care: happiness + energy + motivation + cleanliness + actions */}
       <div className="card care-card">
+        <div className="care-bar">
+          <span className="care-ico">😊</span>
+          <div className="care-track"><div className="care-fill happy" style={{ width: `${happiness}%` }} /></div>
+          <span className="care-val">{happiness}</span>
+        </div>
         <div className="care-bar">
           <span className="care-ico">⚡</span>
           <div className="care-track"><div className="care-fill energy" style={{ width: `${pet.energy}%` }} /></div>
@@ -122,17 +131,27 @@ export default function Pet() {
           <div className="care-track"><div className="care-fill motivation" style={{ width: `${pet.motivation}%` }} /></div>
           <span className="care-val">{pet.motivation}</span>
         </div>
+        <div className="care-bar">
+          <span className="care-ico">🧼</span>
+          <div className="care-track"><div className="care-fill clean" style={{ width: `${pet.cleanliness}%` }} /></div>
+          <span className="care-val">{pet.cleanliness}</span>
+        </div>
         <div className="care-actions">
           <button className="care-btn" onClick={() => { feedPet(); playSound('eat'); }}>🍎 Alimentar</button>
           <button className="care-btn" onClick={() => { playWithPet(); playSound('celebrate'); }}>🎾 Jugar</button>
-          <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Minijuego</button>
+          <button className="care-btn" onClick={() => { bathePet(); playSound('reward'); }}>🧼 Bañar</button>
+          <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Juego</button>
+        </div>
+        <div className="care-actions" style={{ marginTop: 8 }}>
+          <button className="care-btn" onClick={() => setShowCustomize(true)}>🎨 Personalizar</button>
           <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
-            🎁 {dailyAvailable ? 'Premio' : 'Listo'}
+            🎁 {dailyAvailable ? 'Recompensa diaria' : 'Reclamado hoy'}
           </button>
         </div>
       </div>
 
       {showGame && <Minigame onClose={() => setShowGame(false)} />}
+      {showCustomize && <PetCustomize onClose={() => setShowCustomize(false)} />}
 
       {/* Evolution states */}
       <div className="card">

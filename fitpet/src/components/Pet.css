@@ -334,3 +334,6 @@
   color: var(--text-secondary);
   margin-top: 2px;
 }
+
+.care-fill.happy { background: linear-gradient(90deg, #FFD54F, #2db36b); }
+.care-fill.clean { background: linear-gradient(90deg, #2bc0e4, #82B1FF); }
