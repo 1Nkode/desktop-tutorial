@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { EXERCISES, SEED_ROUTINES, e1rm } from '../data/exercises';
+import { DEFAULT_LAYOUT, PRESETS, WIDGET_META } from '../data/dashboard';
 
 const seedRoutines = () => SEED_ROUTINES.map(r => ({ ...r, items: r.items.map(i => ({ ...i })) }));
 
@@ -27,6 +28,10 @@ const initialStats = {
   activeGoal: 60,
   water: 6,
   waterGoal: 8,
+  weight: 75,
+  weightGoal: 72,
+  sleep: 7.4,
+  sleepGoal: 8,
   weeklyWorkouts: [3, 5, 4, 6, 2, 4, 0],
   weeklyCalories: [1800, 2100, 1950, 2200, 1750, 1900, 1050],
 };
@@ -320,6 +325,40 @@ export const useStore = create(persist((set, get) => ({
   },
 
   updateProfile: (patch) => set((state) => ({ user: { ...state.user, ...patch } })),
+
+  // ---------- Customizable dashboard ----------
+  dashboardLayout: DEFAULT_LAYOUT.map(w => ({ ...w })),
+  dashboardTemplates: {},
+
+  addDashWidget: (id) => set((state) => state.dashboardLayout.some(w => w.id === id) ? {} : ({
+    dashboardLayout: [...state.dashboardLayout, { id, size: WIDGET_META[id]?.size || 'half' }],
+  })),
+  removeDashWidget: (id) => set((state) => ({
+    dashboardLayout: state.dashboardLayout.filter(w => w.id !== id),
+  })),
+  moveDashWidget: (index, dir) => set((state) => {
+    const arr = [...state.dashboardLayout];
+    const j = index + dir;
+    if (j < 0 || j >= arr.length) return {};
+    [arr[index], arr[j]] = [arr[j], arr[index]];
+    return { dashboardLayout: arr };
+  }),
+  resizeDashWidget: (id) => set((state) => ({
+    dashboardLayout: state.dashboardLayout.map(w => w.id === id ? { ...w, size: w.size === 'full' ? 'half' : 'full' } : w),
+  })),
+  applyDashPreset: (name) => set(() => ({
+    dashboardLayout: (PRESETS[name] || DEFAULT_LAYOUT).map(w => ({ ...w })),
+  })),
+  saveDashTemplate: (name) => set((state) => ({
+    dashboardTemplates: { ...state.dashboardTemplates, [name]: state.dashboardLayout.map(w => ({ ...w })) },
+  })),
+  applyDashTemplate: (name) => set((state) => ({
+    dashboardLayout: (state.dashboardTemplates[name] || state.dashboardLayout).map(w => ({ ...w })),
+  })),
+  deleteDashTemplate: (name) => set((state) => {
+    const t = { ...state.dashboardTemplates }; delete t[name];
+    return { dashboardTemplates: t };
+  }),
 
   // Health stats
   stats: initialStats,
@@ -880,5 +919,7 @@ export const useStore = create(persist((set, get) => ({
     personalRecords: state.personalRecords,
     activeWorkout: state.activeWorkout,
     connectedDevices: state.connectedDevices,
+    dashboardLayout: state.dashboardLayout,
+    dashboardTemplates: state.dashboardTemplates,
   }),
 }));
