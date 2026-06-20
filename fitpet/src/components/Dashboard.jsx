@@ -46,7 +46,7 @@ function WeekBars({ values, max }) {
 }
 
 export default function Dashboard() {
-  const { user, stats, pet, setActiveTab, setShowAddMeal, setShowAddWorkout, setShowAddWater, setShowAddPost } = useStore();
+  const { user, stats, pet, connectedDevices, liveHR, setActiveTab, setShowAddMeal, setShowAddWorkout, setShowAddWater, setShowAddPost } = useStore();
 
   const netCalories = stats.caloriesConsumed - stats.caloriesBurned;
   const calPct = Math.min(stats.caloriesConsumed / stats.caloriesGoal, 1);
@@ -135,18 +135,18 @@ export default function Dashboard() {
         <span className="material-symbols-outlined pet-chevron">chevron_right</span>
       </div>
 
-      {/* Fitbit Air badge */}
-      <div className="card fitbit-badge" onClick={() => setActiveTab('workouts')}>
+      {/* Devices badge */}
+      <div className="card fitbit-badge" onClick={() => setActiveTab('devices')}>
         <div className="fb-left">
           <div className="fb-icon"><span className="material-symbols-outlined">watch</span></div>
           <div>
-            <p className="fb-title">Fitbit Air</p>
-            <p className="fb-sub">Sincronizado hace 2 min</p>
+            <p className="fb-title">{connectedDevices.length ? `${connectedDevices.length} dispositivo(s)` : 'Conectar dispositivos'}</p>
+            <p className="fb-sub">{connectedDevices.length ? 'Sincronizando en vivo' : 'Apple · Fitbit · Garmin · BLE…'}</p>
           </div>
         </div>
         <div className="fb-right">
-          <span>100%</span>
-          <span className="material-symbols-outlined">battery_full</span>
+          {liveHR ? <><span className="material-symbols-outlined fill" style={{ color: 'var(--red)', fontSize: 18 }}>favorite</span><span>{liveHR}</span></>
+            : <span className="material-symbols-outlined">chevron_right</span>}
         </div>
       </div>
 

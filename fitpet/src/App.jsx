@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useStore } from './store/useStore';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
@@ -6,12 +7,37 @@ import Workouts from './components/Workouts';
 import Social from './components/Social';
 import Rewards from './components/Rewards';
 import Profile from './components/Profile';
+import Devices from './components/Devices';
 import Modals from './components/Modals';
 import { Avatar } from './components/Avatar';
 import './App.css';
 
+// Live-sync engine: while devices are connected, stream activity into the
+// store (steps/calories/active minutes) and simulate HR when no real sensor.
+function useLiveSync() {
+  const connected = useStore(s => s.connectedDevices.length);
+  const settings = useStore(s => s.settings);
+  useEffect(() => {
+    if (!connected || settings.autoSync === false) return;
+    const id = setInterval(() => {
+      if (document.hidden) return;
+      const st = useStore.getState();
+      st.liveTick();
+      // simulate HR only if no real Bluetooth sensor is feeding it recently
+      const realBT = st.connectedDevices.includes('ble') || st.connectedDevices.includes('miband');
+      if (!realBT) {
+        const base = st.liveHR || 78;
+        const next = Math.max(58, Math.min(150, base + Math.round((Math.random() - 0.5) * 8)));
+        st.setLiveHR(next);
+      }
+    }, 3000);
+    return () => clearInterval(id);
+  }, [connected, settings.autoSync]);
+}
+
 export default function App() {
   const { activeTab } = useStore();
+  useLiveSync();
 
   return (
     <div className="app">
@@ -23,6 +49,7 @@ export default function App() {
         {activeTab === 'social' && <Social />}
         {activeTab === 'rewards' && <Rewards />}
         {activeTab === 'profile' && <Profile />}
+        {activeTab === 'devices' && <Devices />}
       </main>
       <Navigation />
       <Modals />

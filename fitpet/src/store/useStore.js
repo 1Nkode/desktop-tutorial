@@ -667,6 +667,67 @@ export const useStore = create(persist((set, get) => ({
     },
   })),
 
+  // ---------- Wearables / smart devices ----------
+  connectedDevices: [],
+  lastDeviceSync: null,
+  deviceError: null,
+  liveHR: null,
+  hr: { avg: null, max: null, samples: 0, sum: 0 },
+
+  connectDevice: (id) => set((state) => state.connectedDevices.includes(id) ? {} : ({
+    connectedDevices: [...state.connectedDevices, id],
+    lastDeviceSync: Date.now(),
+    deviceError: null,
+  })),
+
+  disconnectDevice: (id) => set((state) => ({
+    connectedDevices: state.connectedDevices.filter(d => d !== id),
+  })),
+
+  setDeviceError: (msg) => set({ deviceError: msg }),
+
+  setLiveHR: (bpm) => set((state) => {
+    const sum = state.hr.sum + bpm, samples = state.hr.samples + 1;
+    return { liveHR: bpm, hr: { avg: Math.round(sum / samples), max: Math.max(state.hr.max || 0, bpm), samples, sum } };
+  }),
+
+  // One simulated/aggregated sync pull from connected devices
+  resyncDevices: () => set((state) => {
+    if (!state.connectedDevices.length) return { deviceError: 'No hay dispositivos conectados' };
+    const addSteps = 400 + Math.floor(Math.random() * 1800);
+    const addBurn = 30 + Math.floor(Math.random() * 140);
+    const addActive = 4 + Math.floor(Math.random() * 18);
+    const wasUnderGoal = state.stats.steps < state.stats.stepsGoal;
+    const newStats = {
+      ...state.stats,
+      steps: state.stats.steps + addSteps,
+      caloriesBurned: state.stats.caloriesBurned + addBurn,
+      activeMinutes: state.stats.activeMinutes + addActive,
+    };
+    const crossedGoal = wasUnderGoal && newStats.steps >= newStats.stepsGoal;
+    const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (crossedGoal ? 12 : 3)) };
+    return { stats: newStats, pet: evolvePet(applyXp(boosted, crossedGoal ? 10 : 0), newStats), lastDeviceSync: Date.now(), deviceError: null };
+  }),
+
+  // Small real-time increment (called on an interval while devices are connected)
+  liveTick: () => set((state) => {
+    if (!state.connectedDevices.length) return {};
+    const addSteps = 8 + Math.floor(Math.random() * 32);
+    const addBurn = 1 + Math.floor(Math.random() * 4);
+    const wasUnder = state.stats.steps < state.stats.stepsGoal;
+    const newStats = {
+      ...state.stats,
+      steps: state.stats.steps + addSteps,
+      caloriesBurned: state.stats.caloriesBurned + addBurn,
+      activeMinutes: state.stats.activeMinutes + (Math.random() < 0.3 ? 1 : 0),
+    };
+    const crossed = wasUnder && newStats.steps >= newStats.stepsGoal;
+    const pet = crossed
+      ? evolvePet(applyXp({ ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + 15) }, 15), newStats)
+      : evolvePet(state.pet, newStats);
+    return { stats: newStats, pet };
+  }),
+
   // Simulates importing data from a connected wearable (Fitbit, etc.)
   syncWearable: () => set((state) => {
     const addedSteps = 600 + Math.floor(Math.random() * 1500);
@@ -798,5 +859,6 @@ export const useStore = create(persist((set, get) => ({
     workoutHistory: state.workoutHistory,
     personalRecords: state.personalRecords,
     activeWorkout: state.activeWorkout,
+    connectedDevices: state.connectedDevices,
   }),
 }));
