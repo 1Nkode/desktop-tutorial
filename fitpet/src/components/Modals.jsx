@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
+import { playSound } from '../sound';
 import './Modals.css';
 
 const workoutTypes = [
@@ -177,54 +178,93 @@ function AddWaterModal() {
 }
 
 function AddPostModal() {
-  const { addPost, setShowAddPost } = useStore();
+  const { addPost, setShowAddPost, workoutHistory, personalRecords, stats } = useStore();
   const close = () => setShowAddPost(false);
   const [type, setType] = useState('workout');
   const [content, setContent] = useState('');
   const [calories, setCalories] = useState('');
+  const [withPhoto, setWithPhoto] = useState(true);
 
   const valid = content.trim().length > 0;
   const handleSubmit = () => {
     if (!valid) return;
-    addPost({ type, content: content.trim(), calories: calories ? +calories : undefined });
+    addPost({
+      type,
+      content: content.trim(),
+      calories: calories ? +calories : undefined,
+      image: withPhoto ? `https://picsum.photos/seed/p${Date.now()}/600/600` : null,
+    });
+    playSound('celebrate');
     close();
   };
 
   const types = [
-    { id: 'workout', label: '💪 Workout' },
-    { id: 'meal', label: '🍽️ Meal' },
-    { id: 'achievement', label: '🏆 Achievement' },
+    { id: 'workout', label: '💪 Entreno' },
+    { id: 'meal', label: '🍽️ Comida' },
+    { id: 'pr', label: '🏆 PR' },
+    { id: 'progress', label: '📸 Progreso' },
   ];
+
+  // Quick auto-share from real training data
+  const lastWorkout = workoutHistory[0];
+  const quickShares = [];
+  if (lastWorkout) quickShares.push({
+    label: `💪 Último entreno · ${(lastWorkout.volume / 1000).toFixed(1)}t`,
+    apply: () => { setType('workout'); setContent(`Terminé "${lastWorkout.name}" 💪 ${lastWorkout.sets} series · ${(lastWorkout.volume / 1000).toFixed(1)}t levantadas #Hevy`); },
+  });
+  const prKey = Object.keys(personalRecords)[0];
+  if (prKey) quickShares.push({
+    label: '🏆 Mi último PR',
+    apply: () => { const pr = personalRecords[prKey]; setType('pr'); setContent(`¡Nuevo récord personal! ${pr.weight}kg × ${pr.reps} reps 🏆 #PR`); },
+  });
+  quickShares.push({
+    label: `📊 Stats semana`,
+    apply: () => { setType('achievement'); setContent(`Esta semana: ${stats.weeklyWorkouts.filter(v => v > 0).length} entrenos · ${stats.caloriesBurned} kcal quemadas 🔥 #consistencia`); },
+  });
 
   return (
     <Sheet onClose={close}>
-      <h3 className="modal-title">New Post 📸</h3>
+      <h3 className="modal-title">Nueva publicación 📸</h3>
+
       <div style={{ marginBottom: 14 }}>
-        <span className="label">Post Type</span>
-        <div className="intensity-row">
+        <span className="label">Compartir rápido</span>
+        <div className="ig-quick">
+          {quickShares.map((q, i) => (
+            <button key={i} className="ig-quick-btn" onClick={q.apply}>{q.label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <span className="label">Tipo</span>
+        <div className="intensity-row" style={{ flexWrap: 'wrap' }}>
           {types.map(t => (
             <button key={t.id} className={`intensity-btn ${type === t.id ? 'active' : ''}`} onClick={() => setType(t.id)}>{t.label}</button>
           ))}
         </div>
       </div>
       <div style={{ marginBottom: 14 }}>
-        <span className="label">What's on your mind?</span>
+        <span className="label">¿Qué quieres compartir?</span>
         <textarea
           className="input"
           rows={3}
           style={{ resize: 'none', fontFamily: 'inherit' }}
-          placeholder="Share your progress with the community..."
+          placeholder="Comparte tu progreso con la comunidad…"
           value={content}
           onChange={e => setContent(e.target.value)}
         />
       </div>
-      {type !== 'achievement' && (
+      <div className="setting-row" style={{ borderBottom: 'none', padding: '4px 0 14px' }}>
+        <span>📷 Añadir foto</span>
+        <button className={`toggle ${withPhoto ? 'on' : ''}`} onClick={() => setWithPhoto(v => !v)}><span className="toggle-knob" /></button>
+      </div>
+      {(type === 'workout' || type === 'meal') && (
         <div style={{ marginBottom: 20 }}>
-          <span className="label">Calories (optional)</span>
+          <span className="label">Calorías (opcional)</span>
           <input className="input" type="number" placeholder="320" value={calories} onChange={e => setCalories(e.target.value)} />
         </div>
       )}
-      <button className="btn btn-primary modal-submit" disabled={!valid} onClick={handleSubmit}>Share Post</button>
+      <button className="btn btn-primary modal-submit" disabled={!valid} onClick={handleSubmit}>Publicar</button>
     </Sheet>
   );
 }

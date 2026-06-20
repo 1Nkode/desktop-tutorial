@@ -276,3 +276,10 @@
   color: var(--red);
   border-color: var(--red);
 }
+
+.ig-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.ig-quick-btn {
+  padding: 8px 12px; border-radius: 20px; cursor: pointer;
+  border: 1px solid rgba(204,255,0,0.3); background: rgba(204,255,0,0.1);
+  color: var(--lime); font-size: 12px; font-weight: 700;
+}

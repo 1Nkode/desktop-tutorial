@@ -115,6 +115,41 @@ const mockFeed = [
   },
 ];
 
+// Add Instagram-style fields (image, saved, comment replies) to seed posts
+const POST_IMG = {
+  1: 'https://picsum.photos/seed/run5k/600/600',
+  2: 'https://picsum.photos/seed/healthylunch/600/600',
+  4: 'https://picsum.photos/seed/backday/600/600',
+  5: 'https://picsum.photos/seed/smoothie/600/600',
+};
+function enrichFeed(list) {
+  return list.map(p => ({
+    ...p,
+    image: POST_IMG[p.id] || null,
+    saved: false,
+    comments: p.comments.map(c => ({ ...c, replies: c.replies || [] })),
+  }));
+}
+
+const mockStories = [
+  { id: 's1', user: 'Maria G.', avatar: '🏃‍♀️', seen: false, items: [
+    { kind: 'workout', text: 'Run matutino 🏃‍♀️', image: 'https://picsum.photos/seed/story1/500/900' },
+    { kind: 'pr', text: 'Nuevo PR 5K: 27:40 🏆', image: 'https://picsum.photos/seed/story1b/500/900' },
+  ]},
+  { id: 's2', user: 'Carlos M.', avatar: '💪', seen: false, items: [
+    { kind: 'meal', text: 'Meal prep del domingo 🍱', image: 'https://picsum.photos/seed/story2/500/900' },
+  ]},
+  { id: 's3', user: 'Ana P.', avatar: '🧘‍♀️', seen: false, items: [
+    { kind: 'poll', text: '¿Yoga o pesas hoy?', options: ['Yoga 🧘', 'Pesas 🏋️'] },
+  ]},
+  { id: 's4', user: 'Luis R.', avatar: '🏋️', seen: true, items: [
+    { kind: 'progress', text: 'Semana 8 💥', image: 'https://picsum.photos/seed/story4/500/900' },
+  ]},
+  { id: 's5', user: 'Sofia V.', avatar: '🌿', seen: true, items: [
+    { kind: 'meal', text: 'Smoothie verde 🥤', image: 'https://picsum.photos/seed/story5/500/900' },
+  ]},
+];
+
 const mockNotifications = [
   { id: 1, icon: '❤️', text: 'Maria G. liked your workout', time: '5m ago', read: false },
   { id: 2, icon: '💬', text: 'Carlos M. commented: "Nice gains!"', time: '20m ago', read: false },
@@ -253,7 +288,9 @@ export const useStore = create(persist((set, get) => ({
   pet: evolvePet(basepet, initialStats),
 
   // Content
-  feed: mockFeed,
+  feed: enrichFeed(mockFeed),
+  stories: mockStories,
+  following: ['Maria G.', 'Ana P.'],
   missions: mockMissions,
   badges: mockBadges,
   workouts: mockWorkouts,
@@ -298,9 +335,34 @@ export const useStore = create(persist((set, get) => ({
   addComment: (postId, text) => set((state) => ({
     feed: state.feed.map(p =>
       p.id === postId
-        ? { ...p, comments: [...p.comments, { id: Date.now(), user: state.user.name, text }] }
+        ? { ...p, comments: [...p.comments, { id: Date.now(), user: state.user.name, text, replies: [] }] }
         : p
     ),
+  })),
+
+  addReply: (postId, commentId, text) => set((state) => ({
+    feed: state.feed.map(p =>
+      p.id !== postId ? p : {
+        ...p,
+        comments: p.comments.map(c => c.id !== commentId ? c : {
+          ...c, replies: [...(c.replies || []), { id: Date.now(), user: state.user.name, text }],
+        }),
+      }
+    ),
+  })),
+
+  toggleSave: (postId) => set((state) => ({
+    feed: state.feed.map(p => p.id === postId ? { ...p, saved: !p.saved } : p),
+  })),
+
+  toggleFollow: (name) => set((state) => ({
+    following: state.following.includes(name)
+      ? state.following.filter(n => n !== name)
+      : [...state.following, name],
+  })),
+
+  markStorySeen: (id) => set((state) => ({
+    stories: state.stories.map(s => s.id === id ? { ...s, seen: true } : s),
   })),
 
   addPost: (post) => set((state) => {
@@ -311,7 +373,9 @@ export const useStore = create(persist((set, get) => ({
       liked: false,
       likes: 0,
       comments: [],
+      saved: false,
       time: 'Just now',
+      petLevel: state.pet.level,   // the frog rides along on your posts
       ...post,
     };
     return { feed: [newPost, ...state.feed] };
@@ -647,7 +711,9 @@ export const useStore = create(persist((set, get) => ({
     user: { name: 'Alex', level: 7, xp: 680, xpToNext: 1000, followers: 128, following: 94, streak: 12 },
     stats: initialStats,
     pet: evolvePet(basepet, initialStats),
-    feed: mockFeed,
+    feed: enrichFeed(mockFeed),
+    stories: mockStories,
+    following: ['Maria G.', 'Ana P.'],
     missions: mockMissions,
     badges: mockBadges,
     workouts: mockWorkouts,
@@ -662,6 +728,8 @@ export const useStore = create(persist((set, get) => ({
     stats: state.stats,
     pet: state.pet,
     feed: state.feed,
+    stories: state.stories,
+    following: state.following,
     missions: state.missions,
     badges: state.badges,
     workouts: state.workouts,

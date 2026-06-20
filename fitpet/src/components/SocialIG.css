@@ -1,0 +1,152 @@
+/* ============ Instagram-style community ============ */
+.ig-post-btn {
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.05); color: var(--lime); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.ig-post-btn .material-symbols-outlined { font-size: 26px; }
+
+/* Stories */
+.stories-bar {
+  display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 14px;
+  border-bottom: 1px solid var(--glass-border); margin-bottom: 14px;
+}
+.story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; flex-shrink: 0; }
+.story-ring {
+  width: 64px; height: 64px; border-radius: 50%; padding: 3px; position: relative;
+  background: linear-gradient(135deg, var(--lime), var(--lavender), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+}
+.story-ring.seen { background: var(--surface-high); }
+.story-ring.add { background: var(--surface-high); }
+.story-av {
+  width: 100%; height: 100%; border-radius: 50%; background: var(--surface);
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+  border: 2px solid var(--bg);
+}
+.story-plus {
+  position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--lime); color: #283500; font-weight: 900; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg);
+}
+.story-name { font-size: 11px; color: var(--text-secondary); font-weight: 600; max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Post */
+.ig-post { margin-bottom: 18px; }
+.ig-post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ig-post-user { flex: 1; display: flex; flex-direction: column; }
+.ig-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.ig-time { font-size: 11px; color: var(--text-secondary); }
+.ig-follow {
+  background: none; border: none; color: var(--lime); font-weight: 800; font-size: 13px; cursor: pointer;
+}
+.ig-follow.on { color: var(--text-secondary); font-weight: 600; }
+
+.ig-img-wrap {
+  position: relative; border-radius: 16px; overflow: hidden; background: var(--surface);
+  aspect-ratio: 1 / 1; cursor: pointer;
+}
+.ig-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ig-pet-badge {
+  position: absolute; bottom: 10px; left: 10px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: var(--lime);
+  font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(204,255,0,0.4);
+}
+.ig-heart-burst {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 90px; animation: ig-heart 0.7s ease; pointer-events: none;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+}
+@keyframes ig-heart {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1.2); opacity: 1; }
+  70% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.1); opacity: 0; }
+}
+
+.ig-actions { display: flex; align-items: center; gap: 6px; padding: 10px 2px 6px; }
+.ig-act {
+  background: none; border: none; cursor: pointer; color: var(--text);
+  display: flex; align-items: center; padding: 4px;
+}
+.ig-act .material-symbols-outlined { font-size: 26px; }
+.ig-act.liked { color: var(--red); }
+.ig-act.save { margin-left: auto; }
+.ig-act.save.on { color: var(--lime); }
+
+.ig-body { padding: 0 2px; }
+.ig-likes { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.ig-caption { font-size: 14px; color: var(--text); line-height: 1.45; }
+.ig-caption strong { font-weight: 700; }
+.ig-stat-pill {
+  display: inline-block; margin-top: 6px; background: rgba(255,185,81,0.15); color: var(--orange);
+  font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+}
+.ig-view-comments { display: block; margin-top: 6px; background: none; border: none; color: var(--text-secondary); font-size: 13px; cursor: pointer; }
+
+.feed-loading { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 16px; }
+
+/* Comments sheet */
+.ig-comments { max-height: 80vh; display: flex; flex-direction: column; }
+.ig-comment-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; margin-bottom: 12px; }
+.ig-comment { display: flex; gap: 10px; }
+.ig-comment-body { flex: 1; }
+.ig-comment-text { font-size: 14px; color: var(--text); line-height: 1.4; }
+.ig-reply-btn { background: none; border: none; color: var(--text-secondary); font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 2px; }
+.ig-reply { font-size: 13px; color: var(--text); margin: 6px 0 0 14px; padding-left: 10px; border-left: 2px solid var(--glass-border); }
+.ig-comment-input { border-top: 1px solid var(--glass-border); padding-top: 12px; }
+.ig-replying { font-size: 11px; color: var(--lime); display: inline-flex; gap: 6px; margin-bottom: 6px; }
+.ig-replying button { background: none; border: none; color: var(--text-secondary); cursor: pointer; }
+
+/* Story viewer */
+.sv-overlay {
+  position: fixed; inset: 0; z-index: 140; background: #000;
+  max-width: 430px; margin: 0 auto; display: flex; flex-direction: column;
+}
+.sv-progress { display: flex; gap: 4px; padding: 10px 12px 4px; }
+.sv-bar { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+.sv-bar-fill { height: 100%; background: #fff; }
+.sv-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px; z-index: 2; }
+.sv-user { color: #fff; font-weight: 700; font-size: 14px; flex: 1; }
+.sv-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; }
+.sv-tap { position: absolute; top: 60px; bottom: 0; width: 40%; z-index: 3; }
+.sv-tap.left { left: 0; }
+.sv-tap.right { right: 0; }
+.sv-content {
+  flex: 1; margin: 8px 12px 20px; border-radius: 16px; background-size: cover; background-position: center;
+  display: flex; align-items: flex-end; justify-content: center; position: relative; overflow: hidden;
+}
+.sv-caption {
+  width: 100%; padding: 16px; color: #fff; font-size: 18px; font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8); background: linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+.sv-poll {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px;
+}
+.sv-poll-q { color: #fff; font-size: 20px; font-weight: 800; text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+.sv-poll-opt {
+  width: 100%; padding: 14px; border-radius: 14px; border: none; cursor: pointer;
+  background: rgba(255,255,255,0.9); color: #131313; font-weight: 800; font-size: 15px;
+}
+
+/* Explore */
+.ex-trending { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ex-tag {
+  background: rgba(204,255,0,0.12); color: var(--lime); border: 1px solid rgba(204,255,0,0.25);
+  padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700;
+}
+.ex-featured { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; }
+.ex-user {
+  flex-shrink: 0; width: 110px; text-align: center; padding: 14px 8px;
+  background: var(--card); border: 1px solid var(--glass-border); border-radius: 16px;
+}
+.ex-user-name { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 6px; }
+.ex-user-f { font-size: 11px; color: var(--text-secondary); }
+.ex-follow {
+  margin-top: 8px; width: 100%; padding: 6px; border: none; border-radius: 8px; cursor: pointer;
+  background: linear-gradient(135deg, var(--lime), var(--lime-dim)); color: #283500; font-weight: 800; font-size: 12px;
+}
+.ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.ex-cell { position: relative; aspect-ratio: 1; cursor: pointer; overflow: hidden; border-radius: 4px; background: var(--surface); }
+.ex-cell img { width: 100%; height: 100%; object-fit: cover; }
+.ex-cell-type { position: absolute; top: 4px; right: 4px; font-size: 14px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
