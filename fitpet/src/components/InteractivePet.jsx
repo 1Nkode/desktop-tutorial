@@ -117,11 +117,19 @@ export default function InteractivePet() {
     else levelRef.current = pet.level;
   }, [pet.level]);
 
-  // play interactions (acariciar / cosquillas) from the buttons
+  // play interactions (cosquillas / hablar) from the buttons
   useEffect(() => {
     if (!lastInteraction) return;
     if (lastInteraction.type === 'tickle') { setReacting(true); setPose('flex'); setTimeout(() => { setReacting(false); setPose('stand'); }, 720); say('¡Jaja! 😆'); spawn('😂', 8); flashEmotion('excited', 1200); playSound('celebrate'); }
     else if (lastInteraction.type === 'pet') { say('😊'); spawn('❤️', 6); flashEmotion('happy', 1200); playSound('tap'); }
+    else if (lastInteraction.type === 'talk') {
+      // talking-tom: show what it says + a "talking" animation while speaking
+      const ms = Math.min(6000, 1400 + (lastInteraction.text?.length || 0) * 70);
+      setEmotion('excited');
+      say(lastInteraction.text || '...', ms);
+      clearTimeout(emoTimer.current);
+      emoTimer.current = setTimeout(() => setEmotion(baseEmotion()), ms);
+    }
   }, [lastInteraction]);
 
   // occasional motivational line

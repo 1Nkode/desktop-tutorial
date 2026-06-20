@@ -7,6 +7,7 @@ import PetCustomize from './PetCustomize';
 import Wardrobe from './Wardrobe';
 import SceneBackground from './SceneBackground';
 import { playSound } from '../sound';
+import { listen, speak, speechSupported } from '../talk';
 import './Pet.css';
 
 const STATE_ORDER = ['neglected', 'tired', 'base', 'strong', 'champion'];
@@ -35,7 +36,23 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet } = useStore();
+  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet, sayPet } = useStore();
+  const [listening, setListening] = useState(false);
+
+  const handleTalk = () => {
+    if (listening) return;
+    if (speechSupported()) {
+      listen({
+        onStart: () => setListening(true),
+        onEnd: () => setListening(false),
+        onError: () => setListening(false),
+        onResult: (text) => { sayPet(text); speak(text); },
+      });
+    } else {
+      const text = prompt('Tu navegador no soporta micrófono. Escribe algo y tu mascota lo repetirá:');
+      if (text) { sayPet(text); speak(text); }
+    }
+  };
   const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
   const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
@@ -146,6 +163,10 @@ export default function Pet() {
             🎁 {dailyAvailable ? 'Premio' : 'Listo'}
           </button>
         </div>
+        <button className={`talk-btn ${listening ? 'on' : ''}`} onClick={handleTalk}>
+          <span className="material-symbols-outlined">{listening ? 'graphic_eq' : 'mic'}</span>
+          {listening ? 'Escuchando…' : 'Hablar con tu mascota'}
+        </button>
       </div>
 
       {showGame && <Minigame onClose={() => setShowGame(false)} />}

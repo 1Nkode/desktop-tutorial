@@ -846,6 +846,11 @@ export const useStore = create(persist((set, get) => ({
     if (type === 'pet') patch.motivation = clamp((state.pet.motivation ?? 75) + 3);
     return { pet: patch, lastInteraction: { type, at: Date.now() } };
   }),
+  // Talking-Tom voice: the pet "says" some text (drives bubble + talking state)
+  sayPet: (text) => set((state) => ({
+    pet: { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + 2) },
+    lastInteraction: { type: 'talk', text, at: Date.now() },
+  })),
 
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({
