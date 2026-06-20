@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
 import PetSprite from './PetSprite';
+import PetClothes from './PetClothes';
 import { playSound } from '../sound';
 import './InteractivePet.css';
 
@@ -16,7 +17,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR } = useStore();
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction } = useStore();
   const state = petState(pet, stats, user);
   const stateRef = useRef(state);
 
@@ -117,6 +118,13 @@ export default function InteractivePet() {
     else levelRef.current = pet.level;
   }, [pet.level]);
 
+  // play interactions (acariciar / cosquillas) from the buttons
+  useEffect(() => {
+    if (!lastInteraction) return;
+    if (lastInteraction.type === 'tickle') { setReacting(true); setPose('flex'); setTimeout(() => { setReacting(false); setPose('stand'); }, 720); say('¡Jaja! 😆'); spawn('😂', 8); flashEmotion('excited', 1200); playSound('celebrate'); }
+    else if (lastInteraction.type === 'pet') { say('😊'); spawn('❤️', 6); flashEmotion('happy', 1200); playSound('tap'); }
+  }, [lastInteraction]);
+
   // occasional motivational line
   useEffect(() => {
     const PH = ['¡Tú puedes! 💪', '¿Entrenamos?', '¡Vamos por la racha! 🔥', '¡Hidrátate! 💧'];
@@ -146,6 +154,7 @@ export default function InteractivePet() {
           blink={blink}
           variant={pet.variant || 'natural'}
         />
+        <PetClothes outfit={pet.outfit} />
         {sleepy && <span className="ipet-zzz">z</span>}
         {dirty && <span className="ipet-dirty">💨</span>}
       </div>

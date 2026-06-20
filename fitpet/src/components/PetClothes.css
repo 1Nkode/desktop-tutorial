@@ -1,0 +1,32 @@
+/* Clothing overlay — positioned over the pet body (percentages of the box). */
+.pc-clothes { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.pc-clothes > * { position: absolute; left: 50%; transform: translateX(-50%); }
+
+/* ---- Top (shirt / polo) ---- */
+.cl-top { top: 50%; width: 64%; height: 26%; }
+.cl-torso {
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: 78%; height: 100%; border-radius: 16px 16px 18px 18px;
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,0.18), inset 0 3px 6px rgba(255,255,255,0.25);
+}
+.cl-sleeve { position: absolute; top: 4px; width: 26%; height: 46%; border-radius: 12px; }
+.cl-sleeve.left { left: -4%; transform: rotate(-12deg); }
+.cl-sleeve.right { right: -4%; transform: rotate(12deg); }
+.cl-collar { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 30%; height: 26%; background: rgba(255,255,255,0.85); border-radius: 0 0 12px 12px; }
+.cl-tank .cl-torso { width: 60%; border-radius: 12px 12px 18px 18px; }
+.cl-strap { position: absolute; top: -36%; left: 22%; width: 16%; height: 44%; border-radius: 6px; }
+.cl-strap.r { left: auto; right: 22%; }
+
+/* ---- Bottom (pants / shorts) ---- */
+.cl-bottom { top: 70%; width: 56%; height: 24%; }
+.cl-leg { position: absolute; top: 0; width: 42%; height: 100%; border-radius: 8px 8px 10px 10px; box-shadow: inset 0 -5px 8px rgba(0,0,0,0.2); }
+.cl-leg.left { left: 4%; }
+.cl-leg.right { right: 4%; }
+.cl-shorts .cl-leg { height: 56%; }
+
+/* ---- Hat ---- */
+.cl-cap { top: 17%; width: 50%; height: 18%; }
+.cl-cap-dome { position: absolute; left: 50%; transform: translateX(-50%); top: 0; width: 64%; height: 100%; border-radius: 40% 40% 10% 10%; box-shadow: inset 0 3px 5px rgba(255,255,255,0.3); }
+.cl-cap-brim { position: absolute; left: 46%; bottom: -2px; width: 60%; height: 26%; border-radius: 0 0 14px 14px; }
+.cl-band { top: 24%; width: 52%; height: 5%; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4); }
+.cl-crown { top: 8%; font-size: 30px; }

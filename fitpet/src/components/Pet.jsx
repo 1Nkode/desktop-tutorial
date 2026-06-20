@@ -4,6 +4,7 @@ import InteractivePet from './InteractivePet';
 import { STATE_INFO } from './petMeta';
 import Minigame from './Minigame';
 import PetCustomize from './PetCustomize';
+import Wardrobe from './Wardrobe';
 import SceneBackground from './SceneBackground';
 import { playSound } from '../sound';
 import './Pet.css';
@@ -34,7 +35,7 @@ const accessories = [
 ];
 
 export default function Pet() {
-  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim } = useStore();
+  const { pet, stats, user, setAccessory, renamePet, feedPet, playWithPet, bathePet, claimDailyReward, lastDailyClaim, interactPet } = useStore();
   const dailyAvailable = lastDailyClaim !== new Date().toISOString().slice(0, 10);
   const selectedAcc = pet.accessories[0] || 'bandana';
   const [editingName, setEditingName] = useState(false);
@@ -46,6 +47,7 @@ export default function Pet() {
   const happiness = petHappiness(pet, stats, user);
   const [showGame, setShowGame] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [showWardrobe, setShowWardrobe] = useState(false);
 
   const saveName = () => {
     renamePet(nameDraft);
@@ -134,18 +136,21 @@ export default function Pet() {
           <button className="care-btn" onClick={() => { feedPet(); playSound('eat'); }}>🍎 Alimentar</button>
           <button className="care-btn" onClick={() => { playWithPet(); playSound('celebrate'); }}>🎾 Jugar</button>
           <button className="care-btn" onClick={() => { bathePet(); playSound('reward'); }}>🧼 Bañar</button>
-          <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Juego</button>
+          <button className="care-btn" onClick={() => interactPet('tickle')}>😆 Cosquillas</button>
         </div>
         <div className="care-actions" style={{ marginTop: 8 }}>
-          <button className="care-btn" onClick={() => setShowCustomize(true)}>🎨 Personalizar</button>
+          <button className="care-btn" onClick={() => setShowWardrobe(true)}>👕 Ropa</button>
+          <button className="care-btn" onClick={() => setShowCustomize(true)}>🎨 Aspecto</button>
+          <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Juego</button>
           <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
-            🎁 {dailyAvailable ? 'Recompensa diaria' : 'Reclamado hoy'}
+            🎁 {dailyAvailable ? 'Premio' : 'Listo'}
           </button>
         </div>
       </div>
 
       {showGame && <Minigame onClose={() => setShowGame(false)} />}
       {showCustomize && <PetCustomize onClose={() => setShowCustomize(false)} />}
+      {showWardrobe && <Wardrobe onClose={() => setShowWardrobe(false)} />}
 
       {/* Evolution states */}
       <div className="card">

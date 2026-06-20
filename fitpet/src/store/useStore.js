@@ -53,6 +53,7 @@ const basepet = {
   color: null,      // optional body-color override
   colors: {},       // optional per-part overrides: body, belly, eyes, accent
   background: 'default',
+  outfit: { hat: 'none', top: 'polo-blue', bottom: 'none' }, // equippable clothes
   fitness: 60,      // 0-100 slow-moving condition score (drives physique)
   lastEvalDay: null,// last calendar day the fitness score was nudged
 };
@@ -831,6 +832,20 @@ export const useStore = create(persist((set, get) => ({
   }),
   setBackground: (background) => set((state) => ({ pet: { ...state.pet, background } })),
   bathePet: () => set((state) => ({ pet: { ...state.pet, cleanliness: 100 } })),
+
+  // Wardrobe: equip a garment in a slot (hat/top/bottom)
+  setOutfit: (slot, id) => set((state) => ({
+    pet: { ...state.pet, outfit: { ...(state.pet.outfit || {}), [slot]: id } },
+  })),
+
+  // Talking-Tom style play interactions
+  lastInteraction: null,
+  interactPet: (type) => set((state) => {
+    const patch = { ...state.pet };
+    if (type === 'tickle') patch.motivation = clamp((state.pet.motivation ?? 75) + 4);
+    if (type === 'pet') patch.motivation = clamp((state.pet.motivation ?? 75) + 3);
+    return { pet: patch, lastInteraction: { type, at: Date.now() } };
+  }),
 
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({
