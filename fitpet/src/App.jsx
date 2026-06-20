@@ -7,6 +7,7 @@ import Social from './components/Social';
 import Rewards from './components/Rewards';
 import Profile from './components/Profile';
 import Modals from './components/Modals';
+import InteractivePet from './components/InteractivePet';
 import './App.css';
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
       </main>
       <Navigation />
       <Modals />
+      <InteractivePet />
     </div>
   );
 }
