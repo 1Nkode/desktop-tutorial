@@ -1,0 +1,13 @@
+{
+  "name": "FitPet",
+  "short_name": "FitPet",
+  "description": "Tu compañero fitness: mascota virtual, entrenamientos, nutrición y comunidad.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#131313",
+  "theme_color": "#131313",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

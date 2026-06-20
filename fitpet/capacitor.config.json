@@ -1,0 +1,9 @@
+{
+  "appId": "com.fitpet.app",
+  "appName": "FitPet",
+  "webDir": "dist",
+  "backgroundColor": "#131313",
+  "ios": {
+    "contentInset": "always"
+  }
+}
