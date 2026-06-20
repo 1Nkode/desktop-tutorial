@@ -49,17 +49,24 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
         }
       });
 
-      // center inside a pivot so it rotates in place and stays upright
-      const box = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3(); box.getSize(size);
-      const center = new THREE.Vector3(); box.getCenter(center);
+      // precise bounds (skinned meshes report bad boxes with the cheap method)
+      let box = new THREE.Box3().setFromObject(model, true);
+      let size = box.getSize(new THREE.Vector3());
+      let center = box.getCenter(new THREE.Vector3());
+      // fallback if precise bounds came out degenerate
+      if (!isFinite(size.y) || size.y < 0.001) {
+        box = new THREE.Box3().setFromObject(model);
+        size = box.getSize(new THREE.Vector3());
+        center = box.getCenter(new THREE.Vector3());
+      }
       model.position.sub(center);
       pivot = new THREE.Group(); pivot.add(model); scene.add(pivot);
 
-      // auto-fit camera so the whole body fits
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      // auto-fit camera so the whole body fits (frame by height + width)
       const fov = camera.fov * (Math.PI / 180);
-      const dist = (maxDim / 2) / Math.tan(fov / 2) * 2.0;
+      const fitH = (size.y / 2) / Math.tan(fov / 2);
+      const fitW = (size.x / 2) / Math.tan(fov / 2) / camera.aspect;
+      const dist = Math.max(fitH, fitW) * 2.3 + 0.5;   // generous margin
       camera.position.set(0, 0, dist);
       camera.near = dist / 100; camera.far = dist * 100;
       camera.updateProjectionMatrix();
