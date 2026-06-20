@@ -17,7 +17,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText, setTalk, modelAnim, setModelAnimList, modelGender } = useStore();
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText, setTalk, modelAnim, setModelAnimList, modelGender, modelZoom, modelOffsetY } = useStore();
   const modelSrc = `${import.meta.env.BASE_URL}model/${modelGender === 'male' ? 'male.glb' : modelGender === 'female' ? 'female.glb' : 'default.glb'}`;
   const state = petState(pet, stats, user);
   const stateRef = useRef(state);
@@ -168,7 +168,7 @@ export default function InteractivePet() {
       {bubble && <div className="ipet-bubble">{bubble}</div>}
       <div className="ipet-aura" />
       <div className="ipet-body">
-        <PetModel3D key={modelGender} src={modelSrc} anim={modelAnim} color={pet.color} onList={setModelAnimList} />
+        <PetModel3D key={modelGender} src={modelSrc} anim={modelAnim} color={pet.color} onList={setModelAnimList} zoom={modelZoom} offsetY={modelOffsetY} />
         {dirty && <span className="ipet-dirty">💨</span>}
       </div>
       <div className="ipet-shadow" />

@@ -8,14 +8,35 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   - plays a static idle by default (upright); `anim` plays a dance clip.
   - `color` tints the materials (ropa/estilo). Reports clip names via onList.
 */
-export default function PetModel3D({ src, anim = null, color = null, onList }) {
+export default function PetModel3D({ src, anim = null, color = null, onList, zoom = 1, offsetY = 0 }) {
   const mountRef = useRef(null);
   const actionsRef = useRef({});
   const currentRef = useRef(null);
   const mixerRef = useRef(null);
   const meshesRef = useRef([]);
   const baseColorRef = useRef(new Map());
+  const cameraRef = useRef(null);
+  const baseDistRef = useRef(4);
+  const zoomRef = useRef(zoom);
+  const offsetRef = useRef(offsetY);
   const DEFAULT = `${import.meta.env.BASE_URL}model/default.glb`;
+
+  function applyView() {
+    const cam = cameraRef.current;
+    if (!cam) return;
+    const d = baseDistRef.current / (zoomRef.current || 1);
+    const y = offsetRef.current || 0;
+    cam.position.set(0, y, d);
+    cam.lookAt(0, y, 0);
+    cam.updateProjectionMatrix();
+  }
+
+  // live-update framing from the zoom / height sliders (no reload)
+  useEffect(() => {
+    zoomRef.current = zoom;
+    offsetRef.current = offsetY;
+    applyView();
+  }, [zoom, offsetY]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -24,6 +45,7 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(32, w / h, 0.1, 1000);
+    cameraRef.current = camera;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(w, h);
@@ -89,10 +111,9 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
       const fitH = (size.y / 2) / Math.tan(fov / 2);
       const fitW = (size.x / 2) / Math.tan(fov / 2) / camera.aspect;
       const dist = Math.max(fitH, fitW) * 1.55 + 0.4;
-      camera.position.set(0, 0, dist);
+      baseDistRef.current = dist;
       camera.near = 0.05; camera.far = dist * 100;
-      camera.updateProjectionMatrix();
-      camera.lookAt(0, 0, 0);
+      applyView();
 
       // animations
       const mixer = new THREE.AnimationMixer(model);

@@ -861,9 +861,12 @@ export const useStore = create(persist((set, get) => ({
   modelAnim: null,
   modelAnimList: [],
   modelGender: 'default',   // default | male | female (loads model/<gender>.glb)
+  modelZoom: 1,             // manual framing controls
+  modelOffsetY: 0,
   setModelAnim: (name) => set({ modelAnim: name }),
   setModelAnimList: (list) => set({ modelAnimList: list }),
   setModelGender: (g) => set({ modelGender: g, modelAnim: null }),
+  setModelView: (patch) => set(patch),
 
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({
@@ -971,5 +974,7 @@ export const useStore = create(persist((set, get) => ({
     dashboardLayout: state.dashboardLayout,
     dashboardTemplates: state.dashboardTemplates,
     modelGender: state.modelGender,
+    modelZoom: state.modelZoom,
+    modelOffsetY: state.modelOffsetY,
   }),
 }));

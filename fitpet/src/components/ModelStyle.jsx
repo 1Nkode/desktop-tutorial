@@ -15,8 +15,8 @@ const GENDERS = [
 ];
 
 export default function ModelStyle({ onClose }) {
-  const { pet, setPetColor, modelAnim, modelAnimList, setModelAnim, modelGender, setModelGender } = useStore();
-  const [tab, setTab] = useState('genero');
+  const { pet, setPetColor, modelAnim, modelAnimList, setModelAnim, modelGender, setModelGender, modelZoom, modelOffsetY, setModelView } = useStore();
+  const [tab, setTab] = useState('encuadre');
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -25,10 +25,23 @@ export default function ModelStyle({ onClose }) {
         <h3 className="modal-title">Personalizar personaje</h3>
 
         <div className="pc-cats">
-          {[['genero', '👤 Género'], ['bailes', '🕺 Bailes'], ['ropa', '👕 Ropa']].map(([id, label]) => (
+          {[['encuadre', '📐 Encuadre'], ['genero', '👤 Género'], ['bailes', '🕺 Bailes'], ['ropa', '👕 Ropa']].map(([id, label]) => (
             <button key={id} className={`pc-cat ${tab === id ? 'on' : ''}`} onClick={() => setTab(id)}>{label}</button>
           ))}
         </div>
+
+        {tab === 'encuadre' && (
+          <div className="ms-frame">
+            <label className="ms-slabel">Zoom: {modelZoom.toFixed(2)}×</label>
+            <input className="ms-slider" type="range" min="0.4" max="2.5" step="0.05" value={modelZoom}
+              onChange={e => setModelView({ modelZoom: +e.target.value })} />
+            <label className="ms-slabel">Altura: {modelOffsetY.toFixed(2)}</label>
+            <input className="ms-slider" type="range" min="-1.5" max="1.5" step="0.05" value={modelOffsetY}
+              onChange={e => setModelView({ modelOffsetY: +e.target.value })} />
+            <button className="care-btn" style={{ marginTop: 6 }} onClick={() => setModelView({ modelZoom: 1, modelOffsetY: 0 })}>↺ Restablecer</button>
+            <p className="wd-note">Ajusta el zoom y la altura hasta que el personaje quede bien encuadrado.</p>
+          </div>
+        )}
 
         {tab === 'genero' && (
           <>

@@ -69,3 +69,8 @@
   background: linear-gradient(transparent, rgba(0,0,0,0.6)); z-index: 1;
 }
 .pc-bg.on { border-color: var(--lime); }
+
+/* 3D framing sliders */
+.ms-frame { display: flex; flex-direction: column; gap: 6px; }
+.ms-slabel { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-top: 6px; }
+.ms-slider { width: 100%; accent-color: var(--lime); }
