@@ -102,9 +102,10 @@ export default function PetModel3D({ src, anim = null, color = null, onList }) {
       gltf.animations.forEach((clip) => { names.push(clip.name); actionsRef.current[clip.name] = mixer.clipAction(clip); });
       onList?.(names);
 
-      // default to an idle/standing clip if there is one (upright); else static
-      const idle = gltf.animations.find(c => /idle|stand|pose|breath|t-?pose/i.test(c.name));
-      if (idle) { const a = actionsRef.current[idle.name]; a.play(); currentRef.current = a; }
+      // always play something so it isn't stiff: prefer an idle clip, else
+      // the first animation in the model
+      const idle = gltf.animations.find(c => /idle|stand|breath/i.test(c.name)) || gltf.animations[0];
+      if (idle) { const a = actionsRef.current[idle.name]; a.reset().play(); currentRef.current = a; }
     };
 
     const loader = new GLTFLoader();
