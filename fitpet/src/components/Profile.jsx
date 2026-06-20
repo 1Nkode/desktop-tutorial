@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { useStore } from '../store/useStore';
+import ProfileEdit from './ProfileEdit';
+import { Avatar } from './Avatar';
 import './Profile.css';
 
 const PET_EMOJI = { strong: '🦁', fit: '🐆', chubby: '🐻', normal: '🐱' };
 
 export default function Profile() {
-  const { user, pet, stats, badges, workouts, meals, feed, setActiveTab, setShowSettings } = useStore();
+  const { user, pet, stats, badges, workouts, meals, feed, setActiveTab } = useStore();
+  const [editing, setEditing] = useState(false);
 
   const myPosts = feed.filter(p => p.user === user.name);
   const earnedBadges = badges.filter(b => b.earned);
@@ -17,20 +21,24 @@ export default function Profile() {
       {/* Cover + avatar */}
       <div className="profile-cover">
         <button className="cover-back" onClick={() => setActiveTab('dashboard')}>‹</button>
-        <button className="cover-edit" onClick={() => setShowSettings(true)}>Edit ✏️</button>
+        <button className="cover-edit" onClick={() => setEditing(true)}>Editar ✏️</button>
       </div>
 
       <div className="profile-head">
-        <div className="profile-avatar">😄</div>
+        <Avatar user={user} size={88} className="profile-avatar" />
         <h2 className="profile-name">{user.name}</h2>
-        <p className="profile-handle">@{user.name.toLowerCase().replace(/\s+/g, '')} · 🔥 {user.streak}-day streak</p>
+        <p className="profile-handle">@{user.username} · 🔥 {user.streak} días</p>
+        <p className="profile-bio">{user.bio}</p>
+        <p className="profile-goal">🎯 {user.goal}</p>
 
         <div className="profile-stats">
           <Stat value={myPosts.length} label="Posts" />
-          <Stat value={user.followers} label="Followers" />
-          <Stat value={user.following} label="Following" />
+          <Stat value={user.followers} label="Seguidores" />
+          <Stat value={user.following} label="Seguidos" />
         </div>
       </div>
+
+      {editing && <ProfileEdit onClose={() => setEditing(false)} />}
 
       {/* Level / XP */}
       <div className="card profile-level">

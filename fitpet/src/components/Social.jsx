@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { playSound } from '../sound';
+import { Avatar } from './Avatar';
 import './Social.css';
 import './SocialIG.css';
 
@@ -43,10 +44,10 @@ export default function Social() {
     <div className="social-page animate-fadeIn">
       <div className="social-header">
         <div className="my-profile" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('profile')}>
-          <div className="avatar" style={{ width: 40, height: 40 }}>😄</div>
+          <Avatar user={user} size={40} />
           <div>
             <p className="my-name">{user.name}</p>
-            <p className="my-stats">{user.followers} seguidores</p>
+            <p className="my-stats">@{user.username}</p>
           </div>
         </div>
         <button className="ig-post-btn" onClick={() => setShowAddPost(true)}>
@@ -142,7 +143,7 @@ function PostCard({ post, me, following, onLike, onSave, onFollow, onOpenComment
   return (
     <div className="ig-post">
       <div className="ig-post-head">
-        <div className="avatar" style={{ width: 36, height: 36, fontSize: 16, cursor: 'pointer' }} onClick={onOpenUser}>{post.avatar}</div>
+        <Avatar user={{ avatar: post.avatar }} size={36} onClick={onOpenUser} />
         <div className="ig-post-user" style={{ cursor: 'pointer' }} onClick={onOpenUser}>
           <span className="ig-name">{post.user}</span>
           <span className="ig-time">{post.time}</span>

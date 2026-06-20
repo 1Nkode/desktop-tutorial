@@ -1,0 +1,12 @@
+.pe-modal { max-height: 88vh; }
+.pe-avatar-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.pe-avatar-actions { flex: 1; }
+.pe-emoji-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pe-emoji {
+  width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.05); font-size: 18px; cursor: pointer;
+}
+.pe-emoji.on { border-color: var(--lime); background: rgba(204,255,0,0.15); }
+.pe-field { margin-bottom: 12px; }
+.pe-username { display: flex; align-items: center; gap: 6px; }
+.pe-username span { color: var(--text-secondary); font-weight: 800; font-size: 16px; }

@@ -33,8 +33,9 @@
   --text-secondary: #9b9f93;
   --border: rgba(255, 255, 255, 0.10);
 
-  --shadow: 0 8px 30px rgba(0,0,0,0.45);
-  --shadow-sm: 0 2px 12px rgba(0,0,0,0.35);
+  --shadow: 0 12px 32px -8px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-sm: 0 4px 16px -4px rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.35);
+  --shadow-lg: 0 24px 60px -12px rgba(0,0,0,0.65), 0 8px 20px rgba(0,0,0,0.45);
   --neon: 0 0 15px rgba(204, 255, 0, 0.35);
   --radius: 20px;
   --radius-sm: 14px;
@@ -73,12 +74,14 @@ body {
 
 /* Glass cards */
 .card {
-  background: var(--card);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
+    var(--card);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.06);
   padding: 20px;
 }
 
@@ -93,6 +96,8 @@ body {
 }
 
 .neon-glow { box-shadow: var(--neon); }
+
+.card { transition: transform 0.15s ease, box-shadow 0.2s ease; }
 
 /* Buttons */
 .btn {
@@ -111,9 +116,11 @@ body {
 .btn-primary {
   background: linear-gradient(135deg, var(--lime), var(--lime-dim));
   color: #283500;
+  box-shadow: 0 6px 16px -4px rgba(204,255,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
 }
 
-.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--neon); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--neon), inset 0 1px 0 rgba(255,255,255,0.4); }
+.btn:active { transform: scale(0.96); }
 
 .btn-orange {
   background: linear-gradient(135deg, var(--orange), #ff9f33);

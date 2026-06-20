@@ -294,13 +294,20 @@ export const useStore = create(persist((set, get) => ({
   // User
   user: {
     name: 'Alex',
+    username: 'alex_fit',
+    bio: 'En camino a mi mejor versión 🐸',
+    goal: 'Ganar músculo 💪',
+    avatar: '😄',           // emoji or a data: URL photo
     level: 7,
     xp: 680,
     xpToNext: 1000,
     followers: 128,
     following: 94,
     streak: 12,
+    privacy: { showStats: true, showWorkouts: true },
   },
+
+  updateProfile: (patch) => set((state) => ({ user: { ...state.user, ...patch } })),
 
   // Health stats
   stats: initialStats,
@@ -393,7 +400,7 @@ export const useStore = create(persist((set, get) => ({
     const newPost = {
       id: Date.now(),
       user: state.user.name,
-      avatar: '😄',
+      avatar: state.user.avatar,
       liked: false,
       likes: 0,
       comments: [],
@@ -642,7 +649,7 @@ export const useStore = create(persist((set, get) => ({
     const s = state.pendingShare;
     if (!s) return { pendingShare: null };
     const post = {
-      id: Date.now() + 1, user: state.user.name, avatar: '😄', type: 'workout-log',
+      id: Date.now() + 1, user: state.user.name, avatar: state.user.avatar, type: 'workout-log',
       content: caption?.trim() || `Completé ${s.name} 💪`, time: 'Justo ahora',
       liked: false, likes: 0, saved: false, comments: [], petLevel: state.pet.level,
       image: image || null, workout: s,
@@ -754,7 +761,7 @@ export const useStore = create(persist((set, get) => ({
 
   // Reset everything back to defaults (used in Settings)
   resetApp: () => set({
-    user: { name: 'Alex', level: 7, xp: 680, xpToNext: 1000, followers: 128, following: 94, streak: 12 },
+    user: { name: 'Alex', username: 'alex_fit', bio: 'En camino a mi mejor versión 🐸', goal: 'Ganar músculo 💪', avatar: '😄', level: 7, xp: 680, xpToNext: 1000, followers: 128, following: 94, streak: 12, privacy: { showStats: true, showWorkouts: true } },
     stats: initialStats,
     pet: evolvePet(basepet, initialStats),
     feed: enrichFeed(mockFeed),

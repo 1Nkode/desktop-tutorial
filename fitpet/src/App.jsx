@@ -7,6 +7,7 @@ import Social from './components/Social';
 import Rewards from './components/Rewards';
 import Profile from './components/Profile';
 import Modals from './components/Modals';
+import { Avatar } from './components/Avatar';
 import './App.css';
 
 export default function App() {
@@ -36,7 +37,7 @@ function TopBar() {
   return (
     <div className="topbar">
       <div className="topbar-logo" onClick={() => setActiveTab('profile')}>
-        <div className="topbar-avatar neon-glow">😄</div>
+        <Avatar user={user} size={38} className="topbar-avatar neon-glow" />
         <span className="logo-text">FitPet</span>
       </div>
       <div className="topbar-right">
