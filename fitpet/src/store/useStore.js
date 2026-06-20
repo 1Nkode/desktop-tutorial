@@ -857,6 +857,12 @@ export const useStore = create(persist((set, get) => ({
   talkText: '',
   setTalk: (mode, text = '') => set({ talkMode: mode, talkText: text }),
 
+  // 3D character animation/style
+  modelAnim: null,
+  modelAnimList: [],
+  setModelAnim: (name) => set({ modelAnim: name }),
+  setModelAnimList: (list) => set({ modelAnimList: list }),
+
   // Pou/Tom-style care: feed restores energy, play restores motivation
   feedPet: () => set((state) => ({
     pet: { ...state.pet, energy: clamp(state.pet.energy + 18) },

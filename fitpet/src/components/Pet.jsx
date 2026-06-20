@@ -4,6 +4,7 @@ import InteractivePet from './InteractivePet';
 import { STATE_INFO } from './petMeta';
 import Minigame from './Minigame';
 import PetCustomize from './PetCustomize';
+import ModelStyle from './ModelStyle';
 import SceneBackground from './SceneBackground';
 import { playSound } from '../sound';
 import { talkOnce } from '../talk';
@@ -37,6 +38,7 @@ export default function Pet() {
   const state = petState(pet, stats, user);
   const happiness = petHappiness(pet, stats, user);
   const [showGame, setShowGame] = useState(false);
+  const [showStyle, setShowStyle] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
 
   const saveName = () => {
@@ -129,6 +131,7 @@ export default function Pet() {
           <button className="care-btn" onClick={() => interactPet('tickle')}>😆 Cosquillas</button>
         </div>
         <div className="care-actions" style={{ marginTop: 8 }}>
+          <button className="care-btn" onClick={() => setShowStyle(true)}>🎨 Estilo</button>
           <button className="care-btn" onClick={() => setShowCustomize(true)}>🖼️ Escena</button>
           <button className="care-btn" onClick={() => setShowGame(true)}>🎮 Juego</button>
           <button className={`care-btn daily ${dailyAvailable ? 'ready' : ''}`} disabled={!dailyAvailable} onClick={() => { claimDailyReward(); playSound('reward'); }}>
@@ -142,6 +145,7 @@ export default function Pet() {
       </div>
 
       {showGame && <Minigame onClose={() => setShowGame(false)} />}
+      {showStyle && <ModelStyle onClose={() => setShowStyle(false)} />}
       {showCustomize && <PetCustomize onClose={() => setShowCustomize(false)} />}
 
       {/* Evolution states */}

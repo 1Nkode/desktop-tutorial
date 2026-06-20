@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
+import PetModel3D from './PetModel3D';
 import { playSound } from '../sound';
 import { talkOnce } from '../talk';
 import './InteractivePet.css';
@@ -16,7 +17,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText, setTalk } = useStore();
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText, setTalk, modelAnim, setModelAnimList } = useStore();
   const state = petState(pet, stats, user);
   const stateRef = useRef(state);
 
@@ -154,19 +155,19 @@ export default function InteractivePet() {
     <div
       ref={wrapRef}
       className={`ipet ipet-state-${state} ${reacting ? 'reacting' : ''} ${sleepy ? 'resting' : 'idle'} talk-${talkMode}`}
-      onClick={() => { if (talkMode === 'idle') talkOnce(setTalk); else if (talkMode === 'talking') setTalk('idle'); }}
+      onClick={() => {
+        // tap = play a random animation + celebratory react
+        const list = useStore.getState().modelAnimList;
+        if (list?.length) useStore.getState().setModelAnim(list[Math.floor(Math.random() * list.length)]);
+        react();
+      }}
       role="button"
-      aria-label="Tocar para hablar con la mascota"
+      aria-label="Tocar la mascota"
     >
       {bubble && <div className="ipet-bubble">{bubble}</div>}
       <div className="ipet-aura" />
       <div className="ipet-body">
-        <img
-          className="tom-img"
-          draggable={false}
-          src={`${import.meta.env.BASE_URL}tom/${talkMode === 'listening' ? 'tom_listening.jpg' : talkMode === 'talking' ? 'tom_talking.gif' : 'Tom.jpg'}`}
-          alt="Talking Tom"
-        />
+        <PetModel3D anim={modelAnim} color={pet.color} onList={setModelAnimList} />
         {dirty && <span className="ipet-dirty">💨</span>}
       </div>
       <div className="ipet-shadow" />
