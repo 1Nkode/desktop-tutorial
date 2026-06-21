@@ -35,9 +35,30 @@ function useLiveSync() {
   }, [connected, settings.autoSync]);
 }
 
+// On load, finish any wearable OAuth redirect and pull real data.
+function useHealthRedirect() {
+  useEffect(() => {
+    (async () => {
+      try {
+        const { handleOAuthRedirect, fetchToday } = await import('./integrations/health');
+        const res = await handleOAuthRedirect();
+        if (!res) return;
+        const st = useStore.getState();
+        st.connectDevice(res.provider);
+        const data = await fetchToday(res.provider);
+        if (data) st.applyHealthSync(data);
+        st.setActiveTab('devices');
+      } catch (e) {
+        useStore.getState().setDeviceError?.(e.message || 'Error de conexión');
+      }
+    })();
+  }, []);
+}
+
 export default function App() {
   const { activeTab } = useStore();
   useLiveSync();
+  useHealthRedirect();
 
   return (
     <div className="app">

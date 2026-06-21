@@ -753,6 +753,23 @@ export const useStore = create(persist((set, get) => ({
 
   setDeviceError: (msg) => set({ deviceError: msg }),
 
+  // Apply REAL data pulled from Fitbit / Google Fit (absolute values)
+  applyHealthSync: (d) => set((state) => {
+    const newStats = {
+      ...state.stats,
+      steps: d.steps ?? state.stats.steps,
+      caloriesBurned: d.caloriesBurned ?? state.stats.caloriesBurned,
+      activeMinutes: d.activeMinutes ? Math.max(state.stats.activeMinutes, d.activeMinutes) : state.stats.activeMinutes,
+    };
+    return {
+      stats: newStats,
+      liveHR: d.hr ?? state.liveHR,
+      lastDeviceSync: Date.now(),
+      deviceError: null,
+      pet: evolvePet(state.pet, newStats),
+    };
+  }),
+
   setLiveHR: (bpm) => set((state) => {
     const sum = state.hr.sum + bpm, samples = state.hr.samples + 1;
     return { liveHR: bpm, hr: { avg: Math.round(sum / samples), max: Math.max(state.hr.max || 0, bpm), samples, sum } };

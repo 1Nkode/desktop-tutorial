@@ -1,15 +1,16 @@
 import { useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { connectHeartRate, bluetoothSupported } from '../sensors';
+import { connectFitbit, connectGoogleFit, fetchToday, disconnectProvider } from '../integrations/health';
 import { playSound } from '../sound';
 import './Devices.css';
 
 const DEVICES = [
   { id: 'apple', name: 'Apple Watch', sub: 'Apple Health', icon: '⌚', kind: 'cloud' },
-  { id: 'fitbit', name: 'Fitbit', sub: 'Fitbit Air', icon: '🟦', kind: 'cloud' },
+  { id: 'fitbit', name: 'Fitbit', sub: 'OAuth · datos reales', icon: '🟦', kind: 'oauth' },
   { id: 'samsung', name: 'Samsung Watch', sub: 'Samsung Health', icon: '⌚', kind: 'cloud' },
   { id: 'garmin', name: 'Garmin', sub: 'Garmin Connect', icon: '🛰️', kind: 'cloud' },
-  { id: 'googlefit', name: 'Google Fit', sub: 'Health Connect', icon: '🟢', kind: 'cloud' },
+  { id: 'googlefit', name: 'Google Fit', sub: 'OAuth · datos reales', icon: '🟢', kind: 'oauth' },
   { id: 'oura', name: 'Oura Ring', sub: 'Sueño y recuperación', icon: '💍', kind: 'cloud' },
   { id: 'whoop', name: 'Whoop', sub: 'Esfuerzo y recuperación', icon: '🔴', kind: 'cloud' },
   { id: 'miband', name: 'Xiaomi Mi Band', sub: 'Bluetooth · HR real', icon: '📿', kind: 'bluetooth' },
@@ -21,10 +22,20 @@ const DATA_REQUESTED = ['👣 Pasos', '🔥 Calorías', '❤️ Frecuencia card�
 
 export default function Devices() {
   const { connectedDevices, lastDeviceSync, deviceError, liveHR, hr, stats,
-    connectDevice, disconnectDevice, resyncDevices, setLiveHR, setDeviceError, setActiveTab } = useStore();
+    connectDevice, disconnectDevice, resyncDevices, setLiveHR, setDeviceError, setActiveTab, applyHealthSync } = useStore();
   const [permFor, setPermFor] = useState(null);   // device pending permission
   const [connecting, setConnecting] = useState(null);
   const btDevice = useRef(null);
+
+  async function realResync() {
+    const provider = connectedDevices.find(d => d === 'fitbit' || d === 'googlefit');
+    if (!provider) { resyncDevices(); return; }
+    try {
+      setDeviceError(null);
+      const data = await fetchToday(provider);
+      if (data) applyHealthSync(data);
+    } catch (e) { setDeviceError(e.message || 'No se pudo sincronizar'); }
+  }
 
   const distance = (stats.steps * 0.0007).toFixed(2);
   const lastSyncTxt = lastDeviceSync ? timeAgo(lastDeviceSync) : 'nunca';
@@ -40,12 +51,19 @@ export default function Devices() {
           onHR: (bpm) => setLiveHR(bpm),
           onDisconnect: () => disconnectDevice(dev.id),
         });
+        connectDevice(dev.id);
+        playSound('reward');
+      } else if (dev.kind === 'oauth') {
+        // Real OAuth — this navigates away to Fitbit/Google and returns
+        if (dev.id === 'fitbit') await connectFitbit();
+        else if (dev.id === 'googlefit') connectGoogleFit();
+        return; // page redirects; connection completes on return
       } else {
-        // Cloud/native brands: simulated pairing (needs OAuth/native in production)
+        // brands without a public web API yet: simulated pairing
         await new Promise(r => setTimeout(r, 900));
+        connectDevice(dev.id);
+        playSound('reward');
       }
-      connectDevice(dev.id);
-      playSound('reward');
     } catch (e) {
       setDeviceError(e.message || 'No se pudo conectar el dispositivo');
     } finally {
@@ -58,6 +76,7 @@ export default function Devices() {
       try { btDevice.current.gatt?.disconnect(); } catch {}
       btDevice.current = null;
     }
+    if (id === 'fitbit' || id === 'googlefit') disconnectProvider(id);
     disconnectDevice(id);
   }
 
@@ -66,7 +85,7 @@ export default function Devices() {
       <div className="dev-head">
         <button className="dev-back" onClick={() => setActiveTab('dashboard')}>‹</button>
         <h2 className="section-title">Dispositivos</h2>
-        <button className="dev-resync" onClick={resyncDevices} disabled={!connectedDevices.length}>
+        <button className="dev-resync" onClick={realResync} disabled={!connectedDevices.length}>
           <span className="material-symbols-outlined">sync</span>
         </button>
       </div>
@@ -107,14 +126,14 @@ export default function Devices() {
             <div className={`dev-item ${connected ? 'connected' : ''}`} key={dev.id}>
               <div className="dev-icon">{dev.icon}</div>
               <div className="dev-info">
-                <p className="dev-name">{dev.name} {dev.kind === 'bluetooth' && <span className="dev-real">REAL</span>}</p>
+                <p className="dev-name">{dev.name} {(dev.kind === 'bluetooth' || dev.kind === 'oauth') && <span className="dev-real">REAL</span>}</p>
                 <p className="dev-sub">{dev.sub}</p>
               </div>
               {connected ? (
                 <button className="dev-btn off" onClick={() => doDisconnect(dev.id)}>Desconectar</button>
               ) : (
                 <button className="dev-btn" disabled={connecting === dev.id}
-                  onClick={() => dev.kind === 'bluetooth' ? doConnect(dev) : setPermFor(dev)}>
+                  onClick={() => (dev.kind === 'bluetooth' || dev.kind === 'oauth') ? doConnect(dev) : setPermFor(dev)}>
                   {connecting === dev.id ? '…' : 'Conectar'}
                 </button>
               )}
