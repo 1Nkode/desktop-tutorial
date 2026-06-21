@@ -93,6 +93,9 @@ function TopBar() {
           <span className="material-symbols-outlined fill">local_fire_department</span>
           {user.streak}
         </div>
+        <button className="icon-btn" onClick={() => setActiveTab('devices')} title="Dispositivos">
+          <span className="material-symbols-outlined">watch</span>
+        </button>
         <button className="icon-btn notif-btn" onClick={() => setShowNotifications(true)}>
           <span className="material-symbols-outlined">notifications</span>
           {unread > 0 && <span className="notif-badge">{unread}</span>}

@@ -22,7 +22,7 @@ export const FITBIT = {
 };
 
 export const GOOGLE_FIT = {
-  clientId: '',                 // ← pega tu Google OAuth Client ID (.apps.googleusercontent.com)
+  clientId: '411180146577-l90bb6cq23guutvudmqv52jf2vfjuojc.apps.googleusercontent.com',
   scope: [
     'https://www.googleapis.com/auth/fitness.activity.read',
     'https://www.googleapis.com/auth/fitness.heart_rate.read',
