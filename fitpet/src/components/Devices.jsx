@@ -15,7 +15,7 @@ const DEVICES = [
   { id: 'fitbit', name: 'Fitbit', sub: 'OAuth · datos reales', icon: '🟦', kind: 'oauth' },
   { id: 'samsung', name: 'Samsung Watch', sub: 'Samsung Health', icon: '⌚', kind: 'cloud' },
   { id: 'garmin', name: 'Garmin', sub: 'Garmin Connect', icon: '🛰️', kind: 'cloud' },
-  { id: 'googlefit', name: 'Google Fit', sub: 'OAuth · datos reales', icon: '🟢', kind: 'oauth' },
+  { id: 'googlefit', name: 'Google Health / Fit', sub: 'Incluye datos de Fitbit · datos reales', icon: '🟢', kind: 'oauth' },
   { id: 'oura', name: 'Oura Ring', sub: 'Sueño y recuperación', icon: '💍', kind: 'cloud' },
   { id: 'whoop', name: 'Whoop', sub: 'Esfuerzo y recuperación', icon: '🔴', kind: 'cloud' },
   { id: 'miband', name: 'Xiaomi Mi Band', sub: 'Bluetooth · HR real', icon: '📿', kind: 'bluetooth' },
@@ -103,9 +103,9 @@ export default function Devices() {
       {/* primary action — no scroll needed */}
       {!gfConnected ? (
         <button className="dev-primary" disabled={connecting === 'googlefit'}
-          onClick={() => doConnect({ id: 'googlefit', name: 'Google Fit', kind: 'oauth' })}>
+          onClick={() => doConnect({ id: 'googlefit', name: 'Google Health', kind: 'oauth' })}>
           <span className="dev-primary-dot">🟢</span>
-          {connecting === 'googlefit' ? 'Conectando…' : 'Conectar Google Fit'}
+          {connecting === 'googlefit' ? 'Conectando…' : 'Conectar Fitbit / Google'}
         </button>
       ) : (
         <button className="dev-primary connected" onClick={realResync}>

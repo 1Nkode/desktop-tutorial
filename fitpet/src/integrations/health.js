@@ -123,10 +123,66 @@ async function fetchFitbit() {
   };
 }
 
+// Google Health API — reads the user's Fitbit (and Google) data. Defensive
+// parsing: data type payloads vary, so we extract the first numeric value of
+// each data point regardless of the exact field name (count/beatsPerMinute…).
+async function fetchGoogleHealth(token) {
+  const today = new Date().toISOString().slice(0, 10);
+  const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
+
+  const payload = (dp) => {
+    for (const [k, v] of Object.entries(dp)) {
+      if (k === 'name' || k === 'dataSource') continue;
+      if (v && typeof v === 'object') return v;
+    }
+    return null;
+  };
+  const num = (obj) => {
+    if (!obj) return null;
+    for (const [k, v] of Object.entries(obj)) {
+      if (k === 'interval' || k === 'date' || /time|offset/i.test(k)) continue;
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(+v)) return +v;
+    }
+    return null;
+  };
+  async function list(kebab, filter) {
+    const url = `https://health.googleapis.com/v4/users/me/dataTypes/${kebab}/dataPoints?pageSize=2000&filter=${encodeURIComponent(filter)}`;
+    try {
+      const res = await fetch(url, { headers });
+      if (!res.ok) return null;            // 403/404 → API off or no such type
+      return (await res.json()).dataPoints || [];
+    } catch { return null; }
+  }
+  const sum = (pts) => (pts || []).reduce((a, dp) => a + (num(payload(dp)) || 0), 0);
+  const lastVal = (pts) => { const a = pts || []; for (let i = a.length - 1; i >= 0; i--) { const n = num(payload(a[i])); if (n != null) return n; } return null; };
+
+  const [stepsP, calP, actP, hrP] = await Promise.all([
+    list('steps', `steps.interval.civil_start_time >= "${today}"`),
+    list('total-calories', `total_calories.interval.civil_start_time >= "${today}"`),
+    list('active-minutes', `active_minutes.interval.civil_start_time >= "${today}"`),
+    list('daily-resting-heart-rate', `daily_resting_heart_rate.date >= "${today}"`),
+  ]);
+
+  // All null → Health API not enabled / not authorized; let caller fall back.
+  if (stepsP == null && calP == null && actP == null && hrP == null) return null;
+
+  return {
+    steps: Math.round(sum(stepsP)),
+    caloriesBurned: Math.round(sum(calP)),
+    activeMinutes: Math.round(sum(actP)),
+    hr: lastVal(hrP),
+  };
+}
+
 async function fetchGoogleFit() {
   const token = LS.get('googlefit_token');
   if (!token) return null;
-  if (Date.now() > +LS.get('googlefit_expires')) { LS.del('googlefit_token'); throw new Error('Google Fit: sesión expirada, reconecta'); }
+  if (Date.now() > +LS.get('googlefit_expires')) { LS.del('googlefit_token'); throw new Error('Google: sesión expirada, reconecta'); }
+
+  // Prefer Google Health (Fitbit) data; fall back to legacy Google Fit.
+  const health = await fetchGoogleHealth(token);
+  if (health && (health.steps || health.caloriesBurned || health.activeMinutes || health.hr)) return health;
   const start = new Date(); start.setHours(0, 0, 0, 0);
   const body = {
     aggregateBy: [
