@@ -18,27 +18,29 @@ function lastSetsFor(history, exerciseId) {
   return [];
 }
 
+// Everything that reflects ACTIVITY starts at zero — it only grows from the
+// user's real actions (logging meals, workouts) or a connected wearable.
 const initialStats = {
-  caloriesConsumed: 1050,
+  caloriesConsumed: 0,
   caloriesGoal: 2000,
-  caloriesBurned: 700,
-  steps: 7820,
+  caloriesBurned: 0,
+  steps: 0,
   stepsGoal: 10000,
-  activeMinutes: 85,
+  activeMinutes: 0,
   activeGoal: 60,
-  water: 6,
+  water: 0,
   waterGoal: 8,
-  weight: 75,
-  weightGoal: 72,
-  sleep: 7.4,
+  weight: 70,             // editable in Ajustes
+  weightGoal: 68,
+  sleep: 0,
   sleepGoal: 8,
   proteinGoal: 150,
   carbsGoal: 220,
   fatGoal: 60,
   weeklyRate: 0.5,        // kg per week (lose/gain pace)
   goalMode: 'maintain',   // lose | maintain | gain
-  weeklyWorkouts: [3, 5, 4, 6, 2, 4, 0],
-  weeklyCalories: [1800, 2100, 1950, 2200, 1750, 1900, 1050],
+  weeklyWorkouts: [0, 0, 0, 0, 0, 0, 0],
+  weeklyCalories: [0, 0, 0, 0, 0, 0, 0],
 };
 
 const basepet = {
@@ -49,7 +51,7 @@ const basepet = {
   mood: 'happy', // happy, motivated, tired, sad
   physique: 'normal', // normal, fit, strong, chubby
   accessories: ['bandana'],
-  streak: 3,
+  streak: 0,
   energy: 80,       // 0-100, restored by feeding / rest
   motivation: 75,   // 0-100, restored by playing / training
   cleanliness: 90,  // 0-100, decays over time, restored by bathing
@@ -65,6 +67,15 @@ const basepet = {
 
 const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
 const todayKey = () => new Date().toISOString().slice(0, 10);
+
+// Real streak: +1 the first time you train on a new day, resets if you skip a day.
+function bumpStreak(user) {
+  const today = todayKey();
+  if (user.lastWorkoutDay === today) return user;            // already counted today
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const streak = user.lastWorkoutDay === yesterday ? (user.streak || 0) + 1 : 1;
+  return { ...user, streak, lastWorkoutDay: today };
+}
 
 const mockFeed = [
   {
@@ -326,18 +337,19 @@ function applyXp(pet, amount) {
 export const useStore = create(persist((set, get) => ({
   // User
   user: {
-    name: 'Alex',
-    username: 'alex_fit',
-    bio: 'En camino a mi mejor versión 🐸',
-    goal: 'Ganar músculo 💪',
+    name: 'Tú',
+    username: 'tu_usuario',
+    bio: '',
+    goal: '',
     avatar: '😄',           // emoji or a data: URL photo
-    level: 7,
-    xp: 680,
-    xpToNext: 1000,
-    followers: 128,
-    following: 94,
-    streak: 12,
-    privacy: { showStats: true, showWorkouts: true },
+    level: 1,
+    xp: 0,
+    xpToNext: 500,
+    followers: 0,
+    following: 0,
+    streak: 0,
+    lastWorkoutDay: null,   // for real streak tracking
+    privacy: { showStats: true, showWorkouts: true, account: 'public' }, // public | private
   },
 
   updateProfile: (patch) => set((state) => ({ user: { ...state.user, ...patch } })),
@@ -379,20 +391,20 @@ export const useStore = create(persist((set, get) => ({
   // Health stats
   stats: initialStats,
 
-  // Pet — derived from the starting stats so it's consistent on first load
-  pet: evolvePet(basepet, initialStats),
+  // Pet — neutral, happy start; evolves with real activity over time
+  pet: basepet,
 
-  // Content
-  feed: enrichFeed(mockFeed),
-  stories: mockStories,
-  following: ['Maria G.', 'Ana P.'],
-  friendActivity: mockFriendActivity,
-  discoverUsers: mockDiscover,
-  missions: mockMissions,
-  badges: mockBadges,
-  workouts: mockWorkouts,
-  meals: mockMeals,
-  notifications: mockNotifications,
+  // Content — empty until the user (or people they follow) actually create it
+  feed: [],
+  stories: [],
+  following: [],
+  friendActivity: [],
+  discoverUsers: [],
+  missions: mockMissions.map(m => ({ ...m, done: false, progress: 0 })),
+  badges: mockBadges.map(b => ({ ...b, earned: false })),
+  workouts: [],
+  meals: [],
+  notifications: [],
 
   // Settings
   settings: {
@@ -490,9 +502,10 @@ export const useStore = create(persist((set, get) => ({
       activeMinutes: state.stats.activeMinutes + workout.duration,
       weeklyWorkouts,
     };
-    const boosted = { ...state.pet, motivation: clamp(state.pet.motivation + 12), energy: clamp(state.pet.energy + 6) };
+    const newUser = bumpStreak(state.user);
+    const boosted = { ...state.pet, streak: newUser.streak, motivation: clamp(state.pet.motivation + 12), energy: clamp(state.pet.energy + 6) };
     const newPet = evolvePet(applyXp(boosted, 25), newStats);
-    return { workouts: [newWorkout, ...state.workouts], stats: newStats, pet: newPet };
+    return { workouts: [newWorkout, ...state.workouts], stats: newStats, pet: newPet, user: newUser };
   }),
 
   addMeal: (meal) => set((state) => {
@@ -693,7 +706,8 @@ export const useStore = create(persist((set, get) => ({
       weeklyWorkouts,
     };
     const xp = 30 + (prHit ? 25 : 0);
-    const boosted = { ...state.pet, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6), cleanliness: clamp((state.pet.cleanliness ?? 90) - 10) };
+    const newUser = bumpStreak(state.user);
+    const boosted = { ...state.pet, streak: newUser.streak, motivation: clamp((state.pet.motivation ?? 75) + (prHit ? 18 : 10)), energy: clamp((state.pet.energy ?? 80) + 6), cleanliness: clamp((state.pet.cleanliness ?? 90) - 10) };
     const newPet = evolvePet(applyXp(boosted, xp), newStats);
 
     // Hevy-style: after finishing, open a share draft the user can edit
@@ -705,6 +719,7 @@ export const useStore = create(persist((set, get) => ({
       personalRecords: prs,
       stats: newStats,
       pet: newPet,
+      user: newUser,
       lastPR: prHit,
       pendingShare,
     };
@@ -959,22 +974,24 @@ export const useStore = create(persist((set, get) => ({
     return { stats: { ...state.stats, [key]: Number.isNaN(n) ? state.stats[key] : n } };
   }),
 
-  // Reset everything back to defaults (used in Settings)
+  // Reset everything back to a clean, empty account (used in Settings)
   resetApp: () => set({
-    user: { name: 'Alex', username: 'alex_fit', bio: 'En camino a mi mejor versión 🐸', goal: 'Ganar músculo 💪', avatar: '😄', level: 7, xp: 680, xpToNext: 1000, followers: 128, following: 94, streak: 12, privacy: { showStats: true, showWorkouts: true } },
+    user: { name: 'Tú', username: 'tu_usuario', bio: '', goal: '', avatar: '😄', level: 1, xp: 0, xpToNext: 500, followers: 0, following: 0, streak: 0, lastWorkoutDay: null, privacy: { showStats: true, showWorkouts: true, account: 'public' } },
     stats: initialStats,
-    pet: evolvePet(basepet, initialStats),
-    feed: enrichFeed(mockFeed),
-    stories: mockStories,
-    following: ['Maria G.', 'Ana P.'],
-    missions: mockMissions,
-    badges: mockBadges,
-    workouts: mockWorkouts,
-    meals: mockMeals,
-    notifications: mockNotifications,
+    pet: basepet,
+    feed: [],
+    stories: [],
+    following: [],
+    friendActivity: [],
+    discoverUsers: [],
+    missions: mockMissions.map(m => ({ ...m, done: false, progress: 0 })),
+    badges: mockBadges.map(b => ({ ...b, earned: false })),
+    workouts: [],
+    meals: [],
+    notifications: [],
   }),
 }), {
-  name: 'fitpet-storage',
+  name: 'fitpet-storage-v2',
   // Persist only data, never the transient UI flags.
   partialize: (state) => ({
     user: state.user,

@@ -33,6 +33,16 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* connect wearables — obvious entry point */}
+      <button className="dash-connect" onClick={() => setActiveTab('devices')}>
+        <span className="material-symbols-outlined">watch</span>
+        <span className="dash-connect-txt">
+          <strong>Conectar reloj / wearable</strong>
+          <small>Google Fit, Fitbit, Apple Watch, pulso BLE…</small>
+        </span>
+        <span className="material-symbols-outlined dash-connect-arrow">chevron_right</span>
+      </button>
+
       {/* template / preset menu */}
       {tpl && (
         <div className="card dash-tpl">

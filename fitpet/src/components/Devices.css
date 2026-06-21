@@ -26,6 +26,16 @@
 
 .dev-error { background: rgba(255,91,82,0.12); border: 1px solid rgba(255,91,82,0.35); color: #ff8a8a; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 
+.dev-primary {
+  width: 100%; margin: 4px 0 14px; padding: 16px; border: none; border-radius: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, var(--lime), var(--lime-dim)); color: #283500;
+  font-weight: 900; font-size: 16px;
+}
+.dev-primary:disabled { opacity: 0.6; }
+.dev-primary.connected { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid rgba(204,255,0,0.4); }
+.dev-primary .material-symbols-outlined { font-size: 22px; }
+
 .dev-list { display: flex; flex-direction: column; gap: 8px; }
 .dev-item { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px; }
 .dev-item.connected { border-color: rgba(204,255,0,0.4); background: rgba(204,255,0,0.05); }
@@ -35,7 +45,7 @@
 .dev-name { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
 .dev-real { font-size: 9px; font-weight: 900; color: #283500; background: var(--lime); padding: 1px 6px; border-radius: 6px; }
 .dev-sub { font-size: 11px; color: var(--text-secondary); }
-.dev-btn { padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(135deg, var(--lime), var(--lime-dim)); color: #283500; font-weight: 800; font-size: 12px; }
+.dev-btn { flex-shrink: 0; white-space: nowrap; padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(135deg, var(--lime), var(--lime-dim)); color: #283500; font-weight: 800; font-size: 12px; }
 .dev-btn:disabled { opacity: 0.6; }
 .dev-btn.off { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--glass-border); }
 

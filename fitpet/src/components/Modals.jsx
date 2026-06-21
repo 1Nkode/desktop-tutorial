@@ -183,7 +183,15 @@ function AddPostModal() {
   const [type, setType] = useState('workout');
   const [content, setContent] = useState('');
   const [calories, setCalories] = useState('');
-  const [withPhoto, setWithPhoto] = useState(true);
+  const [photo, setPhoto] = useState(null);   // real user photo as data URL
+
+  const onPickPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPhoto(reader.result);
+    reader.readAsDataURL(file);
+  };
 
   const valid = content.trim().length > 0;
   const handleSubmit = () => {
@@ -192,7 +200,7 @@ function AddPostModal() {
       type,
       content: content.trim(),
       calories: calories ? +calories : undefined,
-      image: withPhoto ? `https://picsum.photos/seed/p${Date.now()}/600/600` : null,
+      image: photo || null,
     });
     playSound('celebrate');
     close();
@@ -254,9 +262,19 @@ function AddPostModal() {
           onChange={e => setContent(e.target.value)}
         />
       </div>
-      <div className="setting-row" style={{ borderBottom: 'none', padding: '4px 0 14px' }}>
-        <span>📷 Añadir foto</span>
-        <button className={`toggle ${withPhoto ? 'on' : ''}`} onClick={() => setWithPhoto(v => !v)}><span className="toggle-knob" /></button>
+      <div style={{ marginBottom: 14 }}>
+        <span className="label">📷 Foto (opcional)</span>
+        {photo ? (
+          <div style={{ position: 'relative' }}>
+            <img src={photo} alt="" style={{ width: '100%', borderRadius: 12, display: 'block', aspectRatio: '1/1', objectFit: 'cover' }} />
+            <button className="btn btn-sm" style={{ position: 'absolute', top: 8, right: 8 }} onClick={() => setPhoto(null)}>Quitar</button>
+          </div>
+        ) : (
+          <label className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center', cursor: 'pointer' }}>
+            Elegir foto de tu dispositivo
+            <input type="file" accept="image/*" hidden onChange={onPickPhoto} />
+          </label>
+        )}
       </div>
       {(type === 'workout' || type === 'meal') && (
         <div style={{ marginBottom: 20 }}>
@@ -413,10 +431,18 @@ function WorkoutShareSheet() {
   const { pendingShare, shareWorkout, discardPendingShare, pet } = useStore();
   const s = pendingShare;
   const [caption, setCaption] = useState(`Completé ${s.name} 💪`);
-  const [withPhoto, setWithPhoto] = useState(false);
+  const [photo, setPhoto] = useState(null);
+
+  const onPickPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPhoto(reader.result);
+    reader.readAsDataURL(file);
+  };
 
   const publish = () => {
-    shareWorkout(caption, withPhoto ? `https://picsum.photos/seed/w${Date.now()}/600/600` : null);
+    shareWorkout(caption, photo || null);
     playSound('celebrate');
   };
 
@@ -447,9 +473,18 @@ function WorkoutShareSheet() {
           <textarea className="input" rows={2} style={{ resize: 'none', fontFamily: 'inherit' }}
             value={caption} onChange={e => setCaption(e.target.value)} />
         </div>
-        <div className="setting-row" style={{ borderBottom: 'none', padding: '0 0 14px' }}>
-          <span>📷 Añadir foto</span>
-          <button className={`toggle ${withPhoto ? 'on' : ''}`} onClick={() => setWithPhoto(v => !v)}><span className="toggle-knob" /></button>
+        <div style={{ padding: '0 0 14px' }}>
+          {photo ? (
+            <div style={{ position: 'relative' }}>
+              <img src={photo} alt="" style={{ width: '100%', borderRadius: 12, display: 'block', maxHeight: 220, objectFit: 'cover' }} />
+              <button className="btn btn-sm" style={{ position: 'absolute', top: 8, right: 8 }} onClick={() => setPhoto(null)}>Quitar</button>
+            </div>
+          ) : (
+            <label className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center', cursor: 'pointer' }}>
+              📷 Añadir foto (opcional)
+              <input type="file" accept="image/*" hidden onChange={onPickPhoto} />
+            </label>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={discardPendingShare}>Ahora no</button>

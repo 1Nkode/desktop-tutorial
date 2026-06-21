@@ -5,13 +5,10 @@ import { Avatar } from './Avatar';
 import './Social.css';
 import './SocialIG.css';
 
-const initialChallenges = [
-  { id: 1, title: '10K Steps Challenge', participants: 128, daysLeft: 3, icon: '👟', joined: true, leader: 'Maria G.' },
-  { id: 2, title: '7-Day Plank Challenge', participants: 64, daysLeft: 5, icon: '💪', joined: false, leader: 'Carlos M.' },
-  { id: 3, title: 'No Sugar Week', participants: 89, daysLeft: 2, icon: '🍎', joined: false, leader: 'Ana P.' },
-];
+// No fake challenges/competitors: real challenges need a backend/community.
+const initialChallenges = [];
 
-const TRENDING = ['#transformación', '#PR', '#mealprep', '#5K', '#piernas', '#streak', '#nochesinexcusas'];
+const TRENDING = [];
 
 export default function Social() {
   const { feed, stories, toggleLike, toggleSave, addComment, addReply, toggleFollow, following, friendActivity, discoverUsers, user, pet, setShowAddPost, setActiveTab, markStorySeen } = useStore();
@@ -78,6 +75,14 @@ export default function Social() {
           </div>
 
           <div className="feed">
+            {feed.length === 0 && (
+              <div className="social-empty">
+                <span className="social-empty-emoji">📭</span>
+                <p className="social-empty-title">Tu feed está vacío</p>
+                <p className="social-empty-sub">Publica tu primer entreno o sigue a otras personas para ver sus publicaciones aquí.</p>
+                <button className="btn btn-primary" onClick={() => setShowAddPost(true)}>Crear publicación</button>
+              </div>
+            )}
             {feed.slice(0, visible).map(post => (
               <PostCard key={post.id} post={post} me={user.name} following={following}
                 onLike={() => toggleLike(post.id)} onSave={() => toggleSave(post.id)}
@@ -97,8 +102,13 @@ export default function Social() {
 
       {section === 'challenges' && (
         <div className="challenges">
-          <p className="section-desc">Compite con la comunidad en retos semanales</p>
-          {challenges.map(c => <ChallengeCard key={c.id} challenge={c} onToggle={() => toggleJoin(c.id)} />)}
+          {challenges.length === 0 ? (
+            <div className="social-empty">
+              <span className="social-empty-emoji">⚔️</span>
+              <p className="social-empty-title">Aún no hay retos</p>
+              <p className="social-empty-sub">Los retos con la comunidad llegarán cuando la app esté conectada a un servidor con otros usuarios reales.</p>
+            </div>
+          ) : challenges.map(c => <ChallengeCard key={c.id} challenge={c} onToggle={() => toggleJoin(c.id)} />)}
         </div>
       )}
 
@@ -295,25 +305,25 @@ function StoryViewer({ stories, startIdx, onClose, markSeen }) {
 /* ---------------- Explore ---------------- */
 function Explore({ feed, onOpen }) {
   const withImg = feed.filter(p => p.image);
+  if (withImg.length === 0) {
+    return (
+      <div className="social-empty">
+        <span className="social-empty-emoji">🔍</span>
+        <p className="social-empty-title">Nada que explorar todavía</p>
+        <p className="social-empty-sub">Cuando haya publicaciones de la comunidad aparecerán aquí.</p>
+      </div>
+    );
+  }
   return (
     <div className="explore">
-      <div className="ex-trending">
-        {TRENDING.map(t => <span key={t} className="ex-tag">{t}</span>)}
-      </div>
-      <div className="section-header"><span className="section-title">Destacados</span></div>
-      <div className="ex-featured">
-        {[['Maria G.', '🏃‍♀️', '12.4k'], ['Carlos M.', '💪', '8.1k'], ['Ana P.', '🧘‍♀️', '5.6k']].map(([n, a, f]) => (
-          <div className="ex-user" key={n}>
-            <div className="avatar" style={{ width: 54, height: 54, fontSize: 24 }}>{a}</div>
-            <p className="ex-user-name">{n}</p>
-            <p className="ex-user-f">{f} seg.</p>
-            <button className="ex-follow">Seguir</button>
-          </div>
-        ))}
-      </div>
+      {TRENDING.length > 0 && (
+        <div className="ex-trending">
+          {TRENDING.map(t => <span key={t} className="ex-tag">{t}</span>)}
+        </div>
+      )}
       <div className="section-header"><span className="section-title">Explorar</span></div>
       <div className="ex-grid">
-        {withImg.concat(withImg).map((p, i) => (
+        {withImg.map((p, i) => (
           <div className="ex-cell" key={i} onClick={() => onOpen(p.id)}>
             <img src={p.image} alt="" loading="lazy" />
             <span className="ex-cell-type">{p.type === 'meal' ? '🍽️' : p.type === 'pr' ? '🏆' : '💪'}</span>
@@ -392,8 +402,15 @@ function Friends({ activity, discover, following, onFollow, onOpenUser }) {
           ))}
           {results.length === 0 && <p className="no-comments">Sin resultados</p>}
         </div>
+      ) : (discover.length === 0 && activity.length === 0) ? (
+        <div className="social-empty">
+          <span className="social-empty-emoji">👥</span>
+          <p className="social-empty-title">Todavía no sigues a nadie</p>
+          <p className="social-empty-sub">Busca personas por nombre arriba. La sección de amigos mostrará la actividad real de quienes sigas.</p>
+        </div>
       ) : (
         <>
+          {discover.length > 0 && (
           <div className="fr-suggest">
             <p className="fr-suggest-title">Sugerencias para ti</p>
             <div className="fr-suggest-row">
@@ -406,6 +423,7 @@ function Friends({ activity, discover, following, onFollow, onOpenUser }) {
               ))}
             </div>
           </div>
+          )}
 
           <div className="section-header" style={{ marginTop: 6 }}><span className="section-title">Actividad reciente</span></div>
           <div className="fr-activity">
@@ -507,36 +525,13 @@ function ChallengeCard({ challenge, onToggle }) {
 }
 
 /* ---------------- Rankings (multiple types) ---------------- */
-function Rankings({ user }) {
-  const [type, setType] = useState('points');
-  const DATA = {
-    points: { label: '⭐ Puntos', unit: 'pts', rows: [
-      ['Maria G.', '🏃‍♀️', 2840], ['Carlos M.', '💪', 2650], [user.name, '😄', 2410, true], ['Ana P.', '🧘‍♀️', 2200], ['Luis R.', '🏋️', 1980],
-    ]},
-    volume: { label: '🏋️ Volumen', unit: 't', rows: [
-      ['Luis R.', '🏋️', 48.2], ['Carlos M.', '💪', 41.7], [user.name, '😄', 33.5, true], ['Maria G.', '🏃‍♀️', 22.1], ['Ana P.', '🧘‍♀️', 12.4],
-    ]},
-    workouts: { label: '💪 Entrenos', unit: '', rows: [
-      ['Carlos M.', '💪', 21], ['Maria G.', '🏃‍♀️', 19], ['Luis R.', '🏋️', 18], [user.name, '😄', 14, true], ['Ana P.', '🧘‍♀️', 11],
-    ]},
-    streak: { label: '🔥 Racha', unit: 'd', rows: [
-      ['Ana P.', '🧘‍♀️', 14], [user.name, '😄', 12, true], ['Maria G.', '🏃‍♀️', 9], ['Carlos M.', '💪', 7], ['Luis R.', '🏋️', 4],
-    ]},
-  };
-  const cfg = DATA[type];
-  const medals = ['🥇', '🥈', '🥉'];
-
+function Rankings() {
+  // Real rankings need other real users (a backend). No fake competitors.
   return (
-    <div className="leaderboard-section">
-      <div className="rk-tabs">
-        {Object.entries(DATA).map(([k, v]) => (
-          <button key={k} className={`rk-tab ${type === k ? 'active' : ''}`} onClick={() => setType(k)}>{v.label}</button>
-        ))}
-      </div>
-      <p className="section-desc">Ranking semanal · {cfg.label}</p>
-      {cfg.rows.map((r, i) => (
-        <LeaderCard key={i} user={{ rank: i + 1, name: r[0], avatar: r[1], points: r[2], unit: cfg.unit, badge: medals[i] || null, isMe: r[3] }} />
-      ))}
+    <div className="social-empty">
+      <span className="social-empty-emoji">🏆</span>
+      <p className="social-empty-title">Rankings no disponibles</p>
+      <p className="social-empty-sub">Los rankings comparan tu progreso con otras personas reales. Se activarán cuando la app esté conectada a un servidor con comunidad.</p>
     </div>
   );
 }

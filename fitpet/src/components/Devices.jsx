@@ -1,8 +1,13 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { connectHeartRate, bluetoothSupported } from '../sensors';
 import { connectFitbit, connectGoogleFit, fetchToday, disconnectProvider } from '../integrations/health';
+import { FITBIT, GOOGLE_FIT, isConfigured } from '../integrations/config';
 import { playSound } from '../sound';
+
+// Hide OAuth brands that don't have a Client ID configured yet (e.g. Fitbit
+// until you register it) so they don't show a "missing client id" error.
+const OAUTH_READY = { fitbit: isConfigured(FITBIT), googlefit: isConfigured(GOOGLE_FIT) };
 import './Devices.css';
 
 const DEVICES = [
@@ -26,6 +31,11 @@ export default function Devices() {
   const [permFor, setPermFor] = useState(null);   // device pending permission
   const [connecting, setConnecting] = useState(null);
   const btDevice = useRef(null);
+
+  // clear any stale error (e.g. Fitbit not configured) when opening the screen
+  useEffect(() => { setDeviceError(null); }, [setDeviceError]);
+
+  const gfConnected = connectedDevices.includes('googlefit');
 
   async function realResync() {
     const provider = connectedDevices.find(d => d === 'fitbit' || d === 'googlefit');
@@ -90,6 +100,19 @@ export default function Devices() {
         </button>
       </div>
 
+      {/* primary action — no scroll needed */}
+      {!gfConnected ? (
+        <button className="dev-primary" disabled={connecting === 'googlefit'}
+          onClick={() => doConnect({ id: 'googlefit', name: 'Google Fit', kind: 'oauth' })}>
+          <span className="dev-primary-dot">🟢</span>
+          {connecting === 'googlefit' ? 'Conectando…' : 'Conectar Google Fit'}
+        </button>
+      ) : (
+        <button className="dev-primary connected" onClick={realResync}>
+          <span className="material-symbols-outlined">sync</span> Sincronizar Google Fit
+        </button>
+      )}
+
       {/* live summary */}
       <div className="card dev-live">
         <div className="dev-live-row">
@@ -120,7 +143,7 @@ export default function Devices() {
       </div>
 
       <div className="dev-list">
-        {DEVICES.map(dev => {
+        {DEVICES.filter(dev => dev.kind !== 'oauth' || OAUTH_READY[dev.id]).map(dev => {
           const connected = connectedDevices.includes(dev.id);
           return (
             <div className={`dev-item ${connected ? 'connected' : ''}`} key={dev.id}>
