@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from 'react';
 import { useStore, petState } from '../store/useStore';
-import PetModel3D from './PetModel3D';
+import PetSprite from './PetSprite';
 import { playSound } from '../sound';
-import { talkOnce } from '../talk';
 import './InteractivePet.css';
 
 export { STATE_INFO } from './petMeta';
@@ -17,8 +16,7 @@ const REACTIONS = {
 };
 
 export default function InteractivePet() {
-  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText, setTalk, modelAnim, setModelAnimList, modelGender, modelZoom, modelOffsetY } = useStore();
-  const modelSrc = `${import.meta.env.BASE_URL}model/${modelGender === 'male' ? 'male.glb' : modelGender === 'female' ? 'female.glb' : 'default.glb'}`;
+  const { pet, stats, user, addPetXp, pokePet, lastPR, clearLastPR, lastInteraction, talkMode, talkText } = useStore();
   const state = petState(pet, stats, user);
   const stateRef = useRef(state);
 
@@ -26,8 +24,6 @@ export default function InteractivePet() {
   const [pose, setPose] = useState('stand');
   const [bubble, setBubble] = useState(null);
   const [particles, setParticles] = useState([]);
-  const [pupil, setPupil] = useState({ x: 0, y: 0 });
-  const [blink, setBlink] = useState(false);
   const [emotion, setEmotion] = useState('happy');
   const [reacting, setReacting] = useState(false);
   const emoTimer = useRef(null);
@@ -74,33 +70,6 @@ export default function InteractivePet() {
     addPetXp?.(2);
     pokePet?.();
   }
-
-  // eye tracking toward the pointer
-  useEffect(() => {
-    let last = 0;
-    function onMove(e) {
-      const now = performance.now();
-      if (now - last < 35) return;
-      last = now;
-      const el = wrapRef.current; if (!el) return;
-      const r = el.getBoundingClientRect();
-      const p = e.touches?.[0] || e;
-      setPupil({
-        x: Math.max(-1, Math.min(1, (p.clientX - (r.left + r.width / 2)) / 150)),
-        y: Math.max(-1, Math.min(1, (p.clientY - (r.top + r.height / 2)) / 150)),
-      });
-    }
-    window.addEventListener('pointermove', onMove);
-    return () => window.removeEventListener('pointermove', onMove);
-  }, []);
-
-  // natural blink
-  useEffect(() => {
-    let t;
-    const loop = () => { t = setTimeout(() => { setBlink(true); setTimeout(() => setBlink(false), 140); loop(); }, 2200 + Math.random() * 2600); };
-    loop();
-    return () => clearTimeout(t);
-  }, []);
 
   // emotion + resting pose follow state/stats
   useEffect(() => {
@@ -155,20 +124,20 @@ export default function InteractivePet() {
   return (
     <div
       ref={wrapRef}
-      className={`ipet ipet-state-${state} ${reacting ? 'reacting' : ''} ${sleepy ? 'resting' : 'idle'} talk-${talkMode}`}
-      onClick={() => {
-        // tap = play a random animation + celebratory react
-        const list = useStore.getState().modelAnimList;
-        if (list?.length) useStore.getState().setModelAnim(list[Math.floor(Math.random() * list.length)]);
-        react();
-      }}
+      className={`ipet ipet-state-${state} pose-${pose} emotion-${emotion} ${reacting ? 'reacting' : ''} ${sleepy ? 'resting' : 'idle'} talk-${talkMode}`}
+      onClick={react}
       role="button"
       aria-label="Tocar la mascota"
     >
       {bubble && <div className="ipet-bubble">{bubble}</div>}
       <div className="ipet-aura" />
       <div className="ipet-body">
-        <PetModel3D key={modelGender} src={modelSrc} anim={modelAnim} color={pet.color} onList={setModelAnimList} zoom={modelZoom} offsetY={modelOffsetY} />
+        <PetSprite
+          pose={pose}
+          state={state}
+          emotion={reacting || talkMode === 'talking' ? 'excited' : emotion}
+          variant={pet.variant || 'natural'}
+        />
         {dirty && <span className="ipet-dirty">💨</span>}
       </div>
       <div className="ipet-shadow" />

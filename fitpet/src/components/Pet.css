@@ -25,7 +25,7 @@
   position: relative;
   overflow: hidden;
   margin-bottom: 14px;
-  height: clamp(248px, 52vw, 318px);
+  height: clamp(316px, 58vw, 360px);
   min-height: 0;
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 18px 45px rgba(0,0,0,0.26);
@@ -355,7 +355,8 @@
 .pet-stage .pet-glow { z-index: 1; }
 .pet-stage .pet-playground {
   position: absolute;
-  inset: 0 0 54px 0;
+  inset: 6px 0 52px 0;
+  height: auto;
   z-index: 4;
 }
 .pet-stage .pet-info-stack { z-index: 8; }

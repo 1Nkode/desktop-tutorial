@@ -39,7 +39,7 @@ export const SLOT_INFO = [
   { id: 'bottom', label: 'Pantalón', icon: '👖' },
 ];
 
-export const DEFAULT_OUTFIT = { hat: 'none', top: 'polo-blue', bottom: 'none' };
+export const DEFAULT_OUTFIT = { hat: 'none', top: 'none', bottom: 'none' };
 
 export function garment(slot, id) {
   return (WARDROBE[slot] || []).find(g => g.id === id) || WARDROBE[slot]?.[0];

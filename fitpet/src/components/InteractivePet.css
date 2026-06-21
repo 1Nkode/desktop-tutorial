@@ -2,18 +2,19 @@
 .pet-playground {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 100%;
   z-index: 1;
 }
 
 /* Centered, integrated pet (no roaming/floating) */
 .ipet {
+  --pet-size: clamp(224px, 57vw, 262px);
   position: absolute;
   left: 50%;
-  bottom: 16px;
+  bottom: 4px;
   transform: translateX(-50%);
-  width: 160px;
-  height: 210px;
+  width: var(--pet-size);
+  height: var(--pet-size);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27,19 +28,23 @@
 /* body holds the sprite; top padding guarantees headroom so it never crops */
 .ipet-body {
   position: relative;
-  width: 160px;
-  height: 184px;
-  padding-top: 14px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding-top: 16px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   transform-origin: 50% 100%;
 }
-.ipet.idle .ipet-body { animation: ipet-bob 3.2s ease-in-out infinite; }
-.ipet.resting .ipet-body { animation: ipet-bob 4.6s ease-in-out infinite; }
+.ipet.idle .ipet-body { animation: ipet-bob 4.1s ease-in-out infinite; }
+.ipet.resting .ipet-body { animation: ipet-bob 5.2s ease-in-out infinite; }
 .ipet.reacting .ipet-body { animation: ipet-jump 0.72s ease; }
 
-@keyframes ipet-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes ipet-bob {
+  0%,100% { transform: translateY(0) rotate(-0.4deg); }
+  50% { transform: translateY(-8px) rotate(0.4deg); }
+}
 @keyframes ipet-jump {
   0% { transform: translateY(0) scale(1); }
   30% { transform: translateY(-20px) scale(1.06); }
@@ -50,11 +55,26 @@
 
 /* video-frog sprite: whole frame visible (contain), never cropped */
 .petsprite,
-.frog-video-sprite { width: 100%; height: 100%; display: block; position: relative; }
-.frog-video-source { display: none; }
-.frog-video {
+.frog-video-sprite {
   width: 100%;
   height: 100%;
+  display: block;
+  position: relative;
+  overflow: visible;
+}
+.frog-video-source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.frog-video {
+  position: absolute;
+  left: -6%;
+  bottom: -3%;
+  width: 112%;
+  height: 112%;
   object-fit: contain;
   object-position: center bottom;
   display: block;
@@ -71,7 +91,7 @@
 
 /* ground shadow */
 .ipet-shadow {
-  width: 96px; height: 16px; margin-top: -4px;
+  width: 132px; height: 18px; margin-top: -4px;
   background: radial-gradient(ellipse, rgba(0,0,0,0.45), transparent 70%);
   border-radius: 50%;
 }
@@ -79,7 +99,7 @@
 @keyframes ipet-shadow { 0%,100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.88); opacity: 0.7; } }
 
 /* aura for strong/champion */
-.ipet-aura { position: absolute; bottom: 26px; width: 130px; height: 130px; border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+.ipet-aura { position: absolute; bottom: 30px; width: 176px; height: 176px; border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
 .ipet-state-strong .ipet-aura { opacity: 1; background: radial-gradient(circle, rgba(204,255,0,0.16), transparent 65%); animation: ipet-aura 2.4s ease-in-out infinite; }
 .ipet-state-champion .ipet-aura { opacity: 1; background: radial-gradient(circle, rgba(255,213,79,0.26), transparent 68%); animation: ipet-aura 1.8s ease-in-out infinite; }
 @keyframes ipet-aura { 0%,100% { transform: scale(0.92); opacity: 0.5; } 50% { transform: scale(1.08); opacity: 1; } }
@@ -91,7 +111,7 @@
 
 /* speech bubble */
 .ipet-bubble {
-  position: absolute; bottom: 196px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 224px; left: 50%; transform: translateX(-50%);
   background: var(--lime, #CCFF00); color: #1a1f00; font-size: 12px; font-weight: 800;
   white-space: nowrap; padding: 6px 12px; border-radius: 14px; box-shadow: 0 4px 14px rgba(204,255,0,0.4);
   animation: ipet-pop 0.25s ease; z-index: 3;
@@ -118,3 +138,31 @@
 /* 3D character mount */
 .pet3d { width: 100%; height: 100%; }
 .pet3d canvas { width: 100% !important; height: 100% !important; display: block; }
+
+.pet-visual-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.pet-visual-stack.gender-male {
+  --clothes-scale-x: 1.05;
+}
+
+.pet-visual-stack.gender-female {
+  --clothes-scale-x: 0.94;
+}
+
+.pet-visual-stack .pc-clothes {
+  inset: 4% 24% 4%;
+  transform: scaleX(var(--clothes-scale-x, 1));
+  transform-origin: 50% 100%;
+  opacity: 0.96;
+  mix-blend-mode: normal;
+}
+
+.pet-visual-stack .cl-top { top: 45%; width: 36%; height: 18%; }
+.pet-visual-stack .cl-bottom { top: 66%; width: 32%; height: 18%; }
+.pet-visual-stack .cl-cap { top: 14%; width: 30%; height: 11%; }
+.pet-visual-stack .cl-band { top: 22%; width: 32%; }
+.pet-visual-stack .cl-crown { top: 7%; font-size: 26px; }

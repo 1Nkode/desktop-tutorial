@@ -7,16 +7,19 @@ import './PetCustomize.css';
 
 const VARIANT_LIST = Object.entries(FROG_VARIANTS);
 
-export default function PetCustomize({ onClose }) {
+export default function PetCustomize({ onClose, mode = 'style' }) {
   const { pet, user, setPetVariant, setBackground } = useStore();
   const level = Math.max(user.level || 1, pet.level || 1);
   const activeVariant = pet.variant || 'natural';
+  const showStyle = mode === 'style';
+  const showScene = mode === 'scene';
+  const title = showScene ? 'Cambiar escena' : 'Cambiar estilo';
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal animate-slideUp pc-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-handle" />
-        <h3 className="modal-title">Personalizar mascota</h3>
+        <h3 className="modal-title">{title}</h3>
 
         {/* live animated preview in the chosen scene */}
         <div className="pc-preview">
@@ -26,23 +29,29 @@ export default function PetCustomize({ onClose }) {
           </div>
         </div>
 
-        <p className="pc-label">Estilo de rana animada</p>
-        <div className="pc-variants">
-          {VARIANT_LIST.map(([id, variant]) => (
-            <button
-              key={id}
-              className={`pc-variant ${activeVariant === id ? 'on' : ''}`}
-              onClick={() => setPetVariant(id)}
-              style={{ '--frog-filter': variant.filter, '--frog-glow': variant.glow }}
-            >
-              <span className="pc-variant-orb" />
-              <span className="pc-variant-label">{variant.label}</span>
-            </button>
-          ))}
-        </div>
+        {showStyle && (
+          <>
+            <p className="pc-label">Estilo de rana animada</p>
+            <div className="pc-variants">
+              {VARIANT_LIST.map(([id, variant]) => (
+                <button
+                  key={id}
+                  className={`pc-variant ${activeVariant === id ? 'on' : ''}`}
+                  onClick={() => setPetVariant(id)}
+                  style={{ '--frog-filter': variant.filter, '--frog-glow': variant.glow }}
+                >
+                  <span className="pc-variant-orb" />
+                  <span className="pc-variant-label">{variant.label}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
-        <p className="pc-label">Fondo (entorno real)</p>
-        <div className="pc-bgs">
+        {showScene && (
+          <>
+            <p className="pc-label">Fondo (entorno real)</p>
+            <div className="pc-bgs">
           {Object.entries(BACKGROUNDS).map(([id, bg]) => {
             const unlocked = bgUnlocked(bg, level);
             return (
@@ -54,7 +63,9 @@ export default function PetCustomize({ onClose }) {
               </button>
             );
           })}
-        </div>
+            </div>
+          </>
+        )}
 
         <button className="btn btn-primary modal-submit" style={{ marginTop: 16 }} onClick={onClose}>Listo</button>
       </div>

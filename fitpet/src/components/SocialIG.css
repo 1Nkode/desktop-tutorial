@@ -101,7 +101,7 @@
 /* Story viewer */
 .sv-overlay {
   position: fixed; inset: 0; z-index: 140; background: #000;
-  max-width: 430px; margin: 0 auto; display: flex; flex-direction: column;
+  max-width: 480px; margin: 0 auto; display: flex; flex-direction: column;
 }
 .sv-progress { display: flex; gap: 4px; padding: 10px 12px 4px; }
 .sv-bar { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }

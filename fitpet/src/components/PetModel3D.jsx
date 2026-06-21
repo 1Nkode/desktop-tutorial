@@ -8,7 +8,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   - plays a static idle by default (upright); `anim` plays a dance clip.
   - `color` tints the materials (ropa/estilo). Reports clip names via onList.
 */
-export default function PetModel3D({ src, anim = null, color = null, onList, zoom = 1, offsetY = 0 }) {
+export default function PetModel3D({ src, anim = null, color = null, onList, zoom = 1, offsetY = 0, gender = 'default' }) {
   const mountRef = useRef(null);
   const actionsRef = useRef({});
   const currentRef = useRef(null);
@@ -19,6 +19,7 @@ export default function PetModel3D({ src, anim = null, color = null, onList, zoo
   const baseDistRef = useRef(4);
   const zoomRef = useRef(zoom);
   const offsetRef = useRef(offsetY);
+  const idleNameRef = useRef(null);
   const DEFAULT = `${import.meta.env.BASE_URL}model/default.glb`;
 
   function applyView() {
@@ -70,6 +71,12 @@ export default function PetModel3D({ src, anim = null, color = null, onList, zoo
           mats.forEach(m => { if (m?.color) baseColorRef.current.set(m, m.color.clone()); });
         }
       });
+      if (color) {
+        meshesRef.current.forEach((c) => {
+          const mats = Array.isArray(c.material) ? c.material : [c.material];
+          mats.forEach((m) => { if (m?.color) m.color.set(color); });
+        });
+      }
 
       // Measure ONLY the main body mesh (ignore stray empties/props that
       // inflate the bounding box and push the body out of frame).
@@ -105,6 +112,8 @@ export default function PetModel3D({ src, anim = null, color = null, onList, zoo
       model.position.sub(center);
 
       pivot = new THREE.Group(); pivot.add(model); scene.add(pivot);
+      if (gender === 'male') pivot.scale.set(1.08, 1.03, 1.08);
+      else if (gender === 'female') pivot.scale.set(0.94, 1.04, 0.94);
 
       // fixed camera distance tuned to TARGET_H, framing height & width
       const fov = camera.fov * (Math.PI / 180);
@@ -126,6 +135,7 @@ export default function PetModel3D({ src, anim = null, color = null, onList, zoo
       // always play something so it isn't stiff: prefer an idle clip, else
       // the first animation in the model
       const idle = gltf.animations.find(c => /idle|stand|breath/i.test(c.name)) || gltf.animations[0];
+      idleNameRef.current = idle?.name || null;
       if (idle) { const a = actionsRef.current[idle.name]; a.reset().play(); currentRef.current = a; }
     };
 
@@ -136,8 +146,15 @@ export default function PetModel3D({ src, anim = null, color = null, onList, zoo
 
     function loop() {
       raf = requestAnimationFrame(loop);
-      mixerRef.current?.update(clock.getDelta());
-      if (pivot) pivot.rotation.y += 0.004;
+      const delta = clock.getDelta();
+      const t = clock.elapsedTime;
+      mixerRef.current?.update(delta);
+      if (pivot) {
+        pivot.position.y = Math.sin(t * 1.65) * 0.028;
+        pivot.rotation.z = Math.sin(t * 1.15) * 0.018;
+        pivot.rotation.x = Math.sin(t * 0.9) * 0.008;
+        pivot.rotation.y = Math.sin(t * 0.65) * 0.1;
+      }
       renderer.render(scene, camera);
     }
     loop();
@@ -152,19 +169,19 @@ export default function PetModel3D({ src, anim = null, color = null, onList, zoo
       cancelAnimationFrame(raf); ro.disconnect(); renderer.dispose();
       if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
     };
-  }, [src]);
+  }, [src, gender]);
 
   // play selected dance (or return to idle/static)
   useEffect(() => {
     const actions = actionsRef.current;
     const cur = currentRef.current;
-    if (anim && actions[anim]) {
-      const next = actions[anim];
-      if (cur === next) return;
-      next.reset().fadeIn(0.3).play();
-      cur?.fadeOut(0.3);
-      currentRef.current = next;
-    }
+    const target = anim && actions[anim] ? anim : idleNameRef.current;
+    if (!target || !actions[target]) return;
+    const next = actions[target];
+    if (cur === next) return;
+    next.reset().fadeIn(0.3).play();
+    cur?.fadeOut(0.3);
+    currentRef.current = next;
   }, [anim]);
 
   // tint materials (ropa / color)

@@ -39,6 +39,13 @@
   --neon: 0 0 15px rgba(204, 255, 0, 0.35);
   --radius: 20px;
   --radius-sm: 14px;
+  /* iOS safe-area insets (0 on non-notch devices/browsers) */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --topbar-h: 58px;
+  --nav-h: 64px;
 }
 
 body {
@@ -50,14 +57,27 @@ body {
 }
 
 #root {
-  max-width: 430px;
+  max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(1200px 400px at 50% -10%, rgba(204,255,0,0.06), transparent 60%),
     var(--bg);
   position: relative;
   overflow-x: hidden;
+}
+
+/* Push every screen's content below the fixed top bar (incl. the notch /
+   Dynamic Island) and above the bottom nav (incl. the home indicator), and
+   respect left/right safe areas. One rule for all screens. */
+.dashboard, .pet-page, .workouts-page, .social-page, .rewards-page,
+.profile-page, .dev-page {
+  padding-top: calc(var(--topbar-h) + var(--sat) + 12px) !important;
+  padding-left: max(16px, var(--sal));
+  padding-right: max(16px, var(--sar));
+  padding-bottom: calc(var(--nav-h) + var(--sab) + 16px);
+  box-sizing: border-box;
 }
 
 .material-symbols-outlined {
@@ -250,7 +270,7 @@ body {
   z-index: 100;
   display: flex;
   align-items: flex-end;
-  max-width: 430px;
+  max-width: 480px;
   margin: 0 auto;
 }
 
@@ -261,7 +281,8 @@ body {
   border-radius: 28px 28px 0 0;
   width: 100%;
   padding: 24px;
-  max-height: 85vh;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  max-height: 88vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease;
 }

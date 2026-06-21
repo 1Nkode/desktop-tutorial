@@ -53,7 +53,7 @@ const basepet = {
   color: null,      // optional body-color override
   colors: {},       // optional per-part overrides: body, belly, eyes, accent
   background: 'default',
-  outfit: { hat: 'none', top: 'polo-blue', bottom: 'none' }, // equippable clothes
+  outfit: { hat: 'none', top: 'none', bottom: 'none' }, // equippable clothes
   fitness: 60,      // 0-100 slow-moving condition score (drives physique)
   lastEvalDay: null,// last calendar day the fitness score was nudged
 };
@@ -253,21 +253,22 @@ export function evolvePet(pet, stats) {
       Math.min(activeRatio, 1) +
       Math.min((pet.streak ?? 0) / 14, 1)
     ) / 4; // 0..1
-    // around 0.45 = maintenance; above gains, below loses (slowly, capped)
-    const nudge = Math.max(-1, Math.min(1.6, (activity - 0.45) * 3.2));
+    // around 0.42 = maintenance; above gains, below loses. Deliberately slow:
+    // a few good or bad days should not radically change the body.
+    const nudge = Math.max(-0.45, Math.min(0.75, (activity - 0.42) * 1.35));
     fitness = Math.max(0, Math.min(100, fitness + nudge));
   }
 
   let physique;
-  if (fitness >= 82) physique = 'strong';
-  else if (fitness >= 48) physique = 'normal';
-  else if (fitness >= 24) physique = 'fit';      // leaner / declining
+  if (fitness >= 88) physique = 'strong';
+  else if (fitness >= 35) physique = 'normal';
+  else if (fitness >= 18) physique = 'fit';      // leaner / declining
   else physique = 'chubby';                       // prolonged abandonment
 
   // Mood stays responsive day-to-day (it's just an expression, not the body).
   const goalScore = (Math.min(calorieRatio, 1) + Math.min(stepRatio, 1) + Math.min(activeRatio, 1)) / 3;
   let mood;
-  if (fitness >= 82 && goalScore >= 0.6) mood = 'motivated';
+  if (fitness >= 88 && goalScore >= 0.6) mood = 'motivated';
   else if (goalScore >= 0.55) mood = 'happy';
   else if (workoutDays === 0 && stepRatio < 0.4) mood = 'sad';
   else mood = 'tired';
@@ -279,7 +280,7 @@ export function evolvePet(pet, stats) {
 // base · strong · neglected · tired · champion
 export function petState(pet) {
   const fitness = pet.fitness ?? 60;
-  if (pet.level >= 20 || fitness >= 94) return 'champion';  // legendary reward
+  if (pet.level >= 20 || fitness >= 96) return 'champion';  // legendary reward
   if (pet.physique === 'strong') return 'strong';
   if (pet.physique === 'chubby') return 'neglected';        // gordito (prolonged)
   if (pet.physique === 'fit') return 'tired';               // skinny (declining)
@@ -861,8 +862,8 @@ export const useStore = create(persist((set, get) => ({
   modelAnim: null,
   modelAnimList: [],
   modelGender: 'default',   // default | male | female (loads model/<gender>.glb)
-  modelZoom: 1,             // manual framing controls
-  modelOffsetY: 0,
+  modelZoom: 1.92,          // manual framing controls
+  modelOffsetY: 0.08,
   setModelAnim: (name) => set({ modelAnim: name }),
   setModelAnimList: (list) => set({ modelAnimList: list }),
   setModelGender: (g) => set({ modelGender: g, modelAnim: null }),
