@@ -179,37 +179,39 @@ async function fetchGoogleFit() {
   const token = LS.get('googlefit_token');
   if (!token) return null;
   if (Date.now() > +LS.get('googlefit_expires')) { LS.del('googlefit_token'); throw new Error('Google: sesión expirada, reconecta'); }
+  // Read from Google Health (this is what holds the Fitbit data).
+  return await fetchGoogleHealth(token);
+}
 
-  // Prefer Google Health (Fitbit) data; fall back to legacy Google Fit.
-  const health = await fetchGoogleHealth(token);
-  if (health && (health.steps || health.caloriesBurned || health.activeMinutes || health.hr)) return health;
-  const start = new Date(); start.setHours(0, 0, 0, 0);
-  const body = {
-    aggregateBy: [
-      { dataTypeName: 'com.google.step_count.delta' },
-      { dataTypeName: 'com.google.calories.expended' },
-      { dataTypeName: 'com.google.distance.delta' },
-    ],
-    bucketByTime: { durationMillis: 86400000 },
-    startTimeMillis: start.getTime(),
-    endTimeMillis: Date.now(),
-  };
-  const res = await fetch('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (res.status === 401) { LS.del('googlefit_token'); throw new Error('Google Fit: sesión expirada, reconecta'); }
-  const data = await res.json();
-  const buckets = data.bucket?.[0]?.dataset || [];
-  const sum = (ds) => (ds?.point || []).reduce((a, p) => a + (p.value?.[0]?.fpVal ?? p.value?.[0]?.intVal ?? 0), 0);
-  return {
-    steps: Math.round(sum(buckets[0])),
-    caloriesBurned: Math.round(sum(buckets[1])),
-    distanceKm: +(sum(buckets[2]) / 1000).toFixed(2),
-    activeMinutes: 0,
-    hr: null,
-  };
+// Diagnostic: shows the granted scopes + the raw Google Health API responses
+// so we can see exactly why data is empty (missing scope / wrong type / no data).
+export async function diagnoseHealth() {
+  const token = LS.get('googlefit_token');
+  if (!token) return 'No hay sesión de Google. Pulsa Conectar primero.';
+  const out = [];
+  try {
+    const ti = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${token}`);
+    const tij = await ti.json();
+    out.push('PERMISOS CONCEDIDOS:\n' + (tij.scope || tij.error_description || JSON.stringify(tij)));
+  } catch (e) { out.push('tokeninfo error: ' + e.message); }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
+  const types = [
+    ['steps', 'steps.interval.civil_start_time'],
+    ['total-calories', 'total_calories.interval.civil_start_time'],
+    ['active-minutes', 'active_minutes.interval.civil_start_time'],
+    ['daily-resting-heart-rate', 'daily_resting_heart_rate.date'],
+  ];
+  for (const [kebab, field] of types) {
+    const url = `https://health.googleapis.com/v4/users/me/dataTypes/${kebab}/dataPoints?pageSize=3&filter=${encodeURIComponent(`${field} >= "${today}"`)}`;
+    try {
+      const res = await fetch(url, { headers });
+      const body = await res.text();
+      out.push(`${kebab} → HTTP ${res.status}\n${body.slice(0, 400)}`);
+    } catch (e) { out.push(`${kebab} → error ${e.message}`); }
+  }
+  return out.join('\n\n──────────\n\n');
 }
 
 export function connectedProvider() {

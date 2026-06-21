@@ -23,13 +23,11 @@ export const FITBIT = {
 
 export const GOOGLE_FIT = {
   clientId: '411180146577-l90bb6cq23guutvudmqv52jf2vfjuojc.apps.googleusercontent.com',
+  // ONLY Google Health scopes — health.googleapis.com rejects any token that
+  // also carries the legacy fitness.* scopes (DISALLOWED_OAUTH_SCOPES).
   scope: [
-    // Google Health API — reads Fitbit data (the official Fitbit successor)
     'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
     'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
-    // Google Fit (legacy) — used if the account has Google Fit data
-    'https://www.googleapis.com/auth/fitness.activity.read',
-    'https://www.googleapis.com/auth/fitness.heart_rate.read',
   ].join(' '),
   authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
 };

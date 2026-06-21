@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { connectHeartRate, bluetoothSupported } from '../sensors';
-import { connectFitbit, connectGoogleFit, fetchToday, disconnectProvider } from '../integrations/health';
+import { connectFitbit, connectGoogleFit, fetchToday, disconnectProvider, diagnoseHealth } from '../integrations/health';
 import { FITBIT, GOOGLE_FIT, isConfigured } from '../integrations/config';
 import { playSound } from '../sound';
 
@@ -15,7 +15,7 @@ const DEVICES = [
   { id: 'fitbit', name: 'Fitbit', sub: 'OAuth · datos reales', icon: '🟦', kind: 'oauth' },
   { id: 'samsung', name: 'Samsung Watch', sub: 'Samsung Health', icon: '⌚', kind: 'cloud' },
   { id: 'garmin', name: 'Garmin', sub: 'Garmin Connect', icon: '🛰️', kind: 'cloud' },
-  { id: 'googlefit', name: 'Google Health / Fit', sub: 'Incluye datos de Fitbit · datos reales', icon: '🟢', kind: 'oauth' },
+  { id: 'googlefit', name: 'Fitbit Air', sub: 'Vía Google Health · datos reales', icon: '⌚', kind: 'oauth' },
   { id: 'oura', name: 'Oura Ring', sub: 'Sueño y recuperación', icon: '💍', kind: 'cloud' },
   { id: 'whoop', name: 'Whoop', sub: 'Esfuerzo y recuperación', icon: '🔴', kind: 'cloud' },
   { id: 'miband', name: 'Xiaomi Mi Band', sub: 'Bluetooth · HR real', icon: '📿', kind: 'bluetooth' },
@@ -104,13 +104,18 @@ export default function Devices() {
       {!gfConnected ? (
         <button className="dev-primary" disabled={connecting === 'googlefit'}
           onClick={() => doConnect({ id: 'googlefit', name: 'Google Health', kind: 'oauth' })}>
-          <span className="dev-primary-dot">🟢</span>
-          {connecting === 'googlefit' ? 'Conectando…' : 'Conectar Fitbit / Google'}
+          <span className="dev-primary-dot">⌚</span>
+          {connecting === 'googlefit' ? 'Conectando…' : 'Conectar Fitbit Air'}
         </button>
       ) : (
-        <button className="dev-primary connected" onClick={realResync}>
-          <span className="material-symbols-outlined">sync</span> Sincronizar Google Fit
-        </button>
+        <>
+          <button className="dev-primary connected" onClick={realResync}>
+            <span className="material-symbols-outlined">sync</span> Sincronizar Fitbit / Google
+          </button>
+          <button className="dev-diag" onClick={async () => { const r = await diagnoseHealth(); window.prompt('Diagnóstico (copia este texto y pégamelo):', r); }}>
+            🩺 Diagnóstico de conexión
+          </button>
+        </>
       )}
 
       {/* live summary */}
