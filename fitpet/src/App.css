@@ -1,5 +1,6 @@
 .app {
   min-height: 100vh;
+  min-height: 100dvh;   /* real height with the Dynamic Island / toolbars */
   display: flex;
   flex-direction: column;
 }
@@ -115,4 +116,6 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;   /* momentum scroll on iOS */
+  overscroll-behavior-y: contain;       /* no rubber-band revealing bg */
 }
