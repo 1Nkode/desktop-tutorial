@@ -45,7 +45,9 @@ export function connectGoogleFit() {
   u.search = new URLSearchParams({
     client_id: GOOGLE_FIT.clientId, redirect_uri: REDIRECT_URI,
     response_type: 'token', scope: GOOGLE_FIT.scope, state,
-    include_granted_scopes: 'true', prompt: 'consent',
+    // NO include_granted_scopes: it re-adds old fitness.* scopes and the
+    // Google Health API rejects any token that carries them.
+    prompt: 'consent',
   }).toString();
   window.location.assign(u.toString());
 }
