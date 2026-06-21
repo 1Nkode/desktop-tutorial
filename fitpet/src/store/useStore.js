@@ -32,6 +32,11 @@ const initialStats = {
   weightGoal: 72,
   sleep: 7.4,
   sleepGoal: 8,
+  proteinGoal: 150,
+  carbsGoal: 220,
+  fatGoal: 60,
+  weeklyRate: 0.5,        // kg per week (lose/gain pace)
+  goalMode: 'maintain',   // lose | maintain | gain
   weeklyWorkouts: [3, 5, 4, 6, 2, 4, 0],
   weeklyCalories: [1800, 2100, 1950, 2200, 1750, 1900, 1050],
 };
@@ -928,9 +933,14 @@ export const useStore = create(persist((set, get) => ({
     settings: { ...state.settings, [key]: value },
   })),
 
-  updateGoal: (key, value) => set((state) => ({
-    stats: { ...state.stats, [key]: Number(value) || state.stats[key] },
-  })),
+  updateGoal: (key, value) => set((state) => {
+    // string goals (e.g. goalMode) pass through; numbers allow 0 + clearing
+    if (typeof value === 'string' && value !== '' && Number.isNaN(Number(value))) {
+      return { stats: { ...state.stats, [key]: value } };
+    }
+    const n = value === '' || value == null ? '' : Number(value);
+    return { stats: { ...state.stats, [key]: Number.isNaN(n) ? state.stats[key] : n } };
+  }),
 
   // Reset everything back to defaults (used in Settings)
   resetApp: () => set({

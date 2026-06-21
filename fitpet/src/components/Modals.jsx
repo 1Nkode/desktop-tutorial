@@ -316,22 +316,58 @@ function SettingsPanel() {
       </div>
 
       <div className="settings-section">
-        <span className="settings-label">Daily Goals</span>
+        <span className="settings-label">Objetivos diarios</span>
         <div className="setting-row">
-          <span>Calorie goal</span>
-          <input className="input setting-input" type="number" value={stats.caloriesGoal} onChange={e => updateGoal('caloriesGoal', e.target.value)} />
+          <span>Calorías objetivo</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.caloriesGoal} onChange={e => updateGoal('caloriesGoal', e.target.value)} />
         </div>
         <div className="setting-row">
-          <span>Steps goal</span>
-          <input className="input setting-input" type="number" value={stats.stepsGoal} onChange={e => updateGoal('stepsGoal', e.target.value)} />
+          <span>Proteínas (g)</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.proteinGoal} onChange={e => updateGoal('proteinGoal', e.target.value)} />
         </div>
         <div className="setting-row">
-          <span>Active minutes goal</span>
-          <input className="input setting-input" type="number" value={stats.activeGoal} onChange={e => updateGoal('activeGoal', e.target.value)} />
+          <span>Carbohidratos (g)</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.carbsGoal} onChange={e => updateGoal('carbsGoal', e.target.value)} />
         </div>
         <div className="setting-row">
-          <span>Water goal (glasses)</span>
-          <input className="input setting-input" type="number" value={stats.waterGoal} onChange={e => updateGoal('waterGoal', e.target.value)} />
+          <span>Grasas (g)</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.fatGoal} onChange={e => updateGoal('fatGoal', e.target.value)} />
+        </div>
+        <div className="setting-row">
+          <span>Pasos objetivo</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.stepsGoal} onChange={e => updateGoal('stepsGoal', e.target.value)} />
+        </div>
+        <div className="setting-row">
+          <span>Minutos activos</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.activeGoal} onChange={e => updateGoal('activeGoal', e.target.value)} />
+        </div>
+        <div className="setting-row">
+          <span>Agua (vasos)</span>
+          <input className="input setting-input" type="number" inputMode="numeric" value={stats.waterGoal} onChange={e => updateGoal('waterGoal', e.target.value)} />
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <span className="settings-label">Peso y ritmo</span>
+        <div className="setting-row">
+          <span>Peso actual (kg)</span>
+          <input className="input setting-input" type="number" inputMode="decimal" value={stats.weight} onChange={e => updateGoal('weight', e.target.value)} />
+        </div>
+        <div className="setting-row">
+          <span>Peso objetivo (kg)</span>
+          <input className="input setting-input" type="number" inputMode="decimal" value={stats.weightGoal} onChange={e => updateGoal('weightGoal', e.target.value)} />
+        </div>
+        <div className="setting-row">
+          <span>Objetivo</span>
+          <div className="seg">
+            {[['lose', 'Perder'], ['maintain', 'Mantener'], ['gain', 'Ganar']].map(([id, label]) => (
+              <button key={id} className={`seg-btn ${stats.goalMode === id ? 'active' : ''}`} onClick={() => updateGoal('goalMode', id)}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <div className="setting-row">
+          <span>Ritmo (kg/semana)</span>
+          <input className="input setting-input" type="number" inputMode="decimal" step="0.1" value={stats.weeklyRate} onChange={e => updateGoal('weeklyRate', e.target.value)} />
         </div>
       </div>
 

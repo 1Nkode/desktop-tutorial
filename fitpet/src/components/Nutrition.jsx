@@ -61,9 +61,9 @@ export default function Nutrition() {
           <div className="progress-fill" style={{ width: `${Math.min(ratio * 100, 100)}%`, background: ratio > 1 ? 'var(--orange)' : 'linear-gradient(90deg, var(--lime), var(--lime-dim))' }} />
         </div>
         <div className="nut-macros">
-          <MacroBar label="Proteína" v={totals.p} goal={Math.round(goal * 0.3 / 4)} color="var(--lavender)" />
-          <MacroBar label="Carbos" v={totals.c} goal={Math.round(goal * 0.45 / 4)} color="var(--orange)" />
-          <MacroBar label="Grasa" v={totals.f} goal={Math.round(goal * 0.25 / 9)} color="#ff7a59" />
+          <MacroBar label="Proteína" v={totals.p} goal={stats.proteinGoal || Math.round(goal * 0.3 / 4)} color="var(--lavender)" />
+          <MacroBar label="Carbos" v={totals.c} goal={stats.carbsGoal || Math.round(goal * 0.45 / 4)} color="var(--orange)" />
+          <MacroBar label="Grasa" v={totals.f} goal={stats.fatGoal || Math.round(goal * 0.25 / 9)} color="#ff7a59" />
           <MacroBar label="Fibra" v={totals.fb} goal={30} color="var(--lime)" />
         </div>
       </div>
